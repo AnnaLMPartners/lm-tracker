@@ -842,8 +842,16 @@ window.saveProp=async function(){
   }else{
     const newId=Date.now();
     D.props.push({id:newId,...record});
-    try{const db=await getDB();await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes})}catch(e){console.warn(e.message)}
-    toast(name+' added ✓');
+    try{
+      const db=await getDB();
+      const result=await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes});
+      console.log('Insert result:',JSON.stringify(result));
+      if(result.error){toast('DB Error: '+result.error.message);return;}
+      toast(name+' saved to database ✓');
+    }catch(e){
+      console.error('Save failed:',e);
+      toast('Error: '+e.message);
+    }
   }
   closeModal('prop');
   initFilters();
