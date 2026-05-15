@@ -1,345 +1,446 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LM Real Estate Partners — Date Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#0d1b2a;--navy-mid:#1a2e45;--gold:#c8973a;--gold-light:#e8b55a;--gold-pale:#fdf3e3;--cream:#f8f5f0;--white:#fff;--tp:#0d1b2a;--ts:#4a5568;--tm:#8a9bb0;--border:#e2e8f0;--bs:#cbd5e0;--red:#c53030;--rbg:#fff5f5;--rbr:#feb2b2;--amber:#b7791f;--abg:#fffbeb;--abr:#f6e05e;--green:#276749;--gbg:#f0fff4;--gbr:#9ae6b4;--sw:240px;--hh:64px}
+:root{
+  --navy:#0d1b2a;--navy2:#1a2e45;--gold:#c8973a;--goldl:#e8b55a;--goldp:#fdf3e3;
+  --cream:#f8f5f0;--white:#fff;--tp:#0d1b2a;--ts:#4a5568;--tm:#8a9bb0;
+  --bd:#e2e8f0;--bds:#cbd5e0;
+  --red:#c53030;--rbg:#fff5f5;--rbr:#feb2b2;
+  --amb:#b7791f;--abg:#fffbeb;--abr:#f6e05e;
+  --grn:#276749;--gbg:#f0fff4;--gbr:#9ae6b4;
+  --sw:240px;--hh:64px
+}
 body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--tp);min-height:100vh}
+/* HEADER */
 header{height:var(--hh);background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:fixed;top:0;left:0;right:0;z-index:100}
 .logo{display:flex;align-items:center;gap:12px}
-.lm{width:36px;height:36px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:var(--navy)}
-.lt{font-family:'DM Serif Display',serif;font-size:17px;color:#fff}
-.ls{font-size:10px;color:var(--tm);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
-.hr{display:flex;align-items:center;gap:16px}
-.hd{font-size:12px;color:var(--tm)}
-.av{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--navy)}
-.dbs{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tm)}
-.dbd{width:7px;height:7px;border-radius:50%;background:var(--amber);transition:background .3s}
-.dbd.on{background:var(--green)}
+.lmark{width:36px;height:36px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:var(--navy)}
+.ltxt{font-family:'DM Serif Display',serif;font-size:17px;color:#fff}
+.lsub{font-size:10px;color:var(--tm);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hright{display:flex;align-items:center;gap:16px}
+.hdate{font-size:12px;color:var(--tm)}
+.ava{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--navy)}
+.dbst{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tm)}
+.dbdot{width:7px;height:7px;border-radius:50%;background:var(--amb);transition:background .3s}
+.dbdot.on{background:var(--grn)}
+/* LAYOUT */
 .layout{display:flex;padding-top:var(--hh);min-height:100vh}
-.sb{width:var(--sw);background:var(--navy);position:fixed;top:var(--hh);left:0;bottom:0;overflow-y:auto;padding:24px 0 40px}
-.ns{padding:0 16px 8px;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--tm);margin-top:20px}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13.5px;color:rgba(255,255,255,.65);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
-.ni:hover{color:#fff;background:rgba(255,255,255,.06)}
-.ni.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(200,151,58,.1)}
+.sidebar{width:var(--sw);background:var(--navy);position:fixed;top:var(--hh);left:0;bottom:0;overflow-y:auto;padding:24px 0 40px}
+.nsec{padding:0 16px 8px;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--tm);margin-top:20px}
+.nitem{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13.5px;color:rgba(255,255,255,.65);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nitem:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nitem.active{color:var(--goldl);border-left-color:var(--gold);background:rgba(200,151,58,.1)}
 main{margin-left:var(--sw);flex:1;padding:32px 36px}
-.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
-.pt{font-family:'DM Serif Display',serif;font-size:28px;color:var(--navy);font-weight:400}
-.ps{font-size:13.5px;color:var(--ts);margin-top:4px}
+/* COMMON */
+.pghead{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.pgtitle{font-family:'DM Serif Display',serif;font-size:28px;color:var(--navy);font-weight:400}
+.pgsub{font-size:13.5px;color:var(--ts);margin-top:4px}
 .btn{padding:9px 18px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
-.btn-p{background:var(--navy);color:#fff}.btn-p:hover{background:var(--navy-mid)}
-.btn-g{background:var(--gold);color:var(--navy)}.btn-g:hover{background:var(--gold-light)}
-.btn-o{background:transparent;color:var(--tp);border:1px solid var(--bs)}.btn-o:hover{background:#fff}
-.btn-s{padding:6px 12px;font-size:12px}
-.ss{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.sc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.sc.u::before{background:var(--red)}.sc.w::before{background:var(--amber)}.sc.ok::before{background:var(--green)}.sc.i::before{background:var(--navy)}
-.sl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:6px}
-.sv{font-family:'DM Serif Display',serif;font-size:32px;color:var(--navy);line-height:1}
-.su{font-size:12px;color:var(--ts);margin-top:5px}
-.tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px;margin-bottom:24px;width:fit-content}
-.tab{padding:8px 18px;font-size:13.5px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--ts);border:none;background:transparent;font-family:'DM Sans',sans-serif}
-.tab:hover{color:var(--tp)}.tab.active{background:var(--navy);color:#fff}
-.fr{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.sb2{flex:1;max-width:280px;position:relative}
-.sb2 input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none}
-.sb2 input:focus{border-color:var(--navy)}
-.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tm)}
-select.fs{padding:8px 12px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none;cursor:pointer}
-.tw{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.btnp{background:var(--navy);color:#fff}.btnp:hover{background:var(--navy2)}
+.btng{background:var(--gold);color:var(--navy)}.btng:hover{background:var(--goldl)}
+.btno{background:transparent;color:var(--tp);border:1px solid var(--bds)}.btno:hover{background:#fff}
+.btnr{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}.btnr:hover{background:#ffe0e0}
+.btns{padding:6px 12px;font-size:12px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.scard{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.scard.red::before{background:var(--red)}.scard.amb::before{background:var(--amb)}.scard.grn::before{background:var(--grn)}.scard.nvy::before{background:var(--navy)}
+.slabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:6px}
+.sval{font-family:'DM Serif Display',serif;font-size:32px;color:var(--navy);line-height:1}
+.ssub{font-size:12px;color:var(--ts);margin-top:5px}
+/* TABLE */
+.twrap{background:#fff;border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:20px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-thead th{background:#f8f9fb;padding:11px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ts);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+thead th{background:#f8f9fb;padding:11px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ts);font-weight:600;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#fafbfc}
-td{padding:13px 16px;vertical-align:middle}
+td{padding:11px 16px;vertical-align:middle}
+/* BADGES */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.br{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}
-.ba{background:var(--abg);color:var(--amber);border:1px solid var(--abr)}
-.bg{background:var(--gbg);color:var(--green);border:1px solid var(--gbr)}
-.bn{background:#eef2f7;color:var(--navy);border:1px solid #c9d6e3}
-.bgo{background:var(--gold-pale);color:#92600f;border:1px solid #e8c97a}
+.bdred{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}
+.bdamb{background:var(--abg);color:var(--amb);border:1px solid var(--abr)}
+.bdgrn{background:var(--gbg);color:var(--grn);border:1px solid var(--gbr)}
+.bdnvy{background:#eef2f7;color:var(--navy);border:1px solid #c9d6e3}
+.bdgld{background:var(--goldp);color:#92600f;border:1px solid #e8c97a}
 .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
-.dr{background:var(--red)}.da{background:var(--amber)}.dg{background:var(--green)}
-.pc2{display:flex;align-items:center;gap:10px}
-.pi{width:30px;height:30px;background:#eef2f7;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.pn2{font-weight:500}.pl{font-size:11.5px;color:var(--tm);margin-top:1px}
-.dp{font-size:13px;font-weight:600}
-.du{color:var(--red)}.dw{color:var(--amber)}.dook{color:var(--green)}
-.ab{display:flex;gap:6px}
-.mo{display:none;position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:200;align-items:center;justify-content:center;padding:20px}
-.mo.open{display:flex}
-.md{background:#fff;border-radius:14px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.mh{padding:22px 26px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
-.mt{font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);font-weight:400}
-.mst{font-size:13px;color:var(--ts);margin-top:3px}
-.mc{background:none;border:none;font-size:22px;color:var(--tm);cursor:pointer;line-height:1;padding:0}
-.mb{padding:22px 26px}
-.mf{padding:16px 26px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.fgr{display:flex;flex-direction:column;gap:5px}
-.fgr.full{grid-column:1/-1}
-.fl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--ts)}
-.fi,.fsel{padding:9px 12px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--tp);background:#fff;outline:none;width:100%}
-.fi:focus,.fsel:focus{border-color:var(--navy)}
-.fst{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:6px 0 4px;border-bottom:1px solid var(--border);margin:4px 0;grid-column:1/-1}
-.ro{display:flex;gap:8px;flex-wrap:wrap;grid-column:1/-1}
-.rc{padding:5px 12px;border:1px solid var(--bs);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;background:#fff;color:var(--ts);font-family:'DM Sans',sans-serif}
-.rc.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sec{display:none}.sec.active{display:block}
-.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
-.cmc{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.cmh{background:var(--navy);color:#fff;padding:10px 16px;font-size:13px;font-weight:600}
-.ce{padding:10px 14px}
-.cev{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.cev:last-child{border-bottom:none}
-.cd{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.cdr{background:var(--rbg);color:var(--red)}.cda{background:var(--abg);color:var(--amber)}.cdn{background:#eef2f7;color:var(--navy)}
-.cpn{font-weight:500;font-size:12.5px}.cpt{font-size:11px;color:var(--tm)}
-.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.pcard{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .15s,transform .15s}
+.dotred{background:var(--red)}.dotamb{background:var(--amb)}.dotgrn{background:var(--grn)}
+/* PROP CELL */
+.propcell{display:flex;align-items:center;gap:10px}
+.propico{width:30px;height:30px;background:#eef2f7;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.propname{font-weight:500}.proploc{font-size:11.5px;color:var(--tm);margin-top:1px}
+/* DAYS */
+.daypill{font-size:13px;font-weight:600}
+.dayred{color:var(--red)}.dayamb{color:var(--amb)}.daygrn{color:var(--grn)}
+/* FILTERS */
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.sbox{position:relative;min-width:220px}
+.sbox input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--bds);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none}
+.sbox input:focus{border-color:var(--navy)}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tm)}
+select.fsel{padding:8px 12px;border:1px solid var(--bds);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none;cursor:pointer}
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:200;align-items:center;justify-content:center;padding:20px}
+.moverlay.open{display:flex}
+.mbox{background:#fff;border-radius:14px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mhead{padding:22px 26px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between}
+.mtitle{font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);font-weight:400}
+.msub{font-size:13px;color:var(--ts);margin-top:3px}
+.mclose{background:none;border:none;font-size:24px;color:var(--tm);cursor:pointer;line-height:1;padding:0}
+.mbody{padding:22px 26px}
+.mfoot{padding:16px 26px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:10px}
+/* FORM */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fgrp{display:flex;flex-direction:column;gap:5px}
+.fgrp.full{grid-column:1/-1}
+.flabel{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--ts)}
+.finput,.fselect{padding:9px 12px;border:1px solid var(--bds);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--tp);background:#fff;outline:none;width:100%}
+.finput:focus,.fselect:focus{border-color:var(--navy)}
+textarea.finput{resize:vertical;min-height:70px}
+.fsecdiv{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0;grid-column:1/-1}
+/* REMINDER BUILDER */
+.rembuilder{grid-column:1/-1}
+.remlist{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.remrow{display:flex;align-items:center;gap:8px;background:#f8f9fb;border-radius:7px;padding:8px 12px}
+.remrow span{font-size:13px;font-weight:500;flex:1}
+.remadd{display:flex;gap:8px;align-items:center}
+.remadd input{width:110px;padding:7px 10px;border:1px solid var(--bds);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.remadd input:focus{border-color:var(--navy)}
+/* SECTION */
+.section{display:none}.section.active{display:block}
+/* BANNER */
+.banner{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px;color:#fff}
+.bannico{width:44px;height:44px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--navy);flex-shrink:0}
+.banntxt h3{font-size:14px;font-weight:600}
+.banntxt p{font-size:12.5px;color:rgba(255,255,255,.7);margin-top:3px}
+/* TABS */
+.tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:4px;width:fit-content}
+.tab{padding:7px 16px;font-size:13px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--ts);border:none;background:transparent;font-family:'DM Sans',sans-serif}
+.tab:hover{color:var(--tp)}.tab.active{background:var(--navy);color:#fff}
+/* PROPS GRID */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pcard{background:#fff;border:1px solid var(--bd);border-radius:12px;overflow:hidden;transition:box-shadow .15s,transform .15s}
 .pcard:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px)}
-.pch{background:var(--navy);padding:16px 18px;position:relative}
-.pcn{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;font-weight:400}
-.pcm{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;text-transform:uppercase;letter-spacing:.8px}
-.pcs{position:absolute;top:14px;right:14px}
-.pcb{padding:14px 18px}
-.pm{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px}
-.pm:last-child{border-bottom:none}
-.pml{color:var(--tm)}.pmv{font-weight:500}
-.pcf{padding:10px 18px;background:#f8f9fb;border-top:1px solid var(--border);display:flex;gap:6px;justify-content:flex-end}
-.nb{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px;color:#fff}
-.ni2{width:44px;height:44px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--navy);flex-shrink:0}
-.nt h3{font-size:14px;font-weight:600}.nt p{font-size:12.5px;color:rgba(255,255,255,.7);margin-top:3px}
-.es{text-align:center;padding:60px 20px;color:var(--tm)}
-.ei{font-size:40px;margin-bottom:12px}.et{font-size:15px;font-weight:500;color:var(--ts);margin-bottom:6px}
-.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.pchead{background:var(--navy);padding:16px 18px;position:relative}
+.pcname{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;font-weight:400}
+.pcmkt{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;text-transform:uppercase;letter-spacing:.8px}
+.pcstat{position:absolute;top:14px;right:14px}
+.pcbody{padding:14px 18px}
+.pcmet{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12.5px}
+.pcmet:last-child{border-bottom:none}
+.pcmetl{color:var(--tm)}.pcmetv{font-weight:500}
+.pcfoot{padding:10px 18px;background:#f8f9fb;border-top:1px solid var(--bd);display:flex;gap:6px;justify-content:flex-end}
+/* CAL */
+.calgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.calcard{background:#fff;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.calhead{background:var(--navy);color:#fff;padding:10px 16px;font-size:13px;font-weight:600}
+.calevts{padding:10px 14px}
+.calevt{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.calevt:last-child{border-bottom:none}
+.calday{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.cdr{background:var(--rbg);color:var(--red)}.cda{background:var(--abg);color:var(--amb)}.cdn{background:#eef2f7;color:var(--navy)}
+.calprop{font-weight:500;font-size:12.5px}.caltype{font-size:11px;color:var(--tm)}
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--tm)}
+.emptyico{font-size:36px;margin-bottom:10px}
+.emptytxt{font-size:14px;font-weight:500;color:var(--ts)}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:320px}
 .toast.show{opacity:1;transform:translateY(0)}
+/* ACTION BTNS */
+.actbtns{display:flex;gap:5px}
+/* HINT */
+.hint{font-size:11.5px;color:var(--tm);margin-top:3px}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo"><div class="lm">LM</div><div><div class="lt">LM Real Estate Partners</div><div class="ls">Asset Management Platform</div></div></div>
-  <div class="hr">
-    <div class="dbs"><div class="dbd" id="dbd"></div><span id="dbs">Connecting...</span></div>
-    <span class="hd" id="hdate"></span>
-    <div class="av">LM</div>
+  <div class="logo">
+    <div class="lmark">LM</div>
+    <div><div class="ltxt">LM Real Estate Partners</div><div class="lsub">Asset Management Platform</div></div>
+  </div>
+  <div class="hright">
+    <div class="dbst"><div class="dbdot" id="dbdot"></div><span id="dbstatus">Connecting...</span></div>
+    <span class="hdate" id="hdate"></span>
+    <div class="ava">LM</div>
   </div>
 </header>
+
 <div class="layout">
-  <div class="sb">
-    <div class="ns">Navigation</div>
-    <a class="ni active" onclick="go('dashboard',this)">⊞ Dashboard</a>
-    <a class="ni" onclick="go('loans',this)">⬡ Loan Agreements</a>
-    <a class="ni" onclick="go('deals',this)">◈ Deal Pipeline</a>
-    <a class="ni" onclick="go('properties',this)">▦ Properties</a>
-    <div class="ns">Tools</div>
-    <a class="ni" onclick="go('calendar',this)">◻ Calendar View</a>
-    <a class="ni" onclick="exportICS()">↓ Export to Calendar</a>
-    <a class="ni" onclick="go('reminders',this)">◎ Email Reminders</a>
-    <a class="ni" onclick="go('settings',this)">⚙ Settings</a>
+  <div class="sidebar">
+    <div class="nsec">Navigation</div>
+    <a class="nitem active" onclick="goTo('dashboard',this)">⊞ Dashboard</a>
+    <a class="nitem" onclick="goTo('dates',this)">📅 All Dates</a>
+    <a class="nitem" onclick="goTo('properties',this)">▦ Properties</a>
+    <div class="nsec">Tools</div>
+    <a class="nitem" onclick="goTo('calendar',this)">◻ Calendar View</a>
+    <a class="nitem" onclick="exportICS()">↓ Export to Calendar</a>
+    <a class="nitem" onclick="goTo('reminders',this)">◎ Email Reminders</a>
+    <a class="nitem" onclick="goTo('settings',this)">⚙ Settings</a>
   </div>
+
   <main>
-    <div class="sec active" id="s-dashboard">
-      <div class="ph">
-        <div><div class="pt">Good morning, Team</div><div class="ps">Critical date summary across all properties.</div></div>
-        <div style="display:flex;gap:10px"><button class="btn btn-o" onclick="exportICS()">⬇ Export .ICS</button><button class="btn btn-g" onclick="om('loan')">+ Add Date</button></div>
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="pghead">
+        <div><div class="pgtitle">Good morning, Team</div><div class="pgsub">Critical date summary across all properties.</div></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btno" onclick="exportICS()">⬇ Export .ICS</button>
+          <button class="btn btng" onclick="openAddDate()">+ Add Date</button>
+        </div>
       </div>
-      <div class="nb"><div class="ni2">🔔</div><div class="nt"><h3 id="btext">Loading...</h3><p>Southeast industrial portfolio · Email reminders · Calendar sync</p></div><button class="btn btn-o btn-s" style="margin-left:auto;color:#fff;border-color:rgba(255,255,255,.3)" onclick="go('reminders',null)">Manage Alerts</button></div>
-      <div class="ss">
-        <div class="sc u"><div class="sl">🔴 Due ≤ 30 Days</div><div class="sv" id="su">—</div><div class="su">Requires immediate action</div></div>
-        <div class="sc w"><div class="sl">🟡 Due 31–90 Days</div><div class="sv" id="sw">—</div><div class="su">Monitor closely</div></div>
-        <div class="sc ok"><div class="sl">🟢 Due 90+ Days</div><div class="sv" id="so">—</div><div class="su">On track</div></div>
-        <div class="sc i"><div class="sl">Total Tracked Dates</div><div class="sv" id="st">—</div><div class="su" id="sps">Across all properties</div></div>
+      <div class="banner">
+        <div class="bannico">🔔</div>
+        <div class="banntxt"><h3 id="bannertext">Loading...</h3><p>Southeast industrial portfolio · LM Real Estate Partners</p></div>
+        <button class="btn btno btns" style="margin-left:auto;color:#fff;border-color:rgba(255,255,255,.3)" onclick="goTo('reminders',null)">Manage Reminders</button>
+      </div>
+      <div class="stats">
+        <div class="scard red"><div class="slabel">🔴 Due ≤ 30 Days</div><div class="sval" id="stat-u">—</div><div class="ssub">Immediate action needed</div></div>
+        <div class="scard amb"><div class="slabel">🟡 Due 31–90 Days</div><div class="sval" id="stat-w">—</div><div class="ssub">Monitor closely</div></div>
+        <div class="scard grn"><div class="slabel">🟢 Due 90+ Days</div><div class="sval" id="stat-o">—</div><div class="ssub">On track</div></div>
+        <div class="scard nvy"><div class="slabel">Total Tracked Dates</div><div class="sval" id="stat-t">—</div><div class="ssub" id="stat-ps">Across all properties</div></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--navy)">Upcoming Critical Dates</h2>
-        <div class="tabs" style="margin-bottom:0"><button class="tab active" onclick="fd2('all',this)">All</button><button class="tab" onclick="fd2('loan',this)">Loans</button><button class="tab" onclick="fd2('deal',this)">Deals</button></div>
-      </div>
-      <div class="tw"><table><thead><tr><th>Property</th><th>Date Type</th><th>Category</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dtb"></tbody></table></div>
-    </div>
-
-    <div class="sec" id="s-loans">
-      <div class="ph"><div><div class="pt">Loan Agreements</div><div class="ps">Track maturity dates, rate cap expirations, extension options & more.</div></div><button class="btn btn-g" onclick="om('loan')">+ Add Loan Date</button></div>
-      <div class="fr">
-        <div class="sb2"><span class="si">🔍</span><input type="text" placeholder="Search properties, lenders…" oninput="fls(this.value)"/></div>
-        <select class="fs" onchange="flt(this.value)"><option value="">All Date Types</option><option>Maturity</option><option>Rate Cap Expiration</option><option>Extension Option Deadline</option><option>Interest Reset</option><option>Swap Expiration</option></select>
-        <select class="fs" onchange="flst(this.value)"><option value="">All Statuses</option><option value="u">Urgent</option><option value="w">Warning</option><option value="ok">OK</option></select>
-      </div>
-      <div class="tw"><table><thead><tr><th>Property</th><th>Lender</th><th>Date Type</th><th>Date</th><th>Loan Amount</th><th>Days Left</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="ltb"></tbody></table></div>
-    </div>
-
-    <div class="sec" id="s-deals">
-      <div class="ph"><div><div class="pt">Deal Pipeline</div><div class="ps">Acquisitions, dispositions, and refinancing — all key milestone dates.</div></div><button class="btn btn-g" onclick="om('deal')">+ Add Deal Date</button></div>
-      <div class="fr">
-        <div class="sb2"><span class="si">🔍</span><input type="text" placeholder="Search deals, brokers…" oninput="fds(this.value)"/></div>
-        <select class="fs" onchange="fdt(this.value)"><option value="">All Types</option><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select>
-      </div>
-      <div class="tw"><table><thead><tr><th>Property</th><th>Deal Type</th><th>Milestone</th><th>Date</th><th>Counterparty</th><th>Broker</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ddtb"></tbody></table></div>
-    </div>
-
-    <div class="sec" id="s-properties">
-      <div class="ph"><div><div class="pt">Properties</div><div class="ps" id="pcount">Loading...</div></div><button class="btn btn-g" onclick="om('property')">+ Add Property</button></div>
-      <div class="pg" id="pgrid"></div>
-    </div>
-
-    <div class="sec" id="s-calendar">
-      <div class="ph"><div><div class="pt">Calendar View</div><div class="ps">All upcoming dates organized by month.</div></div><button class="btn btn-o" onclick="exportICS()">⬇ Export .ICS</button></div>
-      <div class="cg" id="cgrid"></div>
-    </div>
-
-    <div class="sec" id="s-reminders">
-      <div class="ph"><div><div class="pt">Email Reminders</div><div class="ps">Configure automated reminder emails for your team.</div></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="tw" style="padding:24px">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Reminder Schedule</h3>
-          <div style="display:flex;flex-direction:column;gap:10px" id="rsl"></div>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tm);margin-bottom:10px">Add Custom Interval</p>
-            <div style="display:flex;gap:8px"><input class="fi" type="number" id="cd2" placeholder="Days before" style="width:140px"/><button class="btn btn-p" onclick="ard()">Add</button></div>
-          </div>
+        <div class="tabs">
+          <button class="tab active" onclick="dashFilter('all',this)">All</button>
+          <button class="tab" onclick="dashFilter('urgent',this)">Urgent</button>
+          <button class="tab" onclick="dashFilter('upcoming',this)">90 Days</button>
         </div>
-        <div class="tw" style="padding:24px">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Team Recipients</h3>
-          <div style="display:flex;flex-direction:column;gap:8px" id="tl"></div>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      </div>
+      <div class="twrap"><table>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th></th></tr></thead>
+        <tbody id="dash-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <!-- ALL DATES -->
+    <div class="section" id="sec-dates">
+      <div class="pghead">
+        <div><div class="pgtitle">All Dates</div><div class="pgsub">Every tracked date across your portfolio — add, edit, or delete anything.</div></div>
+        <button class="btn btng" onclick="openAddDate()">+ Add Date</button>
+      </div>
+      <div class="frow">
+        <div class="sbox"><span class="sico">🔍</span><input type="text" placeholder="Search properties, categories…" oninput="filterDates(this.value)"/></div>
+        <select class="fsel" id="filter-prop" onchange="filterDates()"><option value="">All Properties</option></select>
+        <select class="fsel" id="filter-cat" onchange="filterDates()"><option value="">All Categories</option></select>
+        <select class="fsel" id="filter-status" onchange="filterDates()">
+          <option value="">All Statuses</option>
+          <option value="urgent">Urgent (≤30d)</option>
+          <option value="watch">Watch (31–90d)</option>
+          <option value="ok">On Track (90d+)</option>
+        </select>
+      </div>
+      <div class="twrap"><table>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminders</th><th></th></tr></thead>
+        <tbody id="dates-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <!-- PROPERTIES -->
+    <div class="section" id="sec-properties">
+      <div class="pghead">
+        <div><div class="pgtitle">Properties</div><div class="pgsub" id="prop-count">Loading...</div></div>
+        <button class="btn btng" onclick="openAddProp()">+ Add Property</button>
+      </div>
+      <div class="pgrid" id="prop-grid"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="section" id="sec-calendar">
+      <div class="pghead">
+        <div><div class="pgtitle">Calendar View</div><div class="pgsub">All upcoming dates organized by month.</div></div>
+        <button class="btn btno" onclick="exportICS()">⬇ Export .ICS</button>
+      </div>
+      <div class="calgrid" id="cal-grid"></div>
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="section" id="sec-reminders">
+      <div class="pghead"><div><div class="pgtitle">Email Reminders</div><div class="pgsub">Configure who gets reminded and when.</div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="twrap" style="padding:24px">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:6px">Team Recipients</h3>
+          <p style="font-size:13px;color:var(--ts);margin-bottom:16px">These people receive all reminder emails.</p>
+          <div id="team-list" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)">
             <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tm);margin-bottom:10px">Add Team Member</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <input class="fi" type="text" id="nmn" placeholder="Full name"/>
-              <input class="fi" type="email" id="nme" placeholder="Email address"/>
-              <button class="btn btn-p" onclick="atm()">Add Member</button>
+              <input class="finput" type="text" id="new-name" placeholder="Full name"/>
+              <input class="finput" type="email" id="new-email" placeholder="Email address"/>
+              <button class="btn btnp" onclick="addTeamMember()">Add Member</button>
             </div>
           </div>
         </div>
-      </div>
-      <div class="tw" style="padding:24px;margin-top:20px">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:8px">SendGrid Integration</h3>
-        <p style="font-size:13px;color:var(--ts);margin-bottom:16px">Connect SendGrid to enable automated email delivery.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="fgr"><label class="fl">SendGrid API Key</label><input class="fi" type="password" placeholder="SG.xxxxx"/></div>
-          <div class="fgr"><label class="fl">From Email</label><input class="fi" type="email" placeholder="alerts@lmrep.com"/></div>
+        <div class="twrap" style="padding:24px">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:6px">SendGrid Setup</h3>
+          <p style="font-size:13px;color:var(--ts);margin-bottom:16px">Connect SendGrid to send automated emails.</p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="fgrp"><label class="flabel">SendGrid API Key</label><input class="finput" type="password" placeholder="SG.xxxxxxx"/></div>
+            <div class="fgrp"><label class="flabel">From Email</label><input class="finput" type="email" placeholder="alerts@lmrep.com"/></div>
+            <button class="btn btnp" onclick="toast('Settings saved ✓')">Save & Test</button>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)">
+            <h4 style="font-size:14px;font-weight:500;margin-bottom:8px">How reminders work</h4>
+            <p style="font-size:12.5px;color:var(--ts);line-height:1.7">Each date has its own reminder schedule — you set the number of days in advance when adding or editing a date. The script runs daily and sends emails automatically.</p>
+          </div>
         </div>
-        <button class="btn btn-p" style="margin-top:14px" onclick="toast('Settings saved ✓')">Save & Test Connection</button>
       </div>
     </div>
 
-    <div class="sec" id="s-settings">
-      <div class="ph"><div><div class="pt">Settings</div><div class="ps">Company and platform configuration.</div></div></div>
-      <div class="tw" style="padding:24px;max-width:560px">
+    <!-- SETTINGS -->
+    <div class="section" id="sec-settings">
+      <div class="pghead"><div><div class="pgtitle">Settings</div><div class="pgsub">Company and platform configuration.</div></div></div>
+      <div class="twrap" style="padding:24px;max-width:520px">
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Company Info</h3>
         <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="fgr"><label class="fl">Company Name</label><input class="fi" value="LM Real Estate Partners" readonly/></div>
-          <div class="fgr"><label class="fl">Portfolio Focus</label><input class="fi" value="Industrial — Southeast US" readonly/></div>
-          <div class="fgr"><label class="fl">Timezone</label><select class="fsel"><option selected>Eastern Time (ET)</option><option>Central Time (CT)</option></select></div>
-          <button class="btn btn-p" onclick="toast('Settings saved ✓')">Save Settings</button>
+          <div class="fgrp"><label class="flabel">Company Name</label><input class="finput" value="LM Real Estate Partners" readonly/></div>
+          <div class="fgrp"><label class="flabel">Portfolio Focus</label><input class="finput" value="Industrial — Southeast US" readonly/></div>
+          <div class="fgrp"><label class="flabel">Timezone</label><select class="fselect"><option selected>Eastern Time (ET)</option><option>Central Time (CT)</option></select></div>
+          <button class="btn btnp" onclick="toast('Settings saved ✓')">Save Settings</button>
         </div>
       </div>
     </div>
+
   </main>
 </div>
 
-<!-- LOAN MODAL -->
-<div class="mo" id="m-loan">
-  <div class="md">
-    <div class="mh"><div><div class="mt">Add Loan Date</div><div class="mst">Track a key date tied to a loan agreement</div></div><button class="mc" onclick="cm('loan')">×</button></div>
-    <div class="mb"><div class="fg">
-      <div class="fgr"><label class="fl">Property</label><select class="fsel" id="lp"></select></div>
-      <div class="fgr"><label class="fl">Lender</label><input class="fi" type="text" id="ll" placeholder="e.g. Wells Fargo"/></div>
-      <div class="fgr"><label class="fl">Date Type</label><select class="fsel" id="ltype"><option>Maturity</option><option>Rate Cap Expiration</option><option>Extension Option Deadline</option><option>Interest Reset</option><option>Swap Expiration</option><option>Covenant Review</option><option>Reporting Deadline</option></select></div>
-      <div class="fgr"><label class="fl">Date</label><input class="fi" type="date" id="ld"/></div>
-      <div class="fgr"><label class="fl">Loan Amount ($)</label><input class="fi" type="number" id="la" placeholder="12500000"/></div>
-      <div class="fgr"><label class="fl">Interest Rate</label><input class="fi" type="text" id="lr" placeholder="SOFR + 2.25%"/></div>
-      <div class="fgr full"><label class="fl">Notes</label><input class="fi" type="text" id="ln" placeholder="Any important details..."/></div>
-      <div class="fst">Reminder Schedule</div>
-      <div class="ro" id="lrem">
-        <span class="rc sel">90 days</span><span class="rc sel">60 days</span><span class="rc sel">30 days</span><span class="rc sel">14 days</span><span class="rc sel">7 days</span>
+<!-- ADD / EDIT DATE MODAL -->
+<div class="moverlay" id="modal-date">
+  <div class="mbox">
+    <div class="mhead">
+      <div><div class="mtitle" id="modal-date-title">Add Date</div><div class="msub">Track any important date for your portfolio</div></div>
+      <button class="mclose" onclick="closeModal('date')">×</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="edit-id"/>
+      <div class="fgrid">
+        <div class="fgrp">
+          <label class="flabel">Property *</label>
+          <select class="fselect" id="f-prop"></select>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Category *</label>
+          <input class="finput" type="text" id="f-cat" placeholder="e.g. Rate Cap, Loan Maturity, Quarterly Report…" list="cat-suggestions"/>
+          <datalist id="cat-suggestions"></datalist>
+          <div class="hint">Type any category — your past categories will appear as suggestions</div>
+        </div>
+        <div class="fgrp full">
+          <label class="flabel">Description *</label>
+          <input class="finput" type="text" id="f-desc" placeholder="e.g. Interest rate cap expires — must get new cap before this date"/>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Due Date *</label>
+          <input class="finput" type="date" id="f-date"/>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Action Required</label>
+          <input class="finput" type="text" id="f-action" placeholder="e.g. Get new rate cap, Submit report…"/>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Lender / Counterparty</label>
+          <input class="finput" type="text" id="f-party" placeholder="e.g. Wells Fargo, Prologis…"/>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Amount ($)</label>
+          <input class="finput" type="number" id="f-amount" placeholder="e.g. 12500000"/>
+        </div>
+        <div class="fgrp full">
+          <label class="flabel">Notes</label>
+          <textarea class="finput" id="f-notes" placeholder="Any additional details…"></textarea>
+        </div>
+        <div class="fsecdiv">Reminder Schedule — days before this date to send email alerts</div>
+        <div class="rembuilder full">
+          <div class="remlist" id="rem-list"></div>
+          <div class="remadd">
+            <input type="number" id="rem-input" placeholder="Days before (e.g. 30)" min="1"/>
+            <button class="btn btnp btns" onclick="addRemDay()">+ Add Reminder</button>
+          </div>
+        </div>
       </div>
-    </div></div>
-    <div class="mf"><button class="btn btn-o" onclick="cm('loan')">Cancel</button><button class="btn btn-g" onclick="saveLoan()">Save Loan Date</button></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btno" onclick="closeModal('date')">Cancel</button>
+      <button class="btn btng" onclick="saveDate()">Save Date</button>
+    </div>
   </div>
 </div>
 
-<!-- DEAL MODAL -->
-<div class="mo" id="m-deal">
-  <div class="md">
-    <div class="mh"><div><div class="mt">Add Deal Milestone</div><div class="mst">Track key dates for acquisitions, dispositions, or refinancing</div></div><button class="mc" onclick="cm('deal')">×</button></div>
-    <div class="mb"><div class="fg">
-      <div class="fgr"><label class="fl">Property</label><select class="fsel" id="dp2"></select></div>
-      <div class="fgr"><label class="fl">Deal Type</label><select class="fsel" id="ddt"><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select></div>
-      <div class="fgr"><label class="fl">Milestone</label><select class="fsel" id="dm"><option>End of Due Diligence</option><option>Hard Deposit Deadline</option><option>Closing Date</option><option>LOI Expiration</option><option>PSA Execution</option><option>Loan Application Deadline</option><option>Environmental Study Due</option><option>Appraisal Deadline</option></select></div>
-      <div class="fgr"><label class="fl">Date</label><input class="fi" type="date" id="dd2"/></div>
-      <div class="fgr"><label class="fl">Counterparty</label><input class="fi" type="text" id="dc" placeholder="Buyer / Seller name"/></div>
-      <div class="fgr"><label class="fl">Broker</label><input class="fi" type="text" id="db2" placeholder="Brokerage firm"/></div>
-      <div class="fgr full"><label class="fl">Notes</label><input class="fi" type="text" id="dn" placeholder="Deposit amount, conditions, etc."/></div>
-      <div class="fst">Reminder Schedule</div>
-      <div class="ro" id="drem">
-        <span class="rc sel">30 days</span><span class="rc sel">14 days</span><span class="rc sel">7 days</span><span class="rc sel">3 days</span><span class="rc sel">1 day</span>
+<!-- ADD / EDIT PROPERTY MODAL -->
+<div class="moverlay" id="modal-prop">
+  <div class="mbox" style="max-width:560px">
+    <div class="mhead">
+      <div><div class="mtitle" id="modal-prop-title">Add Property</div><div class="msub">Add an industrial asset to the portfolio</div></div>
+      <button class="mclose" onclick="closeModal('prop')">×</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="edit-prop-id"/>
+      <div class="fgrid">
+        <div class="fgrp full"><label class="flabel">Property Name *</label><input class="finput" type="text" id="fp-name" placeholder="e.g. Meridian Logistics Park"/></div>
+        <div class="fgrp"><label class="flabel">City</label><input class="finput" type="text" id="fp-city" placeholder="e.g. Atlanta"/></div>
+        <div class="fgrp"><label class="flabel">State</label>
+          <select class="fselect" id="fp-state">
+            <option value="">Select state</option>
+            <option value="AL">Alabama</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="MS">Mississippi</option><option value="NC">North Carolina</option><option value="SC">South Carolina</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="VA">Virginia</option>
+          </select>
+        </div>
+        <div class="fgrp"><label class="flabel">Square Footage</label><input class="finput" type="number" id="fp-sqft" placeholder="e.g. 250000"/></div>
+        <div class="fgrp"><label class="flabel">Status</label>
+          <select class="fselect" id="fp-status"><option>Active</option><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select>
+        </div>
+        <div class="fgrp"><label class="flabel">Year Acquired</label><input class="finput" type="number" id="fp-year" placeholder="e.g. 2021"/></div>
+        <div class="fgrp"><label class="flabel">Purchase Price ($)</label><input class="finput" type="number" id="fp-price" placeholder="e.g. 18000000"/></div>
+        <div class="fgrp full"><label class="flabel">Notes</label><textarea class="finput" id="fp-notes" placeholder="Any additional details…"></textarea></div>
       </div>
-    </div></div>
-    <div class="mf"><button class="btn btn-o" onclick="cm('deal')">Cancel</button><button class="btn btn-g" onclick="saveDeal()">Save Milestone</button></div>
-  </div>
-</div>
-
-<!-- PROPERTY MODAL -->
-<div class="mo" id="m-property">
-  <div class="md">
-    <div class="mh"><div><div class="mt">Add Property</div><div class="mst">Add a new industrial asset to the portfolio</div></div><button class="mc" onclick="cm('property')">×</button></div>
-    <div class="mb"><div class="fg">
-      <div class="fgr full"><label class="fl">Property Name</label><input class="fi" type="text" id="ppn" placeholder="e.g. Southeast Logistics Center"/></div>
-      <div class="fgr"><label class="fl">City</label><input class="fi" type="text" id="ppc" placeholder="e.g. Atlanta"/></div>
-      <div class="fgr"><label class="fl">State</label><select class="fsel" id="pps"><option value="AL">Alabama</option><option value="FL">Florida</option><option value="GA" selected>Georgia</option><option value="MS">Mississippi</option><option value="NC">North Carolina</option><option value="SC">South Carolina</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="VA">Virginia</option></select></div>
-      <div class="fgr"><label class="fl">Square Footage</label><input class="fi" type="number" id="ppsf" placeholder="250000"/></div>
-      <div class="fgr"><label class="fl">Status</label><select class="fsel" id="ppst"><option>Active</option><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select></div>
-      <div class="fgr"><label class="fl">Year Acquired</label><input class="fi" type="number" id="ppy" placeholder="2021"/></div>
-      <div class="fgr"><label class="fl">Purchase Price ($)</label><input class="fi" type="number" id="ppp" placeholder="18000000"/></div>
-    </div></div>
-    <div class="mf"><button class="btn btn-o" onclick="cm('property')">Cancel</button><button class="btn btn-g" onclick="saveProp()">Add Property</button></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btno" onclick="closeModal('prop')">Cancel</button>
+      <button class="btn btng" onclick="saveProp()">Save Property</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toastEl"></div>
 
 <script type="module">
-const SU='https://weunoznnopaawntgxqrr.supabase.co';
-const SK='sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
+const SURL='https://weunoznnopaawntgxqrr.supabase.co';
+const SKEY='sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
 
+// ── STATE ──
 const D={
   props:[
-    {id:1,name:'Meridian Logistics Park',city:'Atlanta',state:'GA',sqft:312000,status:'Active',year:2019,price:28500000},
-    {id:2,name:'Palmetto Distribution Ctr',city:'Charlotte',state:'NC',sqft:185000,status:'Active',year:2020,price:17200000},
-    {id:3,name:'Gulf Coast Industrial I',city:'Tampa',state:'FL',sqft:224000,status:'Active',year:2021,price:22100000},
-    {id:4,name:'Blue Ridge Flex Park',city:'Raleigh',state:'NC',sqft:98000,status:'Active',year:2020,price:9800000},
-    {id:5,name:'Magnolia Commerce Center',city:'Nashville',state:'TN',sqft:278000,status:'Active',year:2022,price:31000000},
-    {id:6,name:'Lowcountry Warehouse Grp',city:'Charleston',state:'SC',sqft:156000,status:'Active',year:2021,price:14500000},
-    {id:7,name:'Peachtree Industrial IX',city:'Atlanta',state:'GA',sqft:420000,status:'Refinance',year:2018,price:38000000},
-    {id:8,name:'Sunbelt Flex Center',city:'Orlando',state:'FL',sqft:132000,status:'Active',year:2022,price:13200000},
-    {id:9,name:'Tidewater Logistics Hub',city:'Norfolk',state:'VA',sqft:268000,status:'Active',year:2023,price:29400000},
-    {id:10,name:'Longleaf Distribution Pk',city:'Raleigh',state:'NC',sqft:194000,status:'Acquisition',year:null,price:null},
-    {id:11,name:'Music City Ind Complex',city:'Nashville',state:'TN',sqft:347000,status:'Active',year:2021,price:34500000},
-    {id:12,name:'Palmetto Gateway Ind',city:'Columbia',state:'SC',sqft:211000,status:'Disposition',year:2019,price:19800000},
+    {id:1,name:'Meridian Logistics Park',city:'Atlanta',state:'GA',sqft:312000,status:'Active',year:2019,price:28500000,notes:''},
+    {id:2,name:'Palmetto Distribution Ctr',city:'Charlotte',state:'NC',sqft:185000,status:'Active',year:2020,price:17200000,notes:''},
+    {id:3,name:'Gulf Coast Industrial I',city:'Tampa',state:'FL',sqft:224000,status:'Active',year:2021,price:22100000,notes:''},
+    {id:4,name:'Blue Ridge Flex Park',city:'Raleigh',state:'NC',sqft:98000,status:'Active',year:2020,price:9800000,notes:''},
+    {id:5,name:'Magnolia Commerce Center',city:'Nashville',state:'TN',sqft:278000,status:'Active',year:2022,price:31000000,notes:''},
+    {id:6,name:'Lowcountry Warehouse Grp',city:'Charleston',state:'SC',sqft:156000,status:'Active',year:2021,price:14500000,notes:''},
+    {id:7,name:'Peachtree Industrial IX',city:'Atlanta',state:'GA',sqft:420000,status:'Refinance',year:2018,price:38000000,notes:''},
+    {id:8,name:'Sunbelt Flex Center',city:'Orlando',state:'FL',sqft:132000,status:'Active',year:2022,price:13200000,notes:''},
+    {id:9,name:'Tidewater Logistics Hub',city:'Norfolk',state:'VA',sqft:268000,status:'Active',year:2023,price:29400000,notes:''},
+    {id:10,name:'Longleaf Distribution Pk',city:'Raleigh',state:'NC',sqft:194000,status:'Acquisition',year:null,price:null,notes:''},
+    {id:11,name:'Music City Ind Complex',city:'Nashville',state:'TN',sqft:347000,status:'Active',year:2021,price:34500000,notes:''},
+    {id:12,name:'Palmetto Gateway Ind',city:'Columbia',state:'SC',sqft:211000,status:'Disposition',year:2019,price:19800000,notes:''},
   ],
-  loans:[
-    {id:1,propId:1,lender:'Wells Fargo',type:'Maturity',date:'2025-08-15',amount:18500000,rate:'SOFR+2.10%',notes:'Extension option available'},
-    {id:2,propId:1,lender:'Wells Fargo',type:'Rate Cap Expiration',date:'2025-07-01',amount:18500000,rate:'SOFR+2.10%',notes:'Must renew cap'},
-    {id:3,propId:7,lender:'JP Morgan',type:'Maturity',date:'2025-06-30',amount:24000000,rate:'SOFR+1.95%',notes:'Refi underway'},
-    {id:4,propId:3,lender:'Regions Bank',type:'Extension Option Deadline',date:'2025-09-15',amount:14800000,rate:'6.25% Fixed',notes:'1yr extension available'},
-    {id:5,propId:5,lender:'Berkadia',type:'Maturity',date:'2026-02-01',amount:20000000,rate:'SOFR+2.30%',notes:''},
-    {id:6,propId:9,lender:'KeyBank',type:'Rate Cap Expiration',date:'2025-11-30',amount:19500000,rate:'SOFR+2.05%',notes:'Cap cost est. $180k'},
-    {id:7,propId:2,lender:'Truist Bank',type:'Swap Expiration',date:'2025-10-31',amount:11000000,rate:'Fixed via Swap',notes:'Mark-to-market at expiry'},
-    {id:8,propId:4,lender:'First Citizens',type:'Interest Reset',date:'2025-07-01',amount:6800000,rate:'5.75% Fixed',notes:'Resets to SOFR+2.50%'},
-  ],
-  deals:[
-    {id:1,propId:10,dealType:'Acquisition',milestone:'End of Due Diligence',date:'2025-06-20',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'$1.5M deposit goes hard'},
-    {id:2,propId:10,dealType:'Acquisition',milestone:'Hard Deposit Deadline',date:'2025-06-22',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'$1.5M non-refundable'},
-    {id:3,propId:10,dealType:'Acquisition',milestone:'Closing Date',date:'2025-07-15',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'Target $24.2M'},
-    {id:4,propId:12,dealType:'Disposition',milestone:'LOI Expiration',date:'2025-06-10',counterparty:'Prologis',broker:'JLL',notes:'Counter offered $21.5M'},
-    {id:5,propId:12,dealType:'Disposition',milestone:'Closing Date',date:'2025-08-30',counterparty:'Prologis',broker:'JLL',notes:''},
-    {id:6,propId:7,dealType:'Refinance',milestone:'Closing Date',date:'2025-07-01',counterparty:'New York Life',broker:'JLL Capital Markets',notes:''},
+  dates:[
+    {id:1,propId:1,category:'Rate Cap Expiration',description:'Interest rate cap expires — must renew before this date',dueDate:'2025-07-01',action:'Get new rate cap',party:'Wells Fargo',amount:18500000,notes:'Cap currently at SOFR+2.10%',reminders:[90,60,30,14,7]},
+    {id:2,propId:1,category:'Loan Maturity',description:'Loan matures — refinance or extension required',dueDate:'2025-08-15',action:'Refinance or extend loan',party:'Wells Fargo',amount:18500000,notes:'Extension option available',reminders:[90,60,30,14,7]},
+    {id:3,propId:7,category:'Loan Maturity',description:'Loan matures — refi currently underway',dueDate:'2025-06-30',action:'Close refinance',party:'JP Morgan',amount:24000000,notes:'New York Life refi in progress',reminders:[30,14,7]},
+    {id:4,propId:7,category:'Refinance Closing',description:'Target closing date for New York Life refinance',dueDate:'2025-07-01',action:'Coordinate closing with title',party:'New York Life',amount:null,notes:'DSCR requirement 1.25x',reminders:[30,14,7,3]},
+    {id:5,propId:10,category:'Acquisition - Due Diligence',description:'End of due diligence period',dueDate:'2025-06-20',action:'Complete all DD items',party:'Brookfield Industrial',amount:null,notes:'$1.5M deposit goes hard at end of DD',reminders:[14,7,3,1]},
+    {id:6,propId:10,category:'Acquisition - Closing',description:'Target closing date',dueDate:'2025-07-15',action:'Coordinate closing',party:'Brookfield Industrial',amount:24200000,notes:'',reminders:[30,14,7,3]},
+    {id:7,propId:12,category:'Disposition - Closing',description:'Target closing date with Prologis',dueDate:'2025-08-30',action:'Coordinate closing with JLL',party:'Prologis',amount:21500000,notes:'',reminders:[30,14,7]},
+    {id:8,propId:3,category:'Extension Option Deadline',description:'Must notify lender of extension option by this date',dueDate:'2025-09-15',action:'Send extension notice to lender',party:'Regions Bank',amount:14800000,notes:'1-year extension available',reminders:[60,30,14,7]},
+    {id:9,propId:9,category:'Rate Cap Expiration',description:'Rate cap expires',dueDate:'2025-11-30',action:'Get new rate cap',party:'KeyBank',amount:19500000,notes:'Est. replacement cost $180k',reminders:[90,60,30,14]},
+    {id:10,propId:2,category:'Swap Expiration',description:'Interest rate swap expires — mark-to-market settlement',dueDate:'2025-10-31',action:'Evaluate new swap or go floating',party:'Truist Bank',amount:11000000,notes:'',reminders:[90,60,30]},
   ],
   team:[
     {name:'James Davidson',email:'j.davidson@lmrep.com',initials:'JD'},
@@ -349,217 +450,460 @@ const D={
     {name:'Kevin Park',email:'k.park@lmrep.com',initials:'KP'},
     {name:'Alicia Brooks',email:'a.brooks@lmrep.com',initials:'AB'},
   ],
-  rdDays:[90,60,30,14,7],
-  df:'all',ls:'',lt:'',lst:'',ds:'',dt:'',
+  searchQ:'',filterProp:'',filterCat:'',filterStatus:'',dashTab:'all',
+  editReminders:[],
 };
 
-const T=new Date();T.setHours(0,0,0,0);
-const du=s=>{const d=new Date(s+'T00:00:00');d.setHours(0,0,0,0);return Math.ceil((d-T)/86400000)};
-const fd=s=>new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-const fm=n=>n?'$'+Number(n).toLocaleString():'—';
-const sb2=d=>d<=0?'<span class="badge br"><span class="dot dr"></span>Overdue</span>':d<=30?'<span class="badge br"><span class="dot dr"></span>Urgent</span>':d<=90?'<span class="badge ba"><span class="dot da"></span>Watch</span>':'<span class="badge bg"><span class="dot dg"></span>On Track</span>';
-const dc=d=>d<=0?'<span class="dp du">Overdue</span>':`<span class="dp ${d<=30?'du':d<=90?'dw':'dook'}">${d}d</span>`;
-const pn=id=>{const p=D.props.find(x=>x.id==id);return p?p.name:'—'};
-const pc=id=>{const p=D.props.find(x=>x.id==id);if(!p)return'—';return`<div class="pc2"><div class="pi">🏭</div><div><div class="pn2">${p.name}</div><div class="pl">${p.city}, ${p.state}</div></div></div>`};
-const ad=()=>[...D.loans.map(l=>({...l,_t:'loan'})),...D.deals.map(d=>({...d,_t:'deal'}))].sort((a,b)=>new Date(a.date)-new Date(b.date));
+// ── HELPERS ──
+const NOW=new Date();NOW.setHours(0,0,0,0);
+const daysUntil=s=>{const d=new Date(s+'T00:00:00');d.setHours(0,0,0,0);return Math.ceil((d-NOW)/86400000)};
+const fmtDate=s=>new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const fmtMoney=n=>n?'$'+Number(n).toLocaleString():'—';
+const propName=id=>{const p=D.props.find(x=>x.id==id);return p?p.name:'—'};
+const propObj=id=>D.props.find(x=>x.id==id);
+const statusBadge=d=>{
+  if(d<=0)return'<span class="badge bdred"><span class="dot dotred"></span>Overdue</span>';
+  if(d<=30)return'<span class="badge bdred"><span class="dot dotred"></span>Urgent</span>';
+  if(d<=90)return'<span class="badge bdamb"><span class="dot dotamb"></span>Watch</span>';
+  return'<span class="badge bdgrn"><span class="dot dotgrn"></span>On Track</span>';
+};
+const daysPill=d=>{
+  if(d<=0)return'<span class="daypill dayred">Overdue</span>';
+  return`<span class="daypill ${d<=30?'dayred':d<=90?'dayamb':'daygrn'}">${d}d</span>`;
+};
+const propCell=id=>{
+  const p=propObj(id);if(!p)return'—';
+  return`<div class="propcell"><div class="propico">🏭</div><div><div class="propname">${p.name}</div><div class="proploc">${p.city||''}, ${p.state||''}</div></div></div>`;
+};
+const allCategories=()=>[...new Set(D.dates.map(d=>d.category).filter(Boolean))].sort();
 
-window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
-
+// ── SUPABASE LOAD ──
 async function loadDB(){
   try{
     const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const db=createClient(SU,SK);
-    const[p,l,d,t]=await Promise.all([
+    const db=createClient(SURL,SKEY);
+    const[p,dt,t]=await Promise.all([
       db.from('properties').select('*').order('name'),
-      db.from('loan_dates').select('*').eq('is_active',true).order('key_date'),
-      db.from('deal_dates').select('*').eq('is_active',true).order('key_date'),
+      db.from('dates').select('*').order('due_date'),
       db.from('team_members').select('*').eq('receives_reminders',true),
     ]);
-    if(p.data?.length) D.props=p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price}));
-    if(l.data?.length) D.loans=l.data.map(x=>({id:x.id,propId:x.property_id,lender:x.lender,type:x.date_type,date:x.key_date,amount:x.loan_amount,rate:x.interest_rate,notes:x.notes||''}));
-    if(d.data?.length) D.deals=d.data.map(x=>({id:x.id,propId:x.property_id,dealType:x.deal_type,milestone:x.milestone,date:x.key_date,counterparty:x.counterparty||'',broker:x.broker||'',notes:x.notes||''}));
+    if(p.data?.length) D.props=p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price,notes:x.notes||''}));
+    if(dt.data?.length) D.dates=dt.data.map(x=>({id:x.id,propId:x.property_id,category:x.category,description:x.description,dueDate:x.due_date,action:x.action_required||'',party:x.party||'',amount:x.amount,notes:x.notes||'',reminders:x.reminder_days||[]}));
     if(t.data?.length) D.team=t.data.map(x=>({name:x.full_name,email:x.email,initials:x.initials||x.full_name.split(' ').map(c=>c[0]).join('')}));
-    document.getElementById('dbd').classList.add('on');
-    document.getElementById('dbs').textContent='DB Connected';
+    document.getElementById('dbdot').classList.add('on');
+    document.getElementById('dbstatus').textContent='DB Connected';
     toast('Connected — '+D.props.length+' properties loaded');
   }catch(e){
     console.warn('Using sample data:',e.message);
-    document.getElementById('dbs').textContent='Sample data';
+    document.getElementById('dbstatus').textContent='Sample data';
   }
-  ppd();rDash();
+  initFilters();
+  renderAll();
 }
 
-window.go=function(s,el){
-  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
-  document.getElementById('s-'+s).classList.add('active');
-  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+// ── SAVE TO DB ──
+let dbInstance=null;
+async function getDB(){
+  if(dbInstance)return dbInstance;
+  const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+  dbInstance=createClient(SURL,SKEY);
+  return dbInstance;
+}
+
+// ── NAVIGATION ──
+window.goTo=function(s,el){
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById('sec-'+s).classList.add('active');
+  document.querySelectorAll('.nitem').forEach(x=>x.classList.remove('active'));
   if(el)el.classList.add('active');
-  if(s==='dashboard')rDash();
-  if(s==='loans')rLoans();
-  if(s==='deals')rDeals();
-  if(s==='properties')rProps();
-  if(s==='calendar')rCal();
-  if(s==='reminders')rRem();
+  if(s==='dashboard')renderDashboard();
+  if(s==='dates')renderDatesTable();
+  if(s==='properties')renderProperties();
+  if(s==='calendar')renderCalendar();
+  if(s==='reminders')renderReminders();
 };
 
-function rDash(){
-  const all=ad();
-  const u=all.filter(r=>{const d=du(r.date);return d>=0&&d<=30}).length;
-  const w=all.filter(r=>{const d=du(r.date);return d>30&&d<=90}).length;
-  const o=all.filter(r=>du(r.date)>90).length;
-  document.getElementById('su').textContent=u;
-  document.getElementById('sw').textContent=w;
-  document.getElementById('so').textContent=o;
-  document.getElementById('st').textContent=all.length;
-  document.getElementById('sps').textContent=D.props.length+' properties tracked';
-  document.getElementById('btext').textContent=u>0?`⚠ ${u} date${u>1?'s':''} require attention within 30 days`:'✓ No critical deadlines in the next 30 days';
-  rDT();
+function renderAll(){
+  renderDashboard();
+  renderDatesTable();
+  renderProperties();
+  renderCalendar();
+  renderReminders();
 }
-window.fd2=function(f,el){D.df=f;document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');rDT()};
-function rDT(){
-  let rows=ad().filter(r=>du(r.date)>=-14);
-  if(D.df==='loan')rows=rows.filter(r=>r._t==='loan');
-  if(D.df==='deal')rows=rows.filter(r=>r._t==='deal');
-  const tb=document.getElementById('dtb');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="7"><div class="es"><div class="ei">📅</div><div class="et">No upcoming dates</div></div></td></tr>';return}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  const dates=D.dates.filter(d=>daysUntil(d.dueDate)>=-30);
+  const u=dates.filter(d=>{const x=daysUntil(d.dueDate);return x>=0&&x<=30}).length;
+  const w=dates.filter(d=>{const x=daysUntil(d.dueDate);return x>30&&x<=90}).length;
+  const o=dates.filter(d=>daysUntil(d.dueDate)>90).length;
+  document.getElementById('stat-u').textContent=u;
+  document.getElementById('stat-w').textContent=w;
+  document.getElementById('stat-o').textContent=o;
+  document.getElementById('stat-t').textContent=D.dates.length;
+  document.getElementById('stat-ps').textContent=D.props.length+' properties';
+  document.getElementById('bannertext').textContent=u>0?`⚠ ${u} date${u>1?'s':''} require attention within 30 days`:'✓ No critical deadlines in the next 30 days';
+  renderDashTable();
+}
+window.dashFilter=function(f,el){
+  D.dashTab=f;
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderDashTable();
+};
+function renderDashTable(){
+  let rows=[...D.dates].sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  if(D.dashTab==='urgent')rows=rows.filter(r=>{const d=daysUntil(r.dueDate);return d>=0&&d<=30});
+  if(D.dashTab==='upcoming')rows=rows.filter(r=>{const d=daysUntil(r.dueDate);return d>=0&&d<=90});
+  const tb=document.getElementById('dash-tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="emptyico">📅</div><div class="emptytxt">No dates found</div></div></td></tr>';return}
   tb.innerHTML=rows.map(r=>{
-    const d=du(r.date);
-    const cat=r._t==='loan'?'<span class="badge bn">Loan</span>':r.dealType==='Acquisition'?'<span class="badge bgo">Acquisition</span>':r.dealType==='Disposition'?'<span class="badge br">Disposition</span>':'<span class="badge ba">Refinance</span>';
-    const lbl=r._t==='loan'?r.type:r.milestone;
-    return`<tr><td>${pc(r.propId)}</td><td style="font-size:13px;color:var(--ts)">${lbl}</td><td>${cat}</td><td style="font-weight:500">${fd(r.date)}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${lbl.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button></div></td></tr>`;
+    const d=daysUntil(r.dueDate);
+    return`<tr>
+      <td>${propCell(r.propId)}</td>
+      <td><span class="badge bdnvy" style="font-size:11px">${r.category}</span></td>
+      <td style="font-size:13px;color:var(--ts);max-width:200px">${r.description}</td>
+      <td style="font-weight:500;white-space:nowrap">${fmtDate(r.dueDate)}</td>
+      <td>${daysPill(d)}</td>
+      <td>${statusBadge(d)}</td>
+      <td style="font-size:12.5px;color:var(--amb);font-weight:500">${r.action||'—'}</td>
+      <td><div class="actbtns">
+        <button class="btn btno btns" onclick="editDate(${r.id})" title="Edit">✏️</button>
+        <button class="btn btno btns" onclick="exportOne(${r.id})" title="Export to calendar">📅</button>
+      </div></td>
+    </tr>`;
   }).join('');
 }
 
-function rLoans(){
-  let rows=[...D.loans];
-  if(D.ls)rows=rows.filter(r=>pn(r.propId).toLowerCase().includes(D.ls)||r.lender.toLowerCase().includes(D.ls));
-  if(D.lt)rows=rows.filter(r=>r.type.includes(D.lt));
-  if(D.lst)rows=rows.filter(r=>{const d=du(r.date);if(D.lst==='u')return d>=0&&d<=30;if(D.lst==='w')return d>30&&d<=90;return d>90});
-  rows.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const tb=document.getElementById('ltb');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="es"><div class="ei">🏦</div><div class="et">No loan dates found</div></div></td></tr>';return}
-  tb.innerHTML=rows.map(r=>{const d=du(r.date);return`<tr><td>${pc(r.propId)}</td><td style="font-size:13px">${r.lender}</td><td><span class="badge bn">${r.type}</span></td><td style="font-weight:500">${fd(r.date)}</td><td style="font-size:13px">${fm(r.amount)}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td style="font-size:12px;color:var(--tm);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes||'—'}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${r.type.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button><button class="btn btn-o btn-s" onclick="del('loan',${r.id})">🗑</button></div></td></tr>`}).join('');
+// ── ALL DATES TABLE ──
+function initFilters(){
+  const ps=document.getElementById('filter-prop');
+  ps.innerHTML='<option value="">All Properties</option>'+D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  refreshCatFilter();
 }
-window.fls=v=>{D.ls=v.toLowerCase();rLoans()};
-window.flt=v=>{D.lt=v;rLoans()};
-window.flst=v=>{D.lst=v;rLoans()};
-
-function rDeals(){
-  let rows=[...D.deals];
-  if(D.ds)rows=rows.filter(r=>pn(r.propId).toLowerCase().includes(D.ds)||(r.broker||'').toLowerCase().includes(D.ds));
-  if(D.dt)rows=rows.filter(r=>r.dealType===D.dt);
-  rows.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const tb=document.getElementById('ddtb');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="es"><div class="ei">🤝</div><div class="et">No deal dates found</div></div></td></tr>';return}
-  tb.innerHTML=rows.map(r=>{const d=du(r.date);const bc=r.dealType==='Acquisition'?'bgo':r.dealType==='Disposition'?'br':'ba';return`<tr><td>${pc(r.propId)}</td><td><span class="badge ${bc}">${r.dealType}</span></td><td style="font-size:13px;font-weight:500">${r.milestone}</td><td style="font-weight:500">${fd(r.date)}</td><td style="font-size:13px">${r.counterparty||'—'}</td><td style="font-size:13px">${r.broker||'—'}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${r.milestone.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button><button class="btn btn-o btn-s" onclick="del('deal',${r.id})">🗑</button></div></td></tr>`}).join('');
+function refreshCatFilter(){
+  const cs=document.getElementById('filter-cat');
+  const cats=allCategories();
+  cs.innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  // update datalist
+  const dl=document.getElementById('cat-suggestions');
+  if(dl)dl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
 }
-window.fds=v=>{D.ds=v.toLowerCase();rDeals()};
-window.fdt=v=>{D.dt=v;rDeals()};
-
-function rProps(){
-  document.getElementById('pcount').textContent=D.props.length+' industrial assets across the Southeast US.';
-  document.getElementById('pgrid').innerHTML=D.props.map(p=>{
-    const pl=D.loans.filter(l=>l.propId===p.id).length;
-    const pd=D.deals.filter(d=>d.propId===p.id).length;
-    const nxt=[...D.loans.filter(l=>l.propId===p.id),...D.deals.filter(d=>d.propId===p.id)].sort((a,b)=>new Date(a.date)-new Date(b.date))[0];
-    const sc=p.status==='Active'?'bg':p.status==='Acquisition'?'bgo':p.status==='Disposition'?'br':'ba';
-    return`<div class="pcard"><div class="pch"><div class="pcn">${p.name}</div><div class="pcm">${p.city}, ${p.state}</div><div class="pcs"><span class="badge ${sc}">${p.status}</span></div></div><div class="pcb"><div class="pm"><span class="pml">Square Feet</span><span class="pmv">${p.sqft?p.sqft.toLocaleString()+' SF':'—'}</span></div><div class="pm"><span class="pml">Purchase Price</span><span class="pmv">${fm(p.price)}</span></div><div class="pm"><span class="pml">Year Acquired</span><span class="pmv">${p.year||'—'}</span></div><div class="pm"><span class="pml">Loan Dates</span><span class="pmv">${pl}</span></div><div class="pm"><span class="pml">Deal Dates</span><span class="pmv">${pd}</span></div><div class="pm"><span class="pml">Next Key Date</span><span class="pmv" style="font-size:12px">${nxt?fd(nxt.date):'None'}</span></div></div><div class="pcf"><button class="btn btn-o btn-s" onclick="omp('loan',${p.id})">+ Loan Date</button><button class="btn btn-o btn-s" onclick="omp('deal',${p.id})">+ Deal Date</button></div></div>`;
+window.filterDates=function(q){
+  if(q!==undefined)D.searchQ=q.toLowerCase();
+  D.filterProp=document.getElementById('filter-prop').value;
+  D.filterCat=document.getElementById('filter-cat').value;
+  D.filterStatus=document.getElementById('filter-status').value;
+  renderDatesTable();
+};
+function renderDatesTable(){
+  let rows=[...D.dates].sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  if(D.searchQ)rows=rows.filter(r=>propName(r.propId).toLowerCase().includes(D.searchQ)||r.category.toLowerCase().includes(D.searchQ)||r.description.toLowerCase().includes(D.searchQ));
+  if(D.filterProp)rows=rows.filter(r=>r.propId==D.filterProp);
+  if(D.filterCat)rows=rows.filter(r=>r.category===D.filterCat);
+  if(D.filterStatus){
+    rows=rows.filter(r=>{
+      const d=daysUntil(r.dueDate);
+      if(D.filterStatus==='urgent')return d>=0&&d<=30;
+      if(D.filterStatus==='watch')return d>30&&d<=90;
+      return d>90;
+    });
+  }
+  const tb=document.getElementById('dates-tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="emptyico">📅</div><div class="emptytxt">No dates found — click "+ Add Date" to get started</div></div></td></tr>';return}
+  tb.innerHTML=rows.map(r=>{
+    const d=daysUntil(r.dueDate);
+    const rems=r.reminders&&r.reminders.length?r.reminders.sort((a,b)=>b-a).map(x=>x+'d').join(', '):'None';
+    return`<tr>
+      <td>${propCell(r.propId)}</td>
+      <td><span class="badge bdnvy" style="font-size:11px">${r.category}</span></td>
+      <td style="font-size:13px;color:var(--ts);max-width:180px">${r.description}</td>
+      <td style="font-weight:500;white-space:nowrap">${fmtDate(r.dueDate)}</td>
+      <td>${daysPill(d)}</td>
+      <td>${statusBadge(d)}</td>
+      <td style="font-size:12.5px;color:var(--amb);font-weight:500;max-width:140px">${r.action||'—'}</td>
+      <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
+      <td><div class="actbtns">
+        <button class="btn btno btns" onclick="editDate(${r.id})" title="Edit">✏️</button>
+        <button class="btn btno btns" onclick="exportOne(${r.id})" title="Calendar">📅</button>
+        <button class="btn btnr btns" onclick="deleteDate(${r.id})" title="Delete">🗑</button>
+      </div></td>
+    </tr>`;
   }).join('');
 }
 
-function rCal(){
-  const all=ad().filter(r=>du(r.date)>-30);
+// ── PROPERTIES ──
+function renderProperties(){
+  document.getElementById('prop-count').textContent=D.props.length+' industrial assets across the Southeast US.';
+  document.getElementById('prop-grid').innerHTML=D.props.map(p=>{
+    const pDates=D.dates.filter(d=>d.propId===p.id);
+    const nxt=pDates.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
+    const urgent=pDates.filter(d=>{const x=daysUntil(d.dueDate);return x>=0&&x<=30}).length;
+    const sc=p.status==='Active'?'bdgrn':p.status==='Acquisition'?'bdgld':p.status==='Disposition'?'bdred':'bdamb';
+    return`<div class="pcard">
+      <div class="pchead">
+        <div class="pcname">${p.name}</div>
+        <div class="pcmkt">${p.city||''}, ${p.state||''}</div>
+        <div class="pcstat"><span class="badge ${sc}">${p.status}</span></div>
+      </div>
+      <div class="pcbody">
+        <div class="pcmet"><span class="pcmetl">Square Feet</span><span class="pcmetv">${p.sqft?p.sqft.toLocaleString()+' SF':'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Purchase Price</span><span class="pcmetv">${fmtMoney(p.price)}</span></div>
+        <div class="pcmet"><span class="pcmetl">Year Acquired</span><span class="pcmetv">${p.year||'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Tracked Dates</span><span class="pcmetv">${pDates.length}</span></div>
+        <div class="pcmet"><span class="pcmetl">Urgent Dates</span><span class="pcmetv" style="color:${urgent?'var(--red)':'var(--grn)'}">${urgent||'None'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Next Key Date</span><span class="pcmetv" style="font-size:12px">${nxt?fmtDate(nxt.dueDate):'None'}</span></div>
+      </div>
+      <div class="pcfoot">
+        <button class="btn btno btns" onclick="editProp(${p.id})">✏️ Edit</button>
+        <button class="btn btno btns" onclick="addDateForProp(${p.id})">+ Add Date</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CALENDAR ──
+function renderCalendar(){
+  const all=[...D.dates].filter(d=>daysUntil(d.dueDate)>-30).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
   const months={};
-  all.forEach(r=>{const d=new Date(r.date+'T00:00:00');const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!months[k])months[k]=[];months[k].push(r)});
+  all.forEach(r=>{
+    const d=new Date(r.dueDate+'T00:00:00');
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    if(!months[k])months[k]=[];months[k].push(r);
+  });
   const keys=Object.keys(months).sort().slice(0,9);
-  document.getElementById('cgrid').innerHTML=keys.length?keys.map(k=>{
+  const grid=document.getElementById('cal-grid');
+  if(!keys.length){grid.innerHTML='<p style="color:var(--tm)">No upcoming dates.</p>';return}
+  grid.innerHTML=keys.map(k=>{
     const[y,m]=k.split('-');
     const lbl=new Date(y,m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    return`<div class="cmc"><div class="cmh">${lbl} <span style="font-size:11px;opacity:.6;margin-left:6px">${months[k].length} date${months[k].length>1?'s':''}</span></div><div class="ce">${months[k].map(r=>{const d2=new Date(r.date+'T00:00:00');const dys=du(r.date);const cl=dys<=30?'cdr':dys<=90?'cda':'cdn';return`<div class="cev"><div class="cd ${cl}">${d2.getDate()}</div><div><div class="cpn">${pn(r.propId)}</div><div class="cpt">${r._t==='loan'?r.type:r.dealType} — ${r._t==='loan'?r.type:r.milestone}</div></div></div>`}).join('')}</div></div>`;
-  }).join(''):'<p style="color:var(--tm)">No upcoming dates.</p>';
+    return`<div class="calcard">
+      <div class="calhead">${lbl} <span style="font-size:11px;opacity:.6;margin-left:6px">${months[k].length} date${months[k].length>1?'s':''}</span></div>
+      <div class="calevts">${months[k].map(r=>{
+        const d=new Date(r.dueDate+'T00:00:00');
+        const days=daysUntil(r.dueDate);
+        const dc=days<=30?'cdr':days<=90?'cda':'cdn';
+        return`<div class="calevt">
+          <div class="calday ${dc}">${d.getDate()}</div>
+          <div><div class="calprop">${propName(r.propId)}</div><div class="caltype">${r.category}</div></div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
 }
 
-function rRem(){
-  document.getElementById('rsl').innerHTML=D.rdDays.sort((a,b)=>b-a).map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fb;border-radius:7px"><span style="font-size:13.5px;font-weight:500">${d} days before</span><button class="btn btn-o btn-s" onclick="rrd(${d})">Remove</button></div>`).join('');
-  document.getElementById('tl').innerHTML=D.team.map((m,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div class="av" style="width:30px;height:30px;font-size:11px">${m.initials}</div><div style="flex:1"><div style="font-size:13.5px;font-weight:500">${m.name}</div><div style="font-size:12px;color:var(--tm)">${m.email}</div></div><button class="btn btn-o btn-s" onclick="rtm(${i})">Remove</button></div>`).join('');
+// ── REMINDERS ──
+function renderReminders(){
+  document.getElementById('team-list').innerHTML=D.team.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <div class="ava" style="width:30px;height:30px;font-size:11px">${m.initials}</div>
+      <div style="flex:1"><div style="font-size:13.5px;font-weight:500">${m.name}</div><div style="font-size:12px;color:var(--tm)">${m.email}</div></div>
+      <button class="btn btno btns" onclick="removeTeamMember(${i})">Remove</button>
+    </div>`).join('');
 }
-window.ard=()=>{const v=parseInt(document.getElementById('cd2').value);if(v>0&&!D.rdDays.includes(v)){D.rdDays.push(v);document.getElementById('cd2').value='';rRem();toast('Added ✓')}};
-window.rrd=d=>{D.rdDays=D.rdDays.filter(x=>x!==d);rRem()};
-window.atm=()=>{const n=document.getElementById('nmn').value.trim();const e=document.getElementById('nme').value.trim();if(!n||!e){toast('Please enter name and email');return}D.team.push({name:n,email:e,initials:n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)});document.getElementById('nmn').value='';document.getElementById('nme').value='';rRem();toast(n+' added ✓')};
-window.rtm=i=>{D.team.splice(i,1);rRem()};
+window.addTeamMember=function(){
+  const n=document.getElementById('new-name').value.trim();
+  const e=document.getElementById('new-email').value.trim();
+  if(!n||!e){toast('Please enter name and email');return}
+  D.team.push({name:n,email:e,initials:n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)});
+  document.getElementById('new-name').value='';
+  document.getElementById('new-email').value='';
+  renderReminders();toast(n+' added ✓');
+};
+window.removeTeamMember=function(i){D.team.splice(i,1);renderReminders()};
 
-function ppd(){
-  ['lp','dp2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')});
+// ── ADD / EDIT DATE MODAL ──
+window.openAddDate=function(){
+  document.getElementById('modal-date-title').textContent='Add Date';
+  document.getElementById('edit-id').value='';
+  document.getElementById('f-prop').innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('f-cat').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-date').value='';
+  document.getElementById('f-action').value='';
+  document.getElementById('f-party').value='';
+  document.getElementById('f-amount').value='';
+  document.getElementById('f-notes').value='';
+  D.editReminders=[];
+  renderRemList();
+  refreshCatFilter();
+  document.getElementById('modal-date').classList.add('open');
+};
+window.addDateForProp=function(pid){
+  openAddDate();
+  document.getElementById('f-prop').value=pid;
+};
+window.editDate=function(id){
+  const r=D.dates.find(x=>x.id===id);if(!r)return;
+  document.getElementById('modal-date-title').textContent='Edit Date';
+  document.getElementById('edit-id').value=id;
+  document.getElementById('f-prop').innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('f-prop').value=r.propId;
+  document.getElementById('f-cat').value=r.category||'';
+  document.getElementById('f-desc').value=r.description||'';
+  document.getElementById('f-date').value=r.dueDate||'';
+  document.getElementById('f-action').value=r.action||'';
+  document.getElementById('f-party').value=r.party||'';
+  document.getElementById('f-amount').value=r.amount||'';
+  document.getElementById('f-notes').value=r.notes||'';
+  D.editReminders=[...(r.reminders||[])];
+  renderRemList();
+  document.getElementById('modal-date').classList.add('open');
+};
+
+// ── REMINDER BUILDER ──
+function renderRemList(){
+  const list=document.getElementById('rem-list');
+  if(!D.editReminders.length){
+    list.innerHTML='<p style="font-size:12.5px;color:var(--tm);padding:6px 0">No reminders set — add one below.</p>';
+    return;
+  }
+  list.innerHTML=D.editReminders.sort((a,b)=>b-a).map(d=>`
+    <div class="remrow">
+      <span>${d} days before</span>
+      <button class="btn btno btns" onclick="removeRemDay(${d})">Remove</button>
+    </div>`).join('');
 }
-window.om=function(type,pid){
-  ppd();
-  if(pid){const s=document.getElementById(type==='loan'?'lp':'dp2');if(s)s.value=pid}
-  document.getElementById('m-'+type).classList.add('open');
-  document.querySelectorAll('#'+(type==='loan'?'lrem':'drem')+' .rc').forEach(c=>{c.onclick=()=>c.classList.toggle('sel')});
+window.addRemDay=function(){
+  const v=parseInt(document.getElementById('rem-input').value);
+  if(!v||v<1){toast('Enter a valid number of days');return}
+  if(D.editReminders.includes(v)){toast('Already added');return}
+  D.editReminders.push(v);
+  document.getElementById('rem-input').value='';
+  renderRemList();
 };
-window.omp=(t,p)=>om(t,p);
-window.cm=t=>document.getElementById('m-'+t).classList.remove('open');
-
-window.saveLoan=async function(){
-  const pid=parseInt(document.getElementById('lp').value);
-  const ldr=document.getElementById('ll').value.trim();
-  const typ=document.getElementById('ltype').value;
-  const dt=document.getElementById('ld').value;
-  const amt=document.getElementById('la').value;
-  const rt=document.getElementById('lr').value;
-  const nt=document.getElementById('ln').value;
-  if(!ldr||!dt){toast('Please fill in lender and date');return}
-  D.loans.push({id:Date.now(),propId:pid,lender:ldr,type:typ,date:dt,amount:Number(amt)||null,rate:rt,notes:nt});
-  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('loan_dates').insert({property_id:pid,lender:ldr,date_type:typ,key_date:dt,loan_amount:Number(amt)||null,interest_rate:rt,notes:nt,reminder_days:[90,60,30,14,7],is_active:true})}catch(e){console.warn(e.message)}
-  cm('loan');toast('Loan date saved ✓');rDash();
+window.removeRemDay=function(d){
+  D.editReminders=D.editReminders.filter(x=>x!==d);
+  renderRemList();
 };
 
-window.saveDeal=async function(){
-  const pid=parseInt(document.getElementById('dp2').value);
-  const dt2=document.getElementById('ddt').value;
-  const ml=document.getElementById('dm').value;
-  const dt=document.getElementById('dd2').value;
-  const cp=document.getElementById('dc').value;
-  const bk=document.getElementById('db2').value;
-  const nt=document.getElementById('dn').value;
-  if(!dt){toast('Please enter a date');return}
-  D.deals.push({id:Date.now(),propId:pid,dealType:dt2,milestone:ml,date:dt,counterparty:cp,broker:bk,notes:nt});
-  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('deal_dates').insert({property_id:pid,deal_type:dt2,milestone:ml,key_date:dt,counterparty:cp,broker:bk,notes:nt,reminder_days:[30,14,7,3,1],is_active:true})}catch(e){console.warn(e.message)}
-  cm('deal');toast('Deal milestone saved ✓');rDash();
+// ── SAVE DATE ──
+window.saveDate=async function(){
+  const editId=document.getElementById('edit-id').value;
+  const propId=parseInt(document.getElementById('f-prop').value);
+  const category=document.getElementById('f-cat').value.trim();
+  const description=document.getElementById('f-desc').value.trim();
+  const dueDate=document.getElementById('f-date').value;
+  const action=document.getElementById('f-action').value.trim();
+  const party=document.getElementById('f-party').value.trim();
+  const amount=document.getElementById('f-amount').value;
+  const notes=document.getElementById('f-notes').value.trim();
+  const reminders=[...D.editReminders];
+  if(!category||!description||!dueDate){toast('Please fill in Category, Description, and Date');return}
+  const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
+  if(editId){
+    const idx=D.dates.findIndex(x=>x.id==editId);
+    if(idx>-1)D.dates[idx]={...D.dates[idx],...record};
+    try{
+      const db=await getDB();
+      await db.from('dates').update({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders}).eq('id',editId);
+    }catch(e){console.warn(e.message)}
+    toast('Date updated ✓');
+  }else{
+    const newId=Date.now();
+    D.dates.push({id:newId,...record});
+    try{
+      const db=await getDB();
+      await db.from('dates').insert({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders,is_active:true});
+    }catch(e){console.warn(e.message)}
+    toast('Date saved ✓');
+  }
+  closeModal('date');
+  refreshCatFilter();
+  initFilters();
+  renderAll();
 };
 
+// ── DELETE DATE ──
+window.deleteDate=async function(id){
+  if(!confirm('Delete this date?'))return;
+  D.dates=D.dates.filter(x=>x.id!==id);
+  try{const db=await getDB();await db.from('dates').delete().eq('id',id)}catch(e){console.warn(e.message)}
+  toast('Deleted ✓');
+  renderAll();
+};
+
+// ── ADD / EDIT PROPERTY ──
+window.openAddProp=function(){
+  document.getElementById('modal-prop-title').textContent='Add Property';
+  document.getElementById('edit-prop-id').value='';
+  ['fp-name','fp-city','fp-sqft','fp-year','fp-price','fp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fp-state').value='';
+  document.getElementById('fp-status').value='Active';
+  document.getElementById('modal-prop').classList.add('open');
+};
+window.editProp=function(id){
+  const p=D.props.find(x=>x.id===id);if(!p)return;
+  document.getElementById('modal-prop-title').textContent='Edit Property';
+  document.getElementById('edit-prop-id').value=id;
+  document.getElementById('fp-name').value=p.name||'';
+  document.getElementById('fp-city').value=p.city||'';
+  document.getElementById('fp-state').value=p.state||'';
+  document.getElementById('fp-sqft').value=p.sqft||'';
+  document.getElementById('fp-status').value=p.status||'Active';
+  document.getElementById('fp-year').value=p.year||'';
+  document.getElementById('fp-price').value=p.price||'';
+  document.getElementById('fp-notes').value=p.notes||'';
+  document.getElementById('modal-prop').classList.add('open');
+};
 window.saveProp=async function(){
-  const n=document.getElementById('ppn').value.trim();
-  const c=document.getElementById('ppc').value.trim();
-  const s=document.getElementById('pps').value;
-  const sf=document.getElementById('ppsf').value;
-  const st=document.getElementById('ppst').value;
-  const y=document.getElementById('ppy').value;
-  const pr=document.getElementById('ppp').value;
-  if(!n){toast('Please enter a property name');return}
-  D.props.push({id:Date.now(),name:n,city:c,state:s,sqft:Number(sf)||null,status:st,year:Number(y)||null,price:Number(pr)||null});
-  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('properties').insert({name:n,city:c,state:s,sqft:Number(sf)||null,status:st,year_acquired:Number(y)||null,purchase_price:Number(pr)||null})}catch(e){console.warn(e.message)}
-  cm('property');toast(n+' added ✓');ppd();
+  const editId=document.getElementById('edit-prop-id').value;
+  const name=document.getElementById('fp-name').value.trim();
+  const city=document.getElementById('fp-city').value.trim();
+  const state=document.getElementById('fp-state').value;
+  const sqft=document.getElementById('fp-sqft').value;
+  const status=document.getElementById('fp-status').value;
+  const year=document.getElementById('fp-year').value;
+  const price=document.getElementById('fp-price').value;
+  const notes=document.getElementById('fp-notes').value.trim();
+  if(!name){toast('Please enter a property name');return}
+  const record={name,city,state,sqft:Number(sqft)||null,status,year:Number(year)||null,price:Number(price)||null,notes};
+  if(editId){
+    const idx=D.props.findIndex(x=>x.id==editId);
+    if(idx>-1)D.props[idx]={...D.props[idx],...record};
+    try{const db=await getDB();await db.from('properties').update({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes}).eq('id',editId)}catch(e){console.warn(e.message)}
+    toast('Property updated ✓');
+  }else{
+    const newId=Date.now();
+    D.props.push({id:newId,...record});
+    try{const db=await getDB();await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes})}catch(e){console.warn(e.message)}
+    toast(name+' added ✓');
+  }
+  closeModal('prop');
+  initFilters();
+  renderAll();
 };
 
-window.del=function(t,id){
-  if(t==='loan')D.loans=D.loans.filter(l=>l.id!==id);
-  if(t==='deal')D.deals=D.deals.filter(d=>d.id!==id);
-  rLoans();rDeals();rDash();toast('Deleted ✓');
-};
-
-window.eSingle=function(ds,title,prop){
-  const c=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LM//EN','BEGIN:VEVENT',`UID:${Date.now()}@lmrep`,`DTSTART;VALUE=DATE:${ds.replace(/-/g,'')}`,`SUMMARY:[LM] ${title} — ${prop}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));a.download='lm-date.ics';a.click();toast('Exported ✓');
+// ── ICS EXPORT ──
+window.exportOne=function(id){
+  const r=D.dates.find(x=>x.id===id);if(!r)return;
+  const p=propName(r.propId);
+  const c=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LM//EN','BEGIN:VEVENT',
+    `UID:${id}@lmrep`,`DTSTART;VALUE=DATE:${r.dueDate.replace(/-/g,'')}`,
+    `SUMMARY:[LM] ${r.category} — ${p}`,
+    `DESCRIPTION:${r.action||r.description}`,
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  dl('lm-date.ics',c,'text/calendar');toast('Exported ✓');
 };
 window.exportICS=function(){
-  const all=ad();
-  const ev=all.map(r=>{const t=r._t==='loan'?`[Loan] ${r.type} — ${pn(r.propId)}`:`[${r.dealType}] ${r.milestone} — ${pn(r.propId)}`;return['BEGIN:VEVENT',`UID:${r._t}${r.id}@lmrep`,`DTSTART;VALUE=DATE:${r.date.replace(/-/g,'')}`,`SUMMARY:${t}`,'END:VEVENT'].join('\r\n')}).join('\r\n');
-  const c=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//LM//EN\r\nCALSCALE:GREGORIAN\r\n${ev}\r\nEND:VCALENDAR`;
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));a.download='LM-CriticalDates.ics';a.click();toast(`Exported ${all.length} dates ✓`);
+  const evts=D.dates.map(r=>{
+    const p=propName(r.propId);
+    return['BEGIN:VEVENT',`UID:${r.id}@lmrep`,`DTSTART;VALUE=DATE:${r.dueDate.replace(/-/g,'')}`,
+      `SUMMARY:[LM] ${r.category} — ${p}`,`DESCRIPTION:${r.action||r.description}`,'END:VEVENT'].join('\r\n');
+  }).join('\r\n');
+  const c=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//LM//EN\r\nCALSCALE:GREGORIAN\r\n${evts}\r\nEND:VCALENDAR`;
+  dl('LM-CriticalDates.ics',c,'text/calendar');toast(`Exported ${D.dates.length} dates ✓`);
 };
+function dl(name,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;a.click()}
 
-document.getElementById('hdate').textContent=T.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+// ── MODAL CLOSE ──
+window.closeModal=function(t){document.getElementById('modal-'+t).classList.remove('open')};
+
+// ── TOAST ──
+window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
+
+// ── INIT ──
+document.getElementById('hdate').textContent=NOW.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 loadDB();
 </script>
 </body>
