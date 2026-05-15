@@ -4,1741 +4,563 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>LM Real Estate Partners — Date Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --navy: #0d1b2a;
-    --navy-mid: #1a2e45;
-    --navy-light: #243d57;
-    --gold: #c8973a;
-    --gold-light: #e8b55a;
-    --gold-pale: #fdf3e3;
-    --cream: #f8f5f0;
-    --white: #ffffff;
-    --text-primary: #0d1b2a;
-    --text-secondary: #4a5568;
-    --text-muted: #8a9bb0;
-    --border: #e2e8f0;
-    --border-strong: #cbd5e0;
-    --red: #c53030;
-    --red-bg: #fff5f5;
-    --red-border: #feb2b2;
-    --amber: #b7791f;
-    --amber-bg: #fffbeb;
-    --amber-border: #f6e05e;
-    --green: #276749;
-    --green-bg: #f0fff4;
-    --green-border: #9ae6b4;
-    --sidebar-w: 240px;
-    --header-h: 64px;
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--text-primary);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── HEADER ── */
-  header {
-    height: var(--header-h);
-    background: var(--navy);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    border-bottom: 1px solid var(--navy-light);
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo-mark {
-    width: 36px; height: 36px;
-    background: var(--gold);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--navy);
-    font-weight: 400;
-    letter-spacing: -0.5px;
-  }
-  .logo-text {
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    color: var(--white);
-    letter-spacing: 0.3px;
-  }
-  .logo-sub {
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .header-date {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-  }
-  .avatar {
-    width: 32px; height: 32px;
-    background: var(--gold);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--navy);
-    cursor: pointer;
-  }
-
-  /* ── SIDEBAR ── */
-  .layout {
-    display: flex;
-    padding-top: var(--header-h);
-    min-height: 100vh;
-  }
-  sidebar, .sidebar {
-    width: var(--sidebar-w);
-    background: var(--navy);
-    position: fixed;
-    top: var(--header-h);
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
-    padding: 24px 0 40px;
-    border-right: 1px solid var(--navy-light);
-  }
-  .nav-section {
-    padding: 0 16px 8px;
-    font-size: 10px;
-    letter-spacing: 1.8px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-top: 20px;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 20px;
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.65);
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
-    text-decoration: none;
-  }
-  .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.06); }
-  .nav-item.active {
-    color: var(--gold-light);
-    border-left-color: var(--gold);
-    background: rgba(200, 151, 58, 0.1);
-  }
-  .nav-icon { font-size: 16px; }
-
-  /* ── MAIN ── */
-  main {
-    margin-left: var(--sidebar-w);
-    flex: 1;
-    padding: 32px 36px;
-  }
-
-  /* ── PAGE HEADER ── */
-  .page-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .page-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: var(--navy);
-    font-weight: 400;
-    line-height: 1.2;
-  }
-  .page-subtitle {
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-  }
-  .btn {
-    padding: 9px 18px;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .btn-primary {
-    background: var(--navy);
-    color: var(--white);
-  }
-  .btn-primary:hover { background: var(--navy-mid); }
-  .btn-gold {
-    background: var(--gold);
-    color: var(--navy);
-  }
-  .btn-gold:hover { background: var(--gold-light); }
-  .btn-outline {
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border-strong);
-  }
-  .btn-outline:hover { background: var(--white); }
-  .btn-sm { padding: 6px 12px; font-size: 12px; }
-
-  /* ── STATS STRIP ── */
-  .stats-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-  .stat-card.urgent::before { background: var(--red); }
-  .stat-card.warning::before { background: var(--amber); }
-  .stat-card.ok::before { background: var(--green); }
-  .stat-card.info::before { background: var(--navy); }
-  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; }
-  .stat-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--navy); line-height: 1; }
-  .stat-sub { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
-
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px;
-    margin-bottom: 24px;
-    width: fit-content;
-  }
-  .tab {
-    padding: 8px 18px;
-    font-size: 13.5px;
-    font-weight: 500;
-    border-radius: 6px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.15s;
-    border: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tab:hover { color: var(--text-primary); }
-  .tab.active { background: var(--navy); color: var(--white); }
-
-  /* ── FILTERS ROW ── */
-  .filters-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .search-box {
-    flex: 1;
-    max-width: 280px;
-    position: relative;
-  }
-  .search-box input {
-    width: 100%;
-    padding: 8px 12px 8px 34px;
-    border: 1px solid var(--border-strong);
-    border-radius: 7px;
-    font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
-    background: var(--white);
-    color: var(--text-primary);
-    outline: none;
-  }
-  .search-box input:focus { border-color: var(--navy); }
-  .search-icon {
-    position: absolute;
-    left: 10px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 15px;
-    color: var(--text-muted);
-  }
-  select.filter-select {
-    padding: 8px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 7px;
-    font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
-    background: var(--white);
-    color: var(--text-primary);
-    outline: none;
-    cursor: pointer;
-  }
-  select.filter-select:focus { border-color: var(--navy); }
-
-  /* ── TABLE ── */
-  .table-wrap {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
-  }
-  thead th {
-    background: #f8f9fb;
-    padding: 11px 16px;
-    text-align: left;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: #fafbfc; }
-  td { padding: 13px 16px; vertical-align: middle; }
-
-  /* ── BADGES ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-  }
-  .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
-  .badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
-  .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-  .badge-navy { background: #eef2f7; color: var(--navy); border: 1px solid #c9d6e3; }
-  .badge-gold { background: var(--gold-pale); color: #92600f; border: 1px solid #e8c97a; }
-
-  .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .dot-red { background: var(--red); }
-  .dot-amber { background: var(--amber); }
-  .dot-green { background: var(--green); }
-
-  /* ── PROPERTY BADGE ── */
-  .prop-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .prop-icon {
-    width: 30px; height: 30px;
-    background: #eef2f7;
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-  .prop-name { font-weight: 500; color: var(--text-primary); }
-  .prop-loc { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
-
-  /* ── DAYS PILL ── */
-  .days-pill {
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .days-urgent { color: var(--red); }
-  .days-warning { color: var(--amber); }
-  .days-ok { color: var(--green); }
-
-  /* ── ACTION ROW ── */
-  .action-btns { display: flex; gap: 6px; }
-
-  /* ── MODAL OVERLAY ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(13,27,42,0.55);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--white);
-    border-radius: 14px;
-    width: 100%;
-    max-width: 620px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  }
-  .modal-header {
-    padding: 22px 26px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--navy);
-    font-weight: 400;
-  }
-  .modal-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
-  .modal-close {
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: var(--text-muted);
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-  }
-  .modal-close:hover { color: var(--text-primary); }
-  .modal-body { padding: 22px 26px; }
-  .modal-footer {
-    padding: 16px 26px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  /* ── FORM ── */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    color: var(--text-secondary);
-  }
-  .form-input, .form-select {
-    padding: 9px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 7px;
-    font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-primary);
-    background: var(--white);
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--navy); }
-  .form-section-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--text-muted);
-    padding: 6px 0 4px;
-    border-bottom: 1px solid var(--border);
-    margin: 4px 0 4px;
-    grid-column: 1 / -1;
-  }
-  .reminder-options {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    grid-column: 1 / -1;
-  }
-  .reminder-chip {
-    padding: 5px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: var(--white);
-    color: var(--text-secondary);
-    font-family: 'DM Sans', sans-serif;
-  }
-  .reminder-chip.selected {
-    background: var(--navy);
-    color: var(--white);
-    border-color: var(--navy);
-  }
-
-  /* ── SECTION ── */
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* ── CALENDAR VIEW ── */
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 8px;
-  }
-  .cal-month-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .cal-month-header {
-    background: var(--navy);
-    color: var(--white);
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  .cal-events { padding: 10px 14px; }
-  .cal-event {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .cal-event:last-child { border-bottom: none; }
-  .cal-day {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .cal-day-red { background: var(--red-bg); color: var(--red); }
-  .cal-day-amber { background: var(--amber-bg); color: var(--amber); }
-  .cal-day-navy { background: #eef2f7; color: var(--navy); }
-  .cal-event-text { font-size: 12.5px; line-height: 1.4; }
-  .cal-event-prop { font-weight: 500; color: var(--text-primary); }
-  .cal-event-type { font-size: 11px; color: var(--text-muted); }
-
-  /* ── PROPERTY CARDS ── */
-  .props-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-  .prop-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: box-shadow 0.15s, transform 0.15s;
-  }
-  .prop-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-1px); }
-  .prop-card-header {
-    background: var(--navy);
-    padding: 16px 18px;
-    position: relative;
-  }
-  .prop-card-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 15px;
-    color: var(--white);
-    font-weight: 400;
-  }
-  .prop-card-market {
-    font-size: 11px;
-    color: rgba(255,255,255,0.55);
-    margin-top: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-  .prop-card-status {
-    position: absolute;
-    top: 14px; right: 14px;
-  }
-  .prop-card-body { padding: 14px 18px; }
-  .prop-metric {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12.5px;
-  }
-  .prop-metric:last-child { border-bottom: none; }
-  .prop-metric-label { color: var(--text-muted); }
-  .prop-metric-value { font-weight: 500; color: var(--text-primary); }
-  .prop-card-footer {
-    padding: 10px 18px;
-    background: #f8f9fb;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-  }
-
-  /* ── NOTIFICATIONS PANEL ── */
-  .notif-banner {
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    color: var(--white);
-  }
-  .notif-icon {
-    width: 44px; height: 44px;
-    background: var(--gold);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-  .notif-text h3 { font-size: 14px; font-weight: 600; }
-  .notif-text p { font-size: 12.5px; color: rgba(255,255,255,0.7); margin-top: 3px; }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state-title { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 28px; right: 28px;
-    background: var(--navy);
-    color: var(--white);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 500;
-    z-index: 999;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: all 0.25s;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 1100px) {
-    .stats-strip { grid-template-columns: repeat(2, 1fr); }
-    .props-grid { grid-template-columns: repeat(2, 1fr); }
-    .cal-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0d1b2a;--navy-mid:#1a2e45;--gold:#c8973a;--gold-light:#e8b55a;--gold-pale:#fdf3e3;--cream:#f8f5f0;--white:#fff;--tp:#0d1b2a;--ts:#4a5568;--tm:#8a9bb0;--border:#e2e8f0;--bs:#cbd5e0;--red:#c53030;--rbg:#fff5f5;--rbr:#feb2b2;--amber:#b7791f;--abg:#fffbeb;--abr:#f6e05e;--green:#276749;--gbg:#f0fff4;--gbr:#9ae6b4;--sw:240px;--hh:64px}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--tp);min-height:100vh}
+header{height:var(--hh);background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:fixed;top:0;left:0;right:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.lm{width:36px;height:36px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:var(--navy)}
+.lt{font-family:'DM Serif Display',serif;font-size:17px;color:#fff}
+.ls{font-size:10px;color:var(--tm);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hr{display:flex;align-items:center;gap:16px}
+.hd{font-size:12px;color:var(--tm)}
+.av{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--navy)}
+.dbs{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tm)}
+.dbd{width:7px;height:7px;border-radius:50%;background:var(--amber);transition:background .3s}
+.dbd.on{background:var(--green)}
+.layout{display:flex;padding-top:var(--hh);min-height:100vh}
+.sb{width:var(--sw);background:var(--navy);position:fixed;top:var(--hh);left:0;bottom:0;overflow-y:auto;padding:24px 0 40px}
+.ns{padding:0 16px 8px;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--tm);margin-top:20px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13.5px;color:rgba(255,255,255,.65);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.ni:hover{color:#fff;background:rgba(255,255,255,.06)}
+.ni.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(200,151,58,.1)}
+main{margin-left:var(--sw);flex:1;padding:32px 36px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.pt{font-family:'DM Serif Display',serif;font-size:28px;color:var(--navy);font-weight:400}
+.ps{font-size:13.5px;color:var(--ts);margin-top:4px}
+.btn{padding:9px 18px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn-p{background:var(--navy);color:#fff}.btn-p:hover{background:var(--navy-mid)}
+.btn-g{background:var(--gold);color:var(--navy)}.btn-g:hover{background:var(--gold-light)}
+.btn-o{background:transparent;color:var(--tp);border:1px solid var(--bs)}.btn-o:hover{background:#fff}
+.btn-s{padding:6px 12px;font-size:12px}
+.ss{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.sc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.u::before{background:var(--red)}.sc.w::before{background:var(--amber)}.sc.ok::before{background:var(--green)}.sc.i::before{background:var(--navy)}
+.sl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:6px}
+.sv{font-family:'DM Serif Display',serif;font-size:32px;color:var(--navy);line-height:1}
+.su{font-size:12px;color:var(--ts);margin-top:5px}
+.tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px;margin-bottom:24px;width:fit-content}
+.tab{padding:8px 18px;font-size:13.5px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--ts);border:none;background:transparent;font-family:'DM Sans',sans-serif}
+.tab:hover{color:var(--tp)}.tab.active{background:var(--navy);color:#fff}
+.fr{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.sb2{flex:1;max-width:280px;position:relative}
+.sb2 input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none}
+.sb2 input:focus{border-color:var(--navy)}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--tm)}
+select.fs{padding:8px 12px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--tp);outline:none;cursor:pointer}
+.tw{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:#f8f9fb;padding:11px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ts);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#fafbfc}
+td{padding:13px 16px;vertical-align:middle}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.br{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}
+.ba{background:var(--abg);color:var(--amber);border:1px solid var(--abr)}
+.bg{background:var(--gbg);color:var(--green);border:1px solid var(--gbr)}
+.bn{background:#eef2f7;color:var(--navy);border:1px solid #c9d6e3}
+.bgo{background:var(--gold-pale);color:#92600f;border:1px solid #e8c97a}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dr{background:var(--red)}.da{background:var(--amber)}.dg{background:var(--green)}
+.pc2{display:flex;align-items:center;gap:10px}
+.pi{width:30px;height:30px;background:#eef2f7;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pn2{font-weight:500}.pl{font-size:11.5px;color:var(--tm);margin-top:1px}
+.dp{font-size:13px;font-weight:600}
+.du{color:var(--red)}.dw{color:var(--amber)}.dook{color:var(--green)}
+.ab{display:flex;gap:6px}
+.mo{display:none;position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:200;align-items:center;justify-content:center;padding:20px}
+.mo.open{display:flex}
+.md{background:#fff;border-radius:14px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mh{padding:22px 26px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.mt{font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy);font-weight:400}
+.mst{font-size:13px;color:var(--ts);margin-top:3px}
+.mc{background:none;border:none;font-size:22px;color:var(--tm);cursor:pointer;line-height:1;padding:0}
+.mb{padding:22px 26px}
+.mf{padding:16px 26px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fgr{display:flex;flex-direction:column;gap:5px}
+.fgr.full{grid-column:1/-1}
+.fl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--ts)}
+.fi,.fsel{padding:9px 12px;border:1px solid var(--bs);border-radius:7px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--tp);background:#fff;outline:none;width:100%}
+.fi:focus,.fsel:focus{border-color:var(--navy)}
+.fst{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:6px 0 4px;border-bottom:1px solid var(--border);margin:4px 0;grid-column:1/-1}
+.ro{display:flex;gap:8px;flex-wrap:wrap;grid-column:1/-1}
+.rc{padding:5px 12px;border:1px solid var(--bs);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;background:#fff;color:var(--ts);font-family:'DM Sans',sans-serif}
+.rc.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+.sec{display:none}.sec.active{display:block}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.cmc{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cmh{background:var(--navy);color:#fff;padding:10px 16px;font-size:13px;font-weight:600}
+.ce{padding:10px 14px}
+.cev{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.cev:last-child{border-bottom:none}
+.cd{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.cdr{background:var(--rbg);color:var(--red)}.cda{background:var(--abg);color:var(--amber)}.cdn{background:#eef2f7;color:var(--navy)}
+.cpn{font-weight:500;font-size:12.5px}.cpt{font-size:11px;color:var(--tm)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pcard{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .15s,transform .15s}
+.pcard:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-1px)}
+.pch{background:var(--navy);padding:16px 18px;position:relative}
+.pcn{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;font-weight:400}
+.pcm{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;text-transform:uppercase;letter-spacing:.8px}
+.pcs{position:absolute;top:14px;right:14px}
+.pcb{padding:14px 18px}
+.pm{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.pm:last-child{border-bottom:none}
+.pml{color:var(--tm)}.pmv{font-weight:500}
+.pcf{padding:10px 18px;background:#f8f9fb;border-top:1px solid var(--border);display:flex;gap:6px;justify-content:flex-end}
+.nb{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px;color:#fff}
+.ni2{width:44px;height:44px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--navy);flex-shrink:0}
+.nt h3{font-size:14px;font-weight:600}.nt p{font-size:12.5px;color:rgba(255,255,255,.7);margin-top:3px}
+.es{text-align:center;padding:60px 20px;color:var(--tm)}
+.ei{font-size:40px;margin-bottom:12px}.et{font-size:15px;font-weight:500;color:var(--ts);margin-bottom:6px}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:13.5px;font-weight:500;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <header>
-  <div class="logo">
-    <div class="logo-mark">LM</div>
-    <div>
-      <div class="logo-text">LM Real Estate Partners</div>
-      <div class="logo-sub">Asset Management Platform</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <span class="header-date" id="todayDate"></span>
-    <div class="avatar" title="Account">JD</div>
+  <div class="logo"><div class="lm">LM</div><div><div class="lt">LM Real Estate Partners</div><div class="ls">Asset Management Platform</div></div></div>
+  <div class="hr">
+    <div class="dbs"><div class="dbd" id="dbd"></div><span id="dbs">Connecting...</span></div>
+    <span class="hd" id="hdate"></span>
+    <div class="av">LM</div>
   </div>
 </header>
-
-<!-- LAYOUT -->
 <div class="layout">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="nav-section">Navigation</div>
-    <a class="nav-item active" onclick="showSection('dashboard')">
-      <span class="nav-icon">⊞</span> Dashboard
-    </a>
-    <a class="nav-item" onclick="showSection('loans')">
-      <span class="nav-icon">⬡</span> Loan Agreements
-    </a>
-    <a class="nav-item" onclick="showSection('deals')">
-      <span class="nav-icon">◈</span> Deal Pipeline
-    </a>
-    <a class="nav-item" onclick="showSection('properties')">
-      <span class="nav-icon">▦</span> Properties
-    </a>
-    <div class="nav-section">Tools</div>
-    <a class="nav-item" onclick="showSection('calendar')">
-      <span class="nav-icon">◻</span> Calendar View
-    </a>
-    <a class="nav-item" onclick="exportICS()">
-      <span class="nav-icon">↓</span> Export to Calendar
-    </a>
-    <a class="nav-item" onclick="showSection('reminders')">
-      <span class="nav-icon">◎</span> Email Reminders
-    </a>
-    <a class="nav-item" onclick="showSection('settings')">
-      <span class="nav-icon">⚙</span> Settings
-    </a>
+  <div class="sb">
+    <div class="ns">Navigation</div>
+    <a class="ni active" onclick="go('dashboard',this)">⊞ Dashboard</a>
+    <a class="ni" onclick="go('loans',this)">⬡ Loan Agreements</a>
+    <a class="ni" onclick="go('deals',this)">◈ Deal Pipeline</a>
+    <a class="ni" onclick="go('properties',this)">▦ Properties</a>
+    <div class="ns">Tools</div>
+    <a class="ni" onclick="go('calendar',this)">◻ Calendar View</a>
+    <a class="ni" onclick="exportICS()">↓ Export to Calendar</a>
+    <a class="ni" onclick="go('reminders',this)">◎ Email Reminders</a>
+    <a class="ni" onclick="go('settings',this)">⚙ Settings</a>
   </div>
-
-  <!-- MAIN -->
   <main>
-
-    <!-- ── DASHBOARD ── -->
-    <div class="section active" id="section-dashboard">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Good morning, Team</div>
-          <div class="page-subtitle">Here's your critical date summary across all 12 properties.</div>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-outline" onclick="exportICS()">⬇ Export .ICS</button>
-          <button class="btn btn-gold" onclick="openModal('loan')">+ Add Date</button>
-        </div>
+    <div class="sec active" id="s-dashboard">
+      <div class="ph">
+        <div><div class="pt">Good morning, Team</div><div class="ps">Critical date summary across all properties.</div></div>
+        <div style="display:flex;gap:10px"><button class="btn btn-o" onclick="exportICS()">⬇ Export .ICS</button><button class="btn btn-g" onclick="om('loan')">+ Add Date</button></div>
       </div>
-
-      <!-- Notification Banner -->
-      <div class="notif-banner">
-        <div class="notif-icon">🔔</div>
-        <div class="notif-text">
-          <h3 id="urgentBannerText">Loading critical alerts...</h3>
-          <p>Email reminders configured · Calendar sync active · Southeast industrial portfolio</p>
-        </div>
-        <button class="btn btn-outline btn-sm" style="margin-left:auto;color:white;border-color:rgba(255,255,255,0.3);" onclick="showSection('reminders')">Manage Alerts</button>
+      <div class="nb"><div class="ni2">🔔</div><div class="nt"><h3 id="btext">Loading...</h3><p>Southeast industrial portfolio · Email reminders · Calendar sync</p></div><button class="btn btn-o btn-s" style="margin-left:auto;color:#fff;border-color:rgba(255,255,255,.3)" onclick="go('reminders',null)">Manage Alerts</button></div>
+      <div class="ss">
+        <div class="sc u"><div class="sl">🔴 Due ≤ 30 Days</div><div class="sv" id="su">—</div><div class="su">Requires immediate action</div></div>
+        <div class="sc w"><div class="sl">🟡 Due 31–90 Days</div><div class="sv" id="sw">—</div><div class="su">Monitor closely</div></div>
+        <div class="sc ok"><div class="sl">🟢 Due 90+ Days</div><div class="sv" id="so">—</div><div class="su">On track</div></div>
+        <div class="sc i"><div class="sl">Total Tracked Dates</div><div class="sv" id="st">—</div><div class="su" id="sps">Across all properties</div></div>
       </div>
-
-      <!-- Stats -->
-      <div class="stats-strip">
-        <div class="stat-card urgent">
-          <div class="stat-label">🔴 Due ≤ 30 Days</div>
-          <div class="stat-value" id="stat-urgent">—</div>
-          <div class="stat-sub">Requires immediate action</div>
-        </div>
-        <div class="stat-card warning">
-          <div class="stat-label">🟡 Due 31–90 Days</div>
-          <div class="stat-value" id="stat-warning">—</div>
-          <div class="stat-sub">Monitor closely</div>
-        </div>
-        <div class="stat-card ok">
-          <div class="stat-label">🟢 Due 90+ Days</div>
-          <div class="stat-value" id="stat-ok">—</div>
-          <div class="stat-sub">On track</div>
-        </div>
-        <div class="stat-card info">
-          <div class="stat-label">Total Tracked Dates</div>
-          <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-sub" id="stat-props-sub">Across all properties</div>
-        </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--navy)">Upcoming Critical Dates</h2>
+        <div class="tabs" style="margin-bottom:0"><button class="tab active" onclick="fd2('all',this)">All</button><button class="tab" onclick="fd2('loan',this)">Loans</button><button class="tab" onclick="fd2('deal',this)">Deals</button></div>
       </div>
-
-      <!-- Upcoming Critical Dates Table -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--navy);">Upcoming Critical Dates</h2>
-        <div class="tabs" style="margin-bottom:0;">
-          <button class="tab active" onclick="filterDashboard('all',this)">All</button>
-          <button class="tab" onclick="filterDashboard('loan',this)">Loans</button>
-          <button class="tab" onclick="filterDashboard('deal',this)">Deals</button>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Date Type</th>
-              <th>Category</th>
-              <th>Due Date</th>
-              <th>Days Left</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="dashboardTbody"></tbody>
-        </table>
-      </div>
+      <div class="tw"><table><thead><tr><th>Property</th><th>Date Type</th><th>Category</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dtb"></tbody></table></div>
     </div>
 
-    <!-- ── LOANS ── -->
-    <div class="section" id="section-loans">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Loan Agreements</div>
-          <div class="page-subtitle">Track maturity dates, rate cap expirations, extension options & more.</div>
-        </div>
-        <button class="btn btn-gold" onclick="openModal('loan')">+ Add Loan Date</button>
+    <div class="sec" id="s-loans">
+      <div class="ph"><div><div class="pt">Loan Agreements</div><div class="ps">Track maturity dates, rate cap expirations, extension options & more.</div></div><button class="btn btn-g" onclick="om('loan')">+ Add Loan Date</button></div>
+      <div class="fr">
+        <div class="sb2"><span class="si">🔍</span><input type="text" placeholder="Search properties, lenders…" oninput="fls(this.value)"/></div>
+        <select class="fs" onchange="flt(this.value)"><option value="">All Date Types</option><option>Maturity</option><option>Rate Cap Expiration</option><option>Extension Option Deadline</option><option>Interest Reset</option><option>Swap Expiration</option></select>
+        <select class="fs" onchange="flst(this.value)"><option value="">All Statuses</option><option value="u">Urgent</option><option value="w">Warning</option><option value="ok">OK</option></select>
       </div>
-      <div class="filters-row">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search properties, lenders…" oninput="filterLoans(this.value)" />
-        </div>
-        <select class="filter-select" onchange="filterLoanType(this.value)">
-          <option value="">All Date Types</option>
-          <option value="Maturity">Maturity Date</option>
-          <option value="Rate Cap">Rate Cap Expiration</option>
-          <option value="Extension">Extension Option</option>
-          <option value="Interest">Interest Reset</option>
-          <option value="Swap">Swap Expiration</option>
-        </select>
-        <select class="filter-select" onchange="filterLoanStatus(this.value)">
-          <option value="">All Statuses</option>
-          <option value="urgent">Urgent (≤30 days)</option>
-          <option value="warning">Warning (31–90 days)</option>
-          <option value="ok">OK (90+ days)</option>
-        </select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Lender</th>
-              <th>Date Type</th>
-              <th>Date</th>
-              <th>Loan Amount</th>
-              <th>Days Left</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="loansTbody"></tbody>
-        </table>
-      </div>
+      <div class="tw"><table><thead><tr><th>Property</th><th>Lender</th><th>Date Type</th><th>Date</th><th>Loan Amount</th><th>Days Left</th><th>Status</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="ltb"></tbody></table></div>
     </div>
 
-    <!-- ── DEALS ── -->
-    <div class="section" id="section-deals">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Deal Pipeline</div>
-          <div class="page-subtitle">Acquisitions, dispositions, and refinancing — all key milestone dates.</div>
-        </div>
-        <button class="btn btn-gold" onclick="openModal('deal')">+ Add Deal Date</button>
+    <div class="sec" id="s-deals">
+      <div class="ph"><div><div class="pt">Deal Pipeline</div><div class="ps">Acquisitions, dispositions, and refinancing — all key milestone dates.</div></div><button class="btn btn-g" onclick="om('deal')">+ Add Deal Date</button></div>
+      <div class="fr">
+        <div class="sb2"><span class="si">🔍</span><input type="text" placeholder="Search deals, brokers…" oninput="fds(this.value)"/></div>
+        <select class="fs" onchange="fdt(this.value)"><option value="">All Types</option><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select>
       </div>
-      <div class="filters-row">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search deals, brokers…" oninput="filterDeals(this.value)" />
-        </div>
-        <select class="filter-select" onchange="filterDealType(this.value)">
-          <option value="">All Types</option>
-          <option value="Acquisition">Acquisition</option>
-          <option value="Disposition">Disposition</option>
-          <option value="Refinance">Refinance</option>
-        </select>
-        <select class="filter-select" onchange="filterDealMilestone(this.value)">
-          <option value="">All Milestones</option>
-          <option value="Due Diligence">End of Due Diligence</option>
-          <option value="Hard Deposit">Hard Deposit Deadline</option>
-          <option value="Closing">Closing Date</option>
-          <option value="LOI">LOI Expiration</option>
-          <option value="PSA">PSA Execution</option>
-        </select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Deal Type</th>
-              <th>Milestone</th>
-              <th>Date</th>
-              <th>Counterparty</th>
-              <th>Broker</th>
-              <th>Days Left</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="dealsTbody"></tbody>
-        </table>
-      </div>
+      <div class="tw"><table><thead><tr><th>Property</th><th>Deal Type</th><th>Milestone</th><th>Date</th><th>Counterparty</th><th>Broker</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ddtb"></tbody></table></div>
     </div>
 
-    <!-- ── PROPERTIES ── -->
-    <div class="section" id="section-properties">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Properties</div>
-          <div class="page-subtitle">12 industrial assets across the Southeast US.</div>
-        </div>
-        <button class="btn btn-gold" onclick="openModal('property')">+ Add Property</button>
-      </div>
-      <div class="props-grid" id="propsGrid"></div>
+    <div class="sec" id="s-properties">
+      <div class="ph"><div><div class="pt">Properties</div><div class="ps" id="pcount">Loading...</div></div><button class="btn btn-g" onclick="om('property')">+ Add Property</button></div>
+      <div class="pg" id="pgrid"></div>
     </div>
 
-    <!-- ── CALENDAR ── -->
-    <div class="section" id="section-calendar">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Calendar View</div>
-          <div class="page-subtitle">All upcoming dates organized by month.</div>
-        </div>
-        <button class="btn btn-outline" onclick="exportICS()">⬇ Export .ICS</button>
-      </div>
-      <div class="cal-grid" id="calGrid"></div>
+    <div class="sec" id="s-calendar">
+      <div class="ph"><div><div class="pt">Calendar View</div><div class="ps">All upcoming dates organized by month.</div></div><button class="btn btn-o" onclick="exportICS()">⬇ Export .ICS</button></div>
+      <div class="cg" id="cgrid"></div>
     </div>
 
-    <!-- ── REMINDERS ── -->
-    <div class="section" id="section-reminders">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Email Reminders</div>
-          <div class="page-subtitle">Configure automated reminder emails for your team.</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-        <div class="table-wrap" style="padding:24px;">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px;">Reminder Schedule</h3>
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Emails will be sent to all team members at these intervals before each date:</p>
-          <div style="display:flex;flex-direction:column;gap:10px;" id="reminderScheduleList"></div>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-muted);margin-bottom:10px;">Add Custom Interval</p>
-            <div style="display:flex;gap:8px;">
-              <input class="form-input" type="number" id="customDays" placeholder="Days before" style="width:140px;" />
-              <button class="btn btn-primary" onclick="addReminderDay()">Add</button>
-            </div>
+    <div class="sec" id="s-reminders">
+      <div class="ph"><div><div class="pt">Email Reminders</div><div class="ps">Configure automated reminder emails for your team.</div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="tw" style="padding:24px">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Reminder Schedule</h3>
+          <div style="display:flex;flex-direction:column;gap:10px" id="rsl"></div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tm);margin-bottom:10px">Add Custom Interval</p>
+            <div style="display:flex;gap:8px"><input class="fi" type="number" id="cd2" placeholder="Days before" style="width:140px"/><button class="btn btn-p" onclick="ard()">Add</button></div>
           </div>
         </div>
-        <div class="table-wrap" style="padding:24px;">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px;">Team Recipients</h3>
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">These team members receive all reminder emails:</p>
-          <div style="display:flex;flex-direction:column;gap:8px;" id="teamList"></div>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-muted);margin-bottom:10px;">Add Team Member</p>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <input class="form-input" type="text" id="newMemberName" placeholder="Full name" />
-              <input class="form-input" type="email" id="newMemberEmail" placeholder="Email address" />
-              <button class="btn btn-primary" onclick="addTeamMember()">Add Member</button>
+        <div class="tw" style="padding:24px">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Team Recipients</h3>
+          <div style="display:flex;flex-direction:column;gap:8px" id="tl"></div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tm);margin-bottom:10px">Add Team Member</p>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input class="fi" type="text" id="nmn" placeholder="Full name"/>
+              <input class="fi" type="email" id="nme" placeholder="Email address"/>
+              <button class="btn btn-p" onclick="atm()">Add Member</button>
             </div>
           </div>
         </div>
       </div>
-      <div class="table-wrap" style="padding:24px;margin-top:20px;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:8px;">SendGrid Integration</h3>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Connect your SendGrid account to enable automated email delivery.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="form-group">
-            <label class="form-label">SendGrid API Key</label>
-            <input class="form-input" type="password" id="sgKey" placeholder="SG.xxxxxxxxxxxxx" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">From Email</label>
-            <input class="form-input" type="email" id="sgFrom" placeholder="alerts@lmrep.com" />
-          </div>
+      <div class="tw" style="padding:24px;margin-top:20px">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:8px">SendGrid Integration</h3>
+        <p style="font-size:13px;color:var(--ts);margin-bottom:16px">Connect SendGrid to enable automated email delivery.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="fgr"><label class="fl">SendGrid API Key</label><input class="fi" type="password" placeholder="SG.xxxxx"/></div>
+          <div class="fgr"><label class="fl">From Email</label><input class="fi" type="email" placeholder="alerts@lmrep.com"/></div>
         </div>
-        <button class="btn btn-primary" style="margin-top:14px;" onclick="saveSGSettings()">Save & Test Connection</button>
+        <button class="btn btn-p" style="margin-top:14px" onclick="toast('Settings saved ✓')">Save & Test Connection</button>
       </div>
     </div>
 
-    <!-- ── SETTINGS ── -->
-    <div class="section" id="section-settings">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Settings</div>
-          <div class="page-subtitle">Company and platform configuration.</div>
-        </div>
-      </div>
-      <div class="table-wrap" style="padding:24px;max-width:560px;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px;">Company Info</h3>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="form-group">
-            <label class="form-label">Company Name</label>
-            <input class="form-input" value="LM Real Estate Partners" readonly />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Portfolio Focus</label>
-            <input class="form-input" value="Industrial — Southeast US" readonly />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Timezone</label>
-            <select class="form-select">
-              <option selected>Eastern Time (ET)</option>
-              <option>Central Time (CT)</option>
-            </select>
-          </div>
-          <button class="btn btn-primary" onclick="showToast('Settings saved ✓')">Save Settings</button>
+    <div class="sec" id="s-settings">
+      <div class="ph"><div><div class="pt">Settings</div><div class="ps">Company and platform configuration.</div></div></div>
+      <div class="tw" style="padding:24px;max-width:560px">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin-bottom:16px">Company Info</h3>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="fgr"><label class="fl">Company Name</label><input class="fi" value="LM Real Estate Partners" readonly/></div>
+          <div class="fgr"><label class="fl">Portfolio Focus</label><input class="fi" value="Industrial — Southeast US" readonly/></div>
+          <div class="fgr"><label class="fl">Timezone</label><select class="fsel"><option selected>Eastern Time (ET)</option><option>Central Time (CT)</option></select></div>
+          <button class="btn btn-p" onclick="toast('Settings saved ✓')">Save Settings</button>
         </div>
       </div>
     </div>
-
   </main>
 </div>
 
-<!-- ── LOAN MODAL ── -->
-<div class="modal-overlay" id="modal-loan">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">Add Loan Date</div>
-        <div class="modal-subtitle">Track a key date tied to a loan agreement</div>
+<!-- LOAN MODAL -->
+<div class="mo" id="m-loan">
+  <div class="md">
+    <div class="mh"><div><div class="mt">Add Loan Date</div><div class="mst">Track a key date tied to a loan agreement</div></div><button class="mc" onclick="cm('loan')">×</button></div>
+    <div class="mb"><div class="fg">
+      <div class="fgr"><label class="fl">Property</label><select class="fsel" id="lp"></select></div>
+      <div class="fgr"><label class="fl">Lender</label><input class="fi" type="text" id="ll" placeholder="e.g. Wells Fargo"/></div>
+      <div class="fgr"><label class="fl">Date Type</label><select class="fsel" id="ltype"><option>Maturity</option><option>Rate Cap Expiration</option><option>Extension Option Deadline</option><option>Interest Reset</option><option>Swap Expiration</option><option>Covenant Review</option><option>Reporting Deadline</option></select></div>
+      <div class="fgr"><label class="fl">Date</label><input class="fi" type="date" id="ld"/></div>
+      <div class="fgr"><label class="fl">Loan Amount ($)</label><input class="fi" type="number" id="la" placeholder="12500000"/></div>
+      <div class="fgr"><label class="fl">Interest Rate</label><input class="fi" type="text" id="lr" placeholder="SOFR + 2.25%"/></div>
+      <div class="fgr full"><label class="fl">Notes</label><input class="fi" type="text" id="ln" placeholder="Any important details..."/></div>
+      <div class="fst">Reminder Schedule</div>
+      <div class="ro" id="lrem">
+        <span class="rc sel">90 days</span><span class="rc sel">60 days</span><span class="rc sel">30 days</span><span class="rc sel">14 days</span><span class="rc sel">7 days</span>
       </div>
-      <button class="modal-close" onclick="closeModal('loan')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Property</label>
-          <select class="form-select" id="loan-property"></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Lender</label>
-          <input class="form-input" type="text" id="loan-lender" placeholder="e.g. Wells Fargo" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date Type</label>
-          <select class="form-select" id="loan-type">
-            <option>Maturity</option>
-            <option>Rate Cap Expiration</option>
-            <option>Extension Option Deadline</option>
-            <option>Interest Reset</option>
-            <option>Swap Expiration</option>
-            <option>Covenant Review</option>
-            <option>Reporting Deadline</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input class="form-input" type="date" id="loan-date" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Loan Amount ($)</label>
-          <input class="form-input" type="number" id="loan-amount" placeholder="e.g. 12500000" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Interest Rate</label>
-          <input class="form-input" type="text" id="loan-rate" placeholder="e.g. SOFR + 2.25%" />
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Notes</label>
-          <input class="form-input" type="text" id="loan-notes" placeholder="Any important details..." />
-        </div>
-        <div class="form-section-title">Reminder Schedule</div>
-        <div class="reminder-options" id="loan-reminders">
-          <span class="reminder-chip selected" data-days="90">90 days</span>
-          <span class="reminder-chip selected" data-days="60">60 days</span>
-          <span class="reminder-chip selected" data-days="30">30 days</span>
-          <span class="reminder-chip selected" data-days="14">14 days</span>
-          <span class="reminder-chip selected" data-days="7">7 days</span>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('loan')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveLoan()">Save Loan Date</button>
-    </div>
+    </div></div>
+    <div class="mf"><button class="btn btn-o" onclick="cm('loan')">Cancel</button><button class="btn btn-g" onclick="saveLoan()">Save Loan Date</button></div>
   </div>
 </div>
 
-<!-- ── DEAL MODAL ── -->
-<div class="modal-overlay" id="modal-deal">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">Add Deal Milestone</div>
-        <div class="modal-subtitle">Track key dates for acquisitions, dispositions, or refinancing</div>
+<!-- DEAL MODAL -->
+<div class="mo" id="m-deal">
+  <div class="md">
+    <div class="mh"><div><div class="mt">Add Deal Milestone</div><div class="mst">Track key dates for acquisitions, dispositions, or refinancing</div></div><button class="mc" onclick="cm('deal')">×</button></div>
+    <div class="mb"><div class="fg">
+      <div class="fgr"><label class="fl">Property</label><select class="fsel" id="dp2"></select></div>
+      <div class="fgr"><label class="fl">Deal Type</label><select class="fsel" id="ddt"><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select></div>
+      <div class="fgr"><label class="fl">Milestone</label><select class="fsel" id="dm"><option>End of Due Diligence</option><option>Hard Deposit Deadline</option><option>Closing Date</option><option>LOI Expiration</option><option>PSA Execution</option><option>Loan Application Deadline</option><option>Environmental Study Due</option><option>Appraisal Deadline</option></select></div>
+      <div class="fgr"><label class="fl">Date</label><input class="fi" type="date" id="dd2"/></div>
+      <div class="fgr"><label class="fl">Counterparty</label><input class="fi" type="text" id="dc" placeholder="Buyer / Seller name"/></div>
+      <div class="fgr"><label class="fl">Broker</label><input class="fi" type="text" id="db2" placeholder="Brokerage firm"/></div>
+      <div class="fgr full"><label class="fl">Notes</label><input class="fi" type="text" id="dn" placeholder="Deposit amount, conditions, etc."/></div>
+      <div class="fst">Reminder Schedule</div>
+      <div class="ro" id="drem">
+        <span class="rc sel">30 days</span><span class="rc sel">14 days</span><span class="rc sel">7 days</span><span class="rc sel">3 days</span><span class="rc sel">1 day</span>
       </div>
-      <button class="modal-close" onclick="closeModal('deal')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Property</label>
-          <select class="form-select" id="deal-property"></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Deal Type</label>
-          <select class="form-select" id="deal-dealtype">
-            <option>Acquisition</option>
-            <option>Disposition</option>
-            <option>Refinance</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Milestone</label>
-          <select class="form-select" id="deal-milestone">
-            <option>End of Due Diligence</option>
-            <option>Hard Deposit Deadline</option>
-            <option>Closing Date</option>
-            <option>LOI Expiration</option>
-            <option>PSA Execution</option>
-            <option>Loan Application Deadline</option>
-            <option>Environmental Study Due</option>
-            <option>Appraisal Deadline</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input class="form-input" type="date" id="deal-date" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Counterparty</label>
-          <input class="form-input" type="text" id="deal-counterparty" placeholder="Buyer / Seller name" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Broker</label>
-          <input class="form-input" type="text" id="deal-broker" placeholder="Brokerage firm" />
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Notes</label>
-          <input class="form-input" type="text" id="deal-notes" placeholder="Deposit amount, conditions, etc." />
-        </div>
-        <div class="form-section-title">Reminder Schedule</div>
-        <div class="reminder-options" id="deal-reminders">
-          <span class="reminder-chip selected" data-days="30">30 days</span>
-          <span class="reminder-chip selected" data-days="14">14 days</span>
-          <span class="reminder-chip selected" data-days="7">7 days</span>
-          <span class="reminder-chip selected" data-days="3">3 days</span>
-          <span class="reminder-chip selected" data-days="1">1 day</span>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('deal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveDeal()">Save Milestone</button>
-    </div>
+    </div></div>
+    <div class="mf"><button class="btn btn-o" onclick="cm('deal')">Cancel</button><button class="btn btn-g" onclick="saveDeal()">Save Milestone</button></div>
   </div>
 </div>
 
-<!-- ── PROPERTY MODAL ── -->
-<div class="modal-overlay" id="modal-property">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">Add Property</div>
-        <div class="modal-subtitle">Add a new industrial asset to the portfolio</div>
-      </div>
-      <button class="modal-close" onclick="closeModal('property')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full">
-          <label class="form-label">Property Name</label>
-          <input class="form-input" type="text" id="prop-name" placeholder="e.g. Southeast Logistics Center" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">City</label>
-          <input class="form-input" type="text" id="prop-city" placeholder="e.g. Atlanta" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">State</label>
-          <select class="form-select" id="prop-state">
-            <option value="AL">Alabama</option><option value="FL">Florida</option><option value="GA" selected>Georgia</option><option value="MS">Mississippi</option><option value="NC">North Carolina</option><option value="SC">South Carolina</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="VA">Virginia</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Square Footage</label>
-          <input class="form-input" type="number" id="prop-sqft" placeholder="e.g. 250000" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="prop-status">
-            <option>Active</option>
-            <option>Acquisition</option>
-            <option>Disposition</option>
-            <option>Refinance</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Year Acquired</label>
-          <input class="form-input" type="number" id="prop-year" placeholder="e.g. 2021" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Purchase Price ($)</label>
-          <input class="form-input" type="number" id="prop-price" placeholder="e.g. 18000000" />
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('property')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveProperty()">Add Property</button>
-    </div>
+<!-- PROPERTY MODAL -->
+<div class="mo" id="m-property">
+  <div class="md">
+    <div class="mh"><div><div class="mt">Add Property</div><div class="mst">Add a new industrial asset to the portfolio</div></div><button class="mc" onclick="cm('property')">×</button></div>
+    <div class="mb"><div class="fg">
+      <div class="fgr full"><label class="fl">Property Name</label><input class="fi" type="text" id="ppn" placeholder="e.g. Southeast Logistics Center"/></div>
+      <div class="fgr"><label class="fl">City</label><input class="fi" type="text" id="ppc" placeholder="e.g. Atlanta"/></div>
+      <div class="fgr"><label class="fl">State</label><select class="fsel" id="pps"><option value="AL">Alabama</option><option value="FL">Florida</option><option value="GA" selected>Georgia</option><option value="MS">Mississippi</option><option value="NC">North Carolina</option><option value="SC">South Carolina</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="VA">Virginia</option></select></div>
+      <div class="fgr"><label class="fl">Square Footage</label><input class="fi" type="number" id="ppsf" placeholder="250000"/></div>
+      <div class="fgr"><label class="fl">Status</label><select class="fsel" id="ppst"><option>Active</option><option>Acquisition</option><option>Disposition</option><option>Refinance</option></select></div>
+      <div class="fgr"><label class="fl">Year Acquired</label><input class="fi" type="number" id="ppy" placeholder="2021"/></div>
+      <div class="fgr"><label class="fl">Purchase Price ($)</label><input class="fi" type="number" id="ppp" placeholder="18000000"/></div>
+    </div></div>
+    <div class="mf"><button class="btn btn-o" onclick="cm('property')">Cancel</button><button class="btn btn-g" onclick="saveProp()">Add Property</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toastEl"></div>
 
-<script>
-// ── STATE ──
-const STATE = {
-  properties: [
-    { id: 1, name: 'Meridian Logistics Park', city: 'Atlanta', state: 'GA', sqft: 312000, status: 'Active', year: 2019, price: 28500000 },
-    { id: 2, name: 'Palmetto Distribution Ctr', city: 'Charlotte', state: 'NC', sqft: 185000, status: 'Active', year: 2020, price: 17200000 },
-    { id: 3, name: 'Gulf Coast Industrial I', city: 'Tampa', state: 'FL', sqft: 224000, status: 'Active', year: 2021, price: 22100000 },
-    { id: 4, name: 'Blue Ridge Flex Park', city: 'Raleigh', state: 'NC', sqft: 98000, status: 'Active', year: 2020, price: 9800000 },
-    { id: 5, name: 'Magnolia Commerce Center', city: 'Nashville', state: 'TN', sqft: 278000, status: 'Active', year: 2022, price: 31000000 },
-    { id: 6, name: 'Lowcountry Warehouse Grp', city: 'Charleston', state: 'SC', sqft: 156000, status: 'Active', year: 2021, price: 14500000 },
-    { id: 7, name: 'Peachtree Industrial IX', city: 'Atlanta', state: 'GA', sqft: 420000, status: 'Refinance', year: 2018, price: 38000000 },
-    { id: 8, name: 'Sunbelt Flex Center', city: 'Orlando', state: 'FL', sqft: 132000, status: 'Active', year: 2022, price: 13200000 },
-    { id: 9, name: 'Tidewater Logistics Hub', city: 'Norfolk', state: 'VA', sqft: 268000, status: 'Active', year: 2023, price: 29400000 },
-    { id: 10, name: 'Longleaf Distribution Pk', city: 'Raleigh', state: 'NC', sqft: 194000, status: 'Acquisition', year: null, price: null },
-    { id: 11, name: 'Music City Ind Complex', city: 'Nashville', state: 'TN', sqft: 347000, status: 'Active', year: 2021, price: 34500000 },
-    { id: 12, name: 'Palmetto Gateway Ind', city: 'Columbia', state: 'SC', sqft: 211000, status: 'Disposition', year: 2019, price: 19800000 },
+<script type="module">
+const SU='https://weunoznnopaawntgxqrr.supabase.co';
+const SK='sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
+
+const D={
+  props:[
+    {id:1,name:'Meridian Logistics Park',city:'Atlanta',state:'GA',sqft:312000,status:'Active',year:2019,price:28500000},
+    {id:2,name:'Palmetto Distribution Ctr',city:'Charlotte',state:'NC',sqft:185000,status:'Active',year:2020,price:17200000},
+    {id:3,name:'Gulf Coast Industrial I',city:'Tampa',state:'FL',sqft:224000,status:'Active',year:2021,price:22100000},
+    {id:4,name:'Blue Ridge Flex Park',city:'Raleigh',state:'NC',sqft:98000,status:'Active',year:2020,price:9800000},
+    {id:5,name:'Magnolia Commerce Center',city:'Nashville',state:'TN',sqft:278000,status:'Active',year:2022,price:31000000},
+    {id:6,name:'Lowcountry Warehouse Grp',city:'Charleston',state:'SC',sqft:156000,status:'Active',year:2021,price:14500000},
+    {id:7,name:'Peachtree Industrial IX',city:'Atlanta',state:'GA',sqft:420000,status:'Refinance',year:2018,price:38000000},
+    {id:8,name:'Sunbelt Flex Center',city:'Orlando',state:'FL',sqft:132000,status:'Active',year:2022,price:13200000},
+    {id:9,name:'Tidewater Logistics Hub',city:'Norfolk',state:'VA',sqft:268000,status:'Active',year:2023,price:29400000},
+    {id:10,name:'Longleaf Distribution Pk',city:'Raleigh',state:'NC',sqft:194000,status:'Acquisition',year:null,price:null},
+    {id:11,name:'Music City Ind Complex',city:'Nashville',state:'TN',sqft:347000,status:'Active',year:2021,price:34500000},
+    {id:12,name:'Palmetto Gateway Ind',city:'Columbia',state:'SC',sqft:211000,status:'Disposition',year:2019,price:19800000},
   ],
-  loans: [
-    { id: 1, propId: 1, lender: 'Wells Fargo', type: 'Maturity', date: '2025-08-15', amount: 18500000, rate: 'SOFR+2.10%', notes: 'Extension option available' },
-    { id: 2, propId: 1, lender: 'Wells Fargo', type: 'Rate Cap Expiration', date: '2025-07-01', amount: 18500000, rate: 'SOFR+2.10%', notes: 'Must renew cap' },
-    { id: 3, propId: 7, lender: 'JP Morgan', type: 'Maturity', date: '2025-06-30', amount: 24000000, rate: 'SOFR+1.95%', notes: 'Refi underway' },
-    { id: 4, propId: 7, lender: 'JP Morgan', type: 'Rate Cap Expiration', date: '2025-06-01', amount: 24000000, rate: 'SOFR+1.95%', notes: '' },
-    { id: 5, propId: 3, lender: 'Regions Bank', type: 'Extension Option Deadline', date: '2025-09-15', amount: 14800000, rate: '6.25% Fixed', notes: '1yr extension available' },
-    { id: 6, propId: 5, lender: 'Berkadia', type: 'Maturity', date: '2026-02-01', amount: 20000000, rate: 'SOFR+2.30%', notes: '' },
-    { id: 7, propId: 9, lender: 'KeyBank', type: 'Rate Cap Expiration', date: '2025-11-30', amount: 19500000, rate: 'SOFR+2.05%', notes: 'Cap cost est. $180k' },
-    { id: 8, propId: 11, lender: 'CBRE Capital', type: 'Maturity', date: '2026-01-15', amount: 22500000, rate: 'SOFR+2.15%', notes: '' },
-    { id: 9, propId: 2, lender: 'Truist Bank', type: 'Swap Expiration', date: '2025-10-31', amount: 11000000, rate: 'Fixed via Swap', notes: 'Mark-to-market at expiry' },
-    { id: 10, propId: 4, lender: 'First Citizens', type: 'Interest Reset', date: '2025-07-01', amount: 6800000, rate: '5.75% Fixed', notes: 'Resets to SOFR+2.50%' },
+  loans:[
+    {id:1,propId:1,lender:'Wells Fargo',type:'Maturity',date:'2025-08-15',amount:18500000,rate:'SOFR+2.10%',notes:'Extension option available'},
+    {id:2,propId:1,lender:'Wells Fargo',type:'Rate Cap Expiration',date:'2025-07-01',amount:18500000,rate:'SOFR+2.10%',notes:'Must renew cap'},
+    {id:3,propId:7,lender:'JP Morgan',type:'Maturity',date:'2025-06-30',amount:24000000,rate:'SOFR+1.95%',notes:'Refi underway'},
+    {id:4,propId:3,lender:'Regions Bank',type:'Extension Option Deadline',date:'2025-09-15',amount:14800000,rate:'6.25% Fixed',notes:'1yr extension available'},
+    {id:5,propId:5,lender:'Berkadia',type:'Maturity',date:'2026-02-01',amount:20000000,rate:'SOFR+2.30%',notes:''},
+    {id:6,propId:9,lender:'KeyBank',type:'Rate Cap Expiration',date:'2025-11-30',amount:19500000,rate:'SOFR+2.05%',notes:'Cap cost est. $180k'},
+    {id:7,propId:2,lender:'Truist Bank',type:'Swap Expiration',date:'2025-10-31',amount:11000000,rate:'Fixed via Swap',notes:'Mark-to-market at expiry'},
+    {id:8,propId:4,lender:'First Citizens',type:'Interest Reset',date:'2025-07-01',amount:6800000,rate:'5.75% Fixed',notes:'Resets to SOFR+2.50%'},
   ],
-  deals: [
-    { id: 1, propId: 10, dealType: 'Acquisition', milestone: 'End of Due Diligence', date: '2025-06-20', counterparty: 'Brookfield Industrial', broker: 'CBRE', notes: '$1.5M deposit goes hard' },
-    { id: 2, propId: 10, dealType: 'Acquisition', milestone: 'Hard Deposit Deadline', date: '2025-06-22', counterparty: 'Brookfield Industrial', broker: 'CBRE', notes: '$1.5M non-refundable' },
-    { id: 3, propId: 10, dealType: 'Acquisition', milestone: 'Closing Date', date: '2025-07-15', counterparty: 'Brookfield Industrial', broker: 'CBRE', notes: 'Target $24.2M' },
-    { id: 4, propId: 12, dealType: 'Disposition', milestone: 'LOI Expiration', date: '2025-06-10', counterparty: 'Prologis', broker: 'JLL', notes: 'Counter offered $21.5M' },
-    { id: 5, propId: 12, dealType: 'Disposition', milestone: 'Closing Date', date: '2025-08-30', counterparty: 'Prologis', broker: 'JLL', notes: '' },
-    { id: 6, propId: 7, dealType: 'Refinance', milestone: 'Loan Application Deadline', date: '2025-05-30', counterparty: 'New York Life', broker: 'JLL Capital Markets', notes: 'DSCR requirement 1.25x' },
-    { id: 7, propId: 7, dealType: 'Refinance', milestone: 'Closing Date', date: '2025-07-01', counterparty: 'New York Life', broker: 'JLL Capital Markets', notes: '' },
+  deals:[
+    {id:1,propId:10,dealType:'Acquisition',milestone:'End of Due Diligence',date:'2025-06-20',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'$1.5M deposit goes hard'},
+    {id:2,propId:10,dealType:'Acquisition',milestone:'Hard Deposit Deadline',date:'2025-06-22',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'$1.5M non-refundable'},
+    {id:3,propId:10,dealType:'Acquisition',milestone:'Closing Date',date:'2025-07-15',counterparty:'Brookfield Industrial',broker:'CBRE',notes:'Target $24.2M'},
+    {id:4,propId:12,dealType:'Disposition',milestone:'LOI Expiration',date:'2025-06-10',counterparty:'Prologis',broker:'JLL',notes:'Counter offered $21.5M'},
+    {id:5,propId:12,dealType:'Disposition',milestone:'Closing Date',date:'2025-08-30',counterparty:'Prologis',broker:'JLL',notes:''},
+    {id:6,propId:7,dealType:'Refinance',milestone:'Closing Date',date:'2025-07-01',counterparty:'New York Life',broker:'JLL Capital Markets',notes:''},
   ],
-  team: [
-    { name: 'James Davidson', email: 'j.davidson@lmrep.com', initials: 'JD' },
-    { name: 'Maria Chen', email: 'm.chen@lmrep.com', initials: 'MC' },
-    { name: 'Robert Walsh', email: 'r.walsh@lmrep.com', initials: 'RW' },
-    { name: 'Sarah Torres', email: 's.torres@lmrep.com', initials: 'ST' },
-    { name: 'Kevin Park', email: 'k.park@lmrep.com', initials: 'KP' },
-    { name: 'Alicia Brooks', email: 'a.brooks@lmrep.com', initials: 'AB' },
+  team:[
+    {name:'James Davidson',email:'j.davidson@lmrep.com',initials:'JD'},
+    {name:'Maria Chen',email:'m.chen@lmrep.com',initials:'MC'},
+    {name:'Robert Walsh',email:'r.walsh@lmrep.com',initials:'RW'},
+    {name:'Sarah Torres',email:'s.torres@lmrep.com',initials:'ST'},
+    {name:'Kevin Park',email:'k.park@lmrep.com',initials:'KP'},
+    {name:'Alicia Brooks',email:'a.brooks@lmrep.com',initials:'AB'},
   ],
-  reminderDays: [90, 60, 30, 14, 7],
-  activeSection: 'dashboard',
-  dashFilter: 'all',
-  loanSearch: '', loanTypeFilter: '', loanStatusFilter: '',
-  dealSearch: '', dealTypeFilter: '', dealMilestoneFilter: '',
+  rdDays:[90,60,30,14,7],
+  df:'all',ls:'',lt:'',lst:'',ds:'',dt:'',
 };
 
-// ── HELPERS ──
-const today = new Date();
-today.setHours(0,0,0,0);
+const T=new Date();T.setHours(0,0,0,0);
+const du=s=>{const d=new Date(s+'T00:00:00');d.setHours(0,0,0,0);return Math.ceil((d-T)/86400000)};
+const fd=s=>new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const fm=n=>n?'$'+Number(n).toLocaleString():'—';
+const sb2=d=>d<=0?'<span class="badge br"><span class="dot dr"></span>Overdue</span>':d<=30?'<span class="badge br"><span class="dot dr"></span>Urgent</span>':d<=90?'<span class="badge ba"><span class="dot da"></span>Watch</span>':'<span class="badge bg"><span class="dot dg"></span>On Track</span>';
+const dc=d=>d<=0?'<span class="dp du">Overdue</span>':`<span class="dp ${d<=30?'du':d<=90?'dw':'dook'}">${d}d</span>`;
+const pn=id=>{const p=D.props.find(x=>x.id==id);return p?p.name:'—'};
+const pc=id=>{const p=D.props.find(x=>x.id==id);if(!p)return'—';return`<div class="pc2"><div class="pi">🏭</div><div><div class="pn2">${p.name}</div><div class="pl">${p.city}, ${p.state}</div></div></div>`};
+const ad=()=>[...D.loans.map(l=>({...l,_t:'loan'})),...D.deals.map(d=>({...d,_t:'deal'}))].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-function daysUntil(dateStr) {
-  const d = new Date(dateStr);
-  d.setHours(0,0,0,0);
-  return Math.ceil((d - today) / 86400000);
-}
-function fmtDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-}
-function fmtMoney(n) {
-  if (!n) return '—';
-  return '$' + Number(n).toLocaleString();
-}
-function statusBadge(days) {
-  if (days <= 0) return `<span class="badge badge-red"><span class="dot dot-red"></span> Overdue</span>`;
-  if (days <= 30) return `<span class="badge badge-red"><span class="dot dot-red"></span> Urgent</span>`;
-  if (days <= 90) return `<span class="badge badge-amber"><span class="dot dot-amber"></span> Watch</span>`;
-  return `<span class="badge badge-green"><span class="dot dot-green"></span> On Track</span>`;
-}
-function daysCell(days) {
-  if (days <= 0) return `<span class="days-pill days-urgent">Overdue</span>`;
-  const cls = days <= 30 ? 'days-urgent' : days <= 90 ? 'days-warning' : 'days-ok';
-  return `<span class="days-pill ${cls}">${days}d</span>`;
-}
-function propName(id) {
-  const p = STATE.properties.find(x => x.id == id);
-  return p ? p.name : '—';
-}
-function propCell(id) {
-  const p = STATE.properties.find(x => x.id == id);
-  if (!p) return '—';
-  return `<div class="prop-cell"><div class="prop-icon">🏭</div><div><div class="prop-name">${p.name}</div><div class="prop-loc">${p.city}, ${p.state}</div></div></div>`;
-}
-function allDates() {
-  const arr = [];
-  STATE.loans.forEach(l => arr.push({ type:'loan', ...l }));
-  STATE.deals.forEach(d => arr.push({ type:'deal', ...d }));
-  return arr.sort((a,b) => new Date(a.date) - new Date(b.date));
-}
+window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
 
-// ── NAV ──
-function showSection(s) {
-  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-  document.getElementById('section-' + s).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  event && event.currentTarget && event.currentTarget.classList.add('active');
-  STATE.activeSection = s;
-  if (s === 'dashboard') renderDashboard();
-  if (s === 'loans') renderLoans();
-  if (s === 'deals') renderDeals();
-  if (s === 'properties') renderProperties();
-  if (s === 'calendar') renderCalendar();
-  if (s === 'reminders') renderReminders();
-}
-
-// ── DASHBOARD ──
-function renderDashboard() {
-  const all = allDates();
-  const urgent = all.filter(r => { const d = daysUntil(r.date); return d >= 0 && d <= 30; }).length;
-  const warning = all.filter(r => { const d = daysUntil(r.date); return d > 30 && d <= 90; }).length;
-  const ok = all.filter(r => daysUntil(r.date) > 90).length;
-  document.getElementById('stat-urgent').textContent = urgent;
-  document.getElementById('stat-warning').textContent = warning;
-  document.getElementById('stat-ok').textContent = ok;
-  document.getElementById('stat-total').textContent = all.length;
-  document.getElementById('stat-props-sub').textContent = `${STATE.properties.length} properties tracked`;
-  document.getElementById('urgentBannerText').textContent =
-    urgent > 0 ? `⚠ ${urgent} date${urgent>1?'s':''} require attention within 30 days` : `✓ No critical deadlines in the next 30 days`;
-  renderDashboardTable();
-}
-function filterDashboard(f, el) {
-  STATE.dashFilter = f;
-  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderDashboardTable();
-}
-function renderDashboardTable() {
-  let rows = allDates().filter(r => daysUntil(r.date) >= -14);
-  if (STATE.dashFilter === 'loan') rows = rows.filter(r => r.type === 'loan');
-  if (STATE.dashFilter === 'deal') rows = rows.filter(r => r.type === 'deal');
-  const tbody = document.getElementById('dashboardTbody');
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-title">No upcoming dates</div></div></td></tr>`; return; }
-  tbody.innerHTML = rows.map(r => {
-    const days = daysUntil(r.date);
-    const cat = r.type === 'loan'
-      ? `<span class="badge badge-navy">Loan</span>`
-      : r.dealType === 'Acquisition' ? `<span class="badge badge-gold">Acquisition</span>`
-      : r.dealType === 'Disposition' ? `<span class="badge badge-red" style="font-size:11px;">Disposition</span>`
-      : `<span class="badge badge-amber">Refinance</span>`;
-    const typeLabel = r.type === 'loan' ? r.type + ' — ' + r.lender : r.dealType;
-    return `<tr>
-      <td>${propCell(r.propId)}</td>
-      <td style="font-size:13px;color:var(--text-secondary);">${r.type==='loan'?r.type_:r.milestone || r.type_} ${r.type==='loan'?r.type:r.milestone}</td>
-      <td>${cat}</td>
-      <td style="font-weight:500;">${fmtDate(r.date)}</td>
-      <td>${daysCell(days)}</td>
-      <td>${statusBadge(days)}</td>
-      <td><div class="action-btns"><button class="btn btn-outline btn-sm" onclick="exportSingleICS('${r.date}','${(r.type==='loan'?r.type:r.milestone).replace(/'/g,'')}','${propName(r.propId).replace(/'/g,'')}')">📅</button></div></td>
-    </tr>`;
-  }).join('');
-}
-
-// ── LOANS ──
-function renderLoans() {
-  let rows = [...STATE.loans];
-  if (STATE.loanSearch) rows = rows.filter(r => propName(r.propId).toLowerCase().includes(STATE.loanSearch) || r.lender.toLowerCase().includes(STATE.loanSearch));
-  if (STATE.loanTypeFilter) rows = rows.filter(r => r.type.includes(STATE.loanTypeFilter));
-  if (STATE.loanStatusFilter) {
-    rows = rows.filter(r => {
-      const d = daysUntil(r.date);
-      if (STATE.loanStatusFilter==='urgent') return d>=0&&d<=30;
-      if (STATE.loanStatusFilter==='warning') return d>30&&d<=90;
-      return d>90;
-    });
-  }
-  rows.sort((a,b) => new Date(a.date)-new Date(b.date));
-  const tbody = document.getElementById('loansTbody');
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">🏦</div><div class="empty-state-title">No loan dates found</div><p style="font-size:13px;">Add loan dates using the button above.</p></div></td></tr>`; return; }
-  tbody.innerHTML = rows.map(r => {
-    const days = daysUntil(r.date);
-    return `<tr>
-      <td>${propCell(r.propId)}</td>
-      <td style="font-size:13px;">${r.lender}</td>
-      <td><span class="badge badge-navy">${r.type}</span></td>
-      <td style="font-weight:500;">${fmtDate(r.date)}</td>
-      <td style="font-size:13px;">${fmtMoney(r.amount)}</td>
-      <td>${daysCell(days)}</td>
-      <td>${statusBadge(days)}</td>
-      <td style="font-size:12px;color:var(--text-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.notes}">${r.notes||'—'}</td>
-      <td><div class="action-btns">
-        <button class="btn btn-outline btn-sm" onclick="exportSingleICS('${r.date}','${r.type.replace(/'/g,'')}','${propName(r.propId).replace(/'/g,'')}')">📅</button>
-        <button class="btn btn-outline btn-sm" onclick="deleteEntry('loan',${r.id})">🗑</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-function filterLoans(v) { STATE.loanSearch = v.toLowerCase(); renderLoans(); }
-function filterLoanType(v) { STATE.loanTypeFilter = v; renderLoans(); }
-function filterLoanStatus(v) { STATE.loanStatusFilter = v; renderLoans(); }
-
-// ── DEALS ──
-function renderDeals() {
-  let rows = [...STATE.deals];
-  if (STATE.dealSearch) rows = rows.filter(r => propName(r.propId).toLowerCase().includes(STATE.dealSearch) || (r.broker||'').toLowerCase().includes(STATE.dealSearch));
-  if (STATE.dealTypeFilter) rows = rows.filter(r => r.dealType === STATE.dealTypeFilter);
-  if (STATE.dealMilestoneFilter) rows = rows.filter(r => r.milestone.includes(STATE.dealMilestoneFilter));
-  rows.sort((a,b) => new Date(a.date)-new Date(b.date));
-  const tbody = document.getElementById('dealsTbody');
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">🤝</div><div class="empty-state-title">No deal dates found</div></div></td></tr>`; return; }
-  tbody.innerHTML = rows.map(r => {
-    const days = daysUntil(r.date);
-    const typeBadge = r.dealType === 'Acquisition' ? 'badge-gold' : r.dealType === 'Disposition' ? 'badge-red' : 'badge-amber';
-    return `<tr>
-      <td>${propCell(r.propId)}</td>
-      <td><span class="badge ${typeBadge}">${r.dealType}</span></td>
-      <td style="font-size:13px;font-weight:500;">${r.milestone}</td>
-      <td style="font-weight:500;">${fmtDate(r.date)}</td>
-      <td style="font-size:13px;">${r.counterparty||'—'}</td>
-      <td style="font-size:13px;">${r.broker||'—'}</td>
-      <td>${daysCell(days)}</td>
-      <td>${statusBadge(days)}</td>
-      <td><div class="action-btns">
-        <button class="btn btn-outline btn-sm" onclick="exportSingleICS('${r.date}','${r.milestone.replace(/'/g,'')}','${propName(r.propId).replace(/'/g,'')}')">📅</button>
-        <button class="btn btn-outline btn-sm" onclick="deleteEntry('deal',${r.id})">🗑</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-function filterDeals(v) { STATE.dealSearch = v.toLowerCase(); renderDeals(); }
-function filterDealType(v) { STATE.dealTypeFilter = v; renderDeals(); }
-function filterDealMilestone(v) { STATE.dealMilestoneFilter = v; renderDeals(); }
-
-// ── PROPERTIES ──
-function renderProperties() {
-  const grid = document.getElementById('propsGrid');
-  grid.innerHTML = STATE.properties.map(p => {
-    const pLoans = STATE.loans.filter(l => l.propId === p.id);
-    const pDeals = STATE.deals.filter(d => d.propId === p.id);
-    const nextDate = [...pLoans, ...pDeals].sort((a,b) => new Date(a.date)-new Date(b.date))[0];
-    const statClass = p.status === 'Active' ? 'badge-green' : p.status === 'Acquisition' ? 'badge-gold' : p.status === 'Disposition' ? 'badge-red' : 'badge-amber';
-    return `<div class="prop-card">
-      <div class="prop-card-header">
-        <div class="prop-card-name">${p.name}</div>
-        <div class="prop-card-market">${p.city}, ${p.state}</div>
-        <div class="prop-card-status"><span class="badge ${statClass}">${p.status}</span></div>
-      </div>
-      <div class="prop-card-body">
-        <div class="prop-metric"><span class="prop-metric-label">Square Feet</span><span class="prop-metric-value">${p.sqft ? p.sqft.toLocaleString() + ' SF' : '—'}</span></div>
-        <div class="prop-metric"><span class="prop-metric-label">Purchase Price</span><span class="prop-metric-value">${fmtMoney(p.price)}</span></div>
-        <div class="prop-metric"><span class="prop-metric-label">Year Acquired</span><span class="prop-metric-value">${p.year||'—'}</span></div>
-        <div class="prop-metric"><span class="prop-metric-label">Loan Dates</span><span class="prop-metric-value">${pLoans.length}</span></div>
-        <div class="prop-metric"><span class="prop-metric-label">Deal Dates</span><span class="prop-metric-value">${pDeals.length}</span></div>
-        <div class="prop-metric"><span class="prop-metric-label">Next Key Date</span><span class="prop-metric-value" style="font-size:12px;">${nextDate ? fmtDate(nextDate.date) : 'None'}</span></div>
-      </div>
-      <div class="prop-card-footer">
-        <button class="btn btn-outline btn-sm" onclick="openModalForProp('loan',${p.id})">+ Loan Date</button>
-        <button class="btn btn-outline btn-sm" onclick="openModalForProp('deal',${p.id})">+ Deal Date</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── CALENDAR ──
-function renderCalendar() {
-  const all = allDates().filter(r => daysUntil(r.date) > -30);
-  const months = {};
-  all.forEach(r => {
-    const d = new Date(r.date + 'T00:00:00');
-    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    if (!months[key]) months[key] = [];
-    months[key].push(r);
-  });
-  const grid = document.getElementById('calGrid');
-  const keys = Object.keys(months).sort().slice(0,9);
-  if (!keys.length) { grid.innerHTML = '<p style="color:var(--text-muted);">No upcoming dates.</p>'; return; }
-  grid.innerHTML = keys.map(k => {
-    const [yr, mo] = k.split('-');
-    const label = new Date(yr, mo-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    const events = months[k];
-    return `<div class="cal-month-card">
-      <div class="cal-month-header">${label} <span style="font-size:11px;opacity:0.6;margin-left:6px;">${events.length} date${events.length>1?'s':''}</span></div>
-      <div class="cal-events">
-        ${events.map(r => {
-          const d = new Date(r.date+'T00:00:00');
-          const days = daysUntil(r.date);
-          const dayClass = days <= 30 ? 'cal-day-red' : days <= 90 ? 'cal-day-amber' : 'cal-day-navy';
-          const label = r.type==='loan' ? r.type.charAt(0).toUpperCase()+r.type.slice(1) + ': ' + r.type_ : r.milestone;
-          return `<div class="cal-event">
-            <div class="cal-day ${dayClass}">${d.getDate()}</div>
-            <div class="cal-event-text">
-              <div class="cal-event-prop">${propName(r.propId)}</div>
-              <div class="cal-event-type">${r.type==='loan'?r.type:r.dealType} — ${r.type==='loan'?r.type:r.milestone}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── REMINDERS ──
-function renderReminders() {
-  const list = document.getElementById('reminderScheduleList');
-  list.innerHTML = STATE.reminderDays.sort((a,b)=>b-a).map(d => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fb;border-radius:7px;">
-      <span style="font-size:13.5px;font-weight:500;">${d} days before</span>
-      <button class="btn btn-outline btn-sm" onclick="removeReminderDay(${d})">Remove</button>
-    </div>`).join('');
-  const teamList = document.getElementById('teamList');
-  teamList.innerHTML = STATE.team.map((m,i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <div class="avatar" style="width:30px;height:30px;font-size:11px;">${m.initials}</div>
-      <div style="flex:1;">
-        <div style="font-size:13.5px;font-weight:500;">${m.name}</div>
-        <div style="font-size:12px;color:var(--text-muted);">${m.email}</div>
-      </div>
-      <button class="btn btn-outline btn-sm" onclick="removeTeamMember(${i})">Remove</button>
-    </div>`).join('');
-}
-function addReminderDay() {
-  const v = parseInt(document.getElementById('customDays').value);
-  if (v > 0 && !STATE.reminderDays.includes(v)) {
-    STATE.reminderDays.push(v);
-    document.getElementById('customDays').value = '';
-    renderReminders();
-    showToast('Reminder added ✓');
-  }
-}
-function removeReminderDay(d) {
-  STATE.reminderDays = STATE.reminderDays.filter(x => x !== d);
-  renderReminders();
-}
-function addTeamMember() {
-  const name = document.getElementById('newMemberName').value.trim();
-  const email = document.getElementById('newMemberEmail').value.trim();
-  if (!name || !email) { showToast('Please enter name and email'); return; }
-  const initials = name.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
-  STATE.team.push({ name, email, initials });
-  document.getElementById('newMemberName').value = '';
-  document.getElementById('newMemberEmail').value = '';
-  renderReminders();
-  showToast(`${name} added ✓`);
-}
-function removeTeamMember(i) { STATE.team.splice(i,1); renderReminders(); }
-function saveSGSettings() { showToast('SendGrid settings saved — connection tested ✓'); }
-
-// ── MODALS ──
-function openModal(type, defaultPropId) {
-  populatePropDropdowns();
-  if (defaultPropId) {
-    const sel = document.getElementById(type+'-property');
-    if (sel) sel.value = defaultPropId;
-  }
-  document.getElementById('modal-'+type).classList.add('open');
-  document.querySelectorAll('#'+type+'-reminders .reminder-chip').forEach(c => {
-    c.onclick = () => c.classList.toggle('selected');
-  });
-}
-function openModalForProp(type, propId) { openModal(type, propId); }
-function closeModal(type) { document.getElementById('modal-'+type).classList.remove('open'); }
-function populatePropDropdowns() {
-  ['loan-property','deal-property','prop-name'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el || el.tagName !== 'SELECT') return;
-    el.innerHTML = STATE.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  });
-}
-
-function saveLoan() {
-  const propId = parseInt(document.getElementById('loan-property').value);
-  const lender = document.getElementById('loan-lender').value.trim();
-  const type = document.getElementById('loan-type').value;
-  const date = document.getElementById('loan-date').value;
-  const amount = document.getElementById('loan-amount').value;
-  const rate = document.getElementById('loan-rate').value;
-  const notes = document.getElementById('loan-notes').value;
-  if (!lender || !date) { showToast('Please fill in lender and date'); return; }
-  const id = Date.now();
-  STATE.loans.push({ id, propId, lender, type, date, amount: Number(amount)||null, rate, notes });
-  closeModal('loan');
-  showToast('Loan date saved ✓');
-  if (STATE.activeSection === 'loans') renderLoans();
-  renderDashboard();
-}
-function saveDeal() {
-  const propId = parseInt(document.getElementById('deal-property').value);
-  const dealType = document.getElementById('deal-dealtype').value;
-  const milestone = document.getElementById('deal-milestone').value;
-  const date = document.getElementById('deal-date').value;
-  const counterparty = document.getElementById('deal-counterparty').value;
-  const broker = document.getElementById('deal-broker').value;
-  const notes = document.getElementById('deal-notes').value;
-  if (!date) { showToast('Please enter a date'); return; }
-  const id = Date.now();
-  STATE.deals.push({ id, propId, dealType, milestone, date, counterparty, broker, notes });
-  closeModal('deal');
-  showToast('Deal milestone saved ✓');
-  if (STATE.activeSection === 'deals') renderDeals();
-  renderDashboard();
-}
-function saveProperty() {
-  const name = document.getElementById('prop-name').value.trim();
-  const city = document.getElementById('prop-city').value.trim();
-  const state = document.getElementById('prop-state').value;
-  const sqft = document.getElementById('prop-sqft').value;
-  const status = document.getElementById('prop-status').value;
-  const year = document.getElementById('prop-year').value;
-  const price = document.getElementById('prop-price').value;
-  if (!name) { showToast('Please enter a property name'); return; }
-  const id = STATE.properties.length + 1;
-  STATE.properties.push({ id, name, city, state, sqft: Number(sqft)||null, status, year: Number(year)||null, price: Number(price)||null });
-  closeModal('property');
-  showToast(`${name} added ✓`);
-  populatePropDropdowns();
-  if (STATE.activeSection === 'properties') renderProperties();
-}
-function deleteEntry(type, id) {
-  if (type === 'loan') STATE.loans = STATE.loans.filter(l => l.id !== id);
-  if (type === 'deal') STATE.deals = STATE.deals.filter(d => d.id !== id);
-  renderLoans(); renderDeals(); renderDashboard();
-  showToast('Deleted ✓');
-}
-
-// ── ICS EXPORT ──
-function icsDate(dateStr) {
-  return dateStr.replace(/-/g,'') + 'T090000Z';
-}
-function exportSingleICS(dateStr, title, prop) {
-  const uid = Date.now() + '@lmrep';
-  const content = [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LM Real Estate Partners//Date Tracker//EN',
-    'BEGIN:VEVENT',
-    `UID:${uid}`,
-    `DTSTART;VALUE=DATE:${dateStr.replace(/-/g,'')}`,
-    `SUMMARY:[LM] ${title} — ${prop}`,
-    `DESCRIPTION:Key date tracked by LM Real Estate Partners Asset Management Platform`,
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-  downloadFile('lm-date.ics', content, 'text/calendar');
-  showToast('Calendar event exported ✓');
-}
-function exportICS() {
-  const all = allDates();
-  const events = all.map(r => {
-    const uid = r.type + r.id + '@lmrep';
-    const title = r.type === 'loan' ? `[Loan] ${r.type} — ${propName(r.propId)}` : `[${r.dealType}] ${r.milestone} — ${propName(r.propId)}`;
-    return [
-      'BEGIN:VEVENT',
-      `UID:${uid}`,
-      `DTSTART;VALUE=DATE:${r.date.replace(/-/g,'')}`,
-      `SUMMARY:${title}`,
-      `DESCRIPTION:${r.notes || ''}`,
-      'END:VEVENT'
-    ].join('\r\n');
-  }).join('\r\n');
-  const content = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//LM Real Estate Partners//Date Tracker//EN\r\nCALSCALE:GREGORIAN\r\n${events}\r\nEND:VCALENDAR`;
-  downloadFile('LM-CriticalDates.ics', content, 'text/calendar');
-  showToast(`Exported ${all.length} dates to calendar ✓`);
-}
-function downloadFile(name, content, mime) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-  a.download = name;
-  a.click();
-}
-
-// ── TOAST ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ── SUPABASE CONNECTION ──
-const SUPABASE_URL = 'https://weunoznnopaawntgxqrr.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
-
-async function loadFromSupabase() {
-  try {
-    // Wait for supabase global to be available
-    const { createClient } = window.supabase || supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const [{ data: props }, { data: loans }, { data: deals }, { data: team }] = await Promise.all([
+async function loadDB(){
+  try{
+    const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    const db=createClient(SU,SK);
+    const[p,l,d,t]=await Promise.all([
       db.from('properties').select('*').order('name'),
-      db.from('loan_dates').select('*, properties(name,city,state)').eq('is_active', true).order('key_date'),
-      db.from('deal_dates').select('*, properties(name,city,state)').eq('is_active', true).order('key_date'),
-      db.from('team_members').select('*').eq('receives_reminders', true),
+      db.from('loan_dates').select('*').eq('is_active',true).order('key_date'),
+      db.from('deal_dates').select('*').eq('is_active',true).order('key_date'),
+      db.from('team_members').select('*').eq('receives_reminders',true),
     ]);
-
-    if (props && props.length) {
-      STATE.properties = props.map(p => ({
-        id: p.id, name: p.name, city: p.city, state: p.state,
-        sqft: p.sqft, status: p.status, year: p.year_acquired,
-        price: p.purchase_price, tenantCount: p.tenant_count
-      }));
-    }
-    if (loans && loans.length) {
-      STATE.loans = loans.map(l => ({
-        id: l.id, propId: l.property_id, lender: l.lender,
-        type: l.date_type, date: l.key_date,
-        amount: l.loan_amount, rate: l.interest_rate,
-        notes: l.notes, reminder_days: l.reminder_days
-      }));
-    }
-    if (deals && deals.length) {
-      STATE.deals = deals.map(d => ({
-        id: d.id, propId: d.property_id, dealType: d.deal_type,
-        milestone: d.milestone, date: d.key_date,
-        counterparty: d.counterparty, broker: d.broker,
-        notes: d.notes, reminder_days: d.reminder_days
-      }));
-    }
-    if (team && team.length) {
-      STATE.team = team.map(m => ({
-        name: m.full_name, email: m.email,
-        initials: m.initials || m.full_name.split(' ').map(x=>x[0]).join('').toUpperCase()
-      }));
-    }
-
-    console.log('Loaded from Supabase: ' + STATE.properties.length + ' properties, ' + STATE.loans.length + ' loans, ' + STATE.deals.length + ' deals');
-    showToast('Connected to database — ' + STATE.properties.length + ' properties loaded');
-  } catch (err) {
-    console.error('Supabase load failed, using sample data:', err);
+    if(p.data?.length) D.props=p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price}));
+    if(l.data?.length) D.loans=l.data.map(x=>({id:x.id,propId:x.property_id,lender:x.lender,type:x.date_type,date:x.key_date,amount:x.loan_amount,rate:x.interest_rate,notes:x.notes||''}));
+    if(d.data?.length) D.deals=d.data.map(x=>({id:x.id,propId:x.property_id,dealType:x.deal_type,milestone:x.milestone,date:x.key_date,counterparty:x.counterparty||'',broker:x.broker||'',notes:x.notes||''}));
+    if(t.data?.length) D.team=t.data.map(x=>({name:x.full_name,email:x.email,initials:x.initials||x.full_name.split(' ').map(c=>c[0]).join('')}));
+    document.getElementById('dbd').classList.add('on');
+    document.getElementById('dbs').textContent='DB Connected';
+    toast('Connected — '+D.props.length+' properties loaded');
+  }catch(e){
+    console.warn('Using sample data:',e.message);
+    document.getElementById('dbs').textContent='Sample data';
   }
-  // Always render regardless of DB connection
-  populatePropDropdowns();
-  renderDashboard();
+  ppd();rDash();
 }
 
-// ── INIT ──
-document.getElementById('todayDate').textContent = today.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-loadFromSupabase();
+window.go=function(s,el){
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  document.getElementById('s-'+s).classList.add('active');
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  if(s==='dashboard')rDash();
+  if(s==='loans')rLoans();
+  if(s==='deals')rDeals();
+  if(s==='properties')rProps();
+  if(s==='calendar')rCal();
+  if(s==='reminders')rRem();
+};
+
+function rDash(){
+  const all=ad();
+  const u=all.filter(r=>{const d=du(r.date);return d>=0&&d<=30}).length;
+  const w=all.filter(r=>{const d=du(r.date);return d>30&&d<=90}).length;
+  const o=all.filter(r=>du(r.date)>90).length;
+  document.getElementById('su').textContent=u;
+  document.getElementById('sw').textContent=w;
+  document.getElementById('so').textContent=o;
+  document.getElementById('st').textContent=all.length;
+  document.getElementById('sps').textContent=D.props.length+' properties tracked';
+  document.getElementById('btext').textContent=u>0?`⚠ ${u} date${u>1?'s':''} require attention within 30 days`:'✓ No critical deadlines in the next 30 days';
+  rDT();
+}
+window.fd2=function(f,el){D.df=f;document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');rDT()};
+function rDT(){
+  let rows=ad().filter(r=>du(r.date)>=-14);
+  if(D.df==='loan')rows=rows.filter(r=>r._t==='loan');
+  if(D.df==='deal')rows=rows.filter(r=>r._t==='deal');
+  const tb=document.getElementById('dtb');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7"><div class="es"><div class="ei">📅</div><div class="et">No upcoming dates</div></div></td></tr>';return}
+  tb.innerHTML=rows.map(r=>{
+    const d=du(r.date);
+    const cat=r._t==='loan'?'<span class="badge bn">Loan</span>':r.dealType==='Acquisition'?'<span class="badge bgo">Acquisition</span>':r.dealType==='Disposition'?'<span class="badge br">Disposition</span>':'<span class="badge ba">Refinance</span>';
+    const lbl=r._t==='loan'?r.type:r.milestone;
+    return`<tr><td>${pc(r.propId)}</td><td style="font-size:13px;color:var(--ts)">${lbl}</td><td>${cat}</td><td style="font-weight:500">${fd(r.date)}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${lbl.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button></div></td></tr>`;
+  }).join('');
+}
+
+function rLoans(){
+  let rows=[...D.loans];
+  if(D.ls)rows=rows.filter(r=>pn(r.propId).toLowerCase().includes(D.ls)||r.lender.toLowerCase().includes(D.ls));
+  if(D.lt)rows=rows.filter(r=>r.type.includes(D.lt));
+  if(D.lst)rows=rows.filter(r=>{const d=du(r.date);if(D.lst==='u')return d>=0&&d<=30;if(D.lst==='w')return d>30&&d<=90;return d>90});
+  rows.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const tb=document.getElementById('ltb');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="es"><div class="ei">🏦</div><div class="et">No loan dates found</div></div></td></tr>';return}
+  tb.innerHTML=rows.map(r=>{const d=du(r.date);return`<tr><td>${pc(r.propId)}</td><td style="font-size:13px">${r.lender}</td><td><span class="badge bn">${r.type}</span></td><td style="font-weight:500">${fd(r.date)}</td><td style="font-size:13px">${fm(r.amount)}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td style="font-size:12px;color:var(--tm);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes||'—'}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${r.type.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button><button class="btn btn-o btn-s" onclick="del('loan',${r.id})">🗑</button></div></td></tr>`}).join('');
+}
+window.fls=v=>{D.ls=v.toLowerCase();rLoans()};
+window.flt=v=>{D.lt=v;rLoans()};
+window.flst=v=>{D.lst=v;rLoans()};
+
+function rDeals(){
+  let rows=[...D.deals];
+  if(D.ds)rows=rows.filter(r=>pn(r.propId).toLowerCase().includes(D.ds)||(r.broker||'').toLowerCase().includes(D.ds));
+  if(D.dt)rows=rows.filter(r=>r.dealType===D.dt);
+  rows.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const tb=document.getElementById('ddtb');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="es"><div class="ei">🤝</div><div class="et">No deal dates found</div></div></td></tr>';return}
+  tb.innerHTML=rows.map(r=>{const d=du(r.date);const bc=r.dealType==='Acquisition'?'bgo':r.dealType==='Disposition'?'br':'ba';return`<tr><td>${pc(r.propId)}</td><td><span class="badge ${bc}">${r.dealType}</span></td><td style="font-size:13px;font-weight:500">${r.milestone}</td><td style="font-weight:500">${fd(r.date)}</td><td style="font-size:13px">${r.counterparty||'—'}</td><td style="font-size:13px">${r.broker||'—'}</td><td>${dc(d)}</td><td>${sb2(d)}</td><td><div class="ab"><button class="btn btn-o btn-s" onclick="eSingle('${r.date}','${r.milestone.replace(/'/g,'')}','${pn(r.propId).replace(/'/g,'')}')">📅</button><button class="btn btn-o btn-s" onclick="del('deal',${r.id})">🗑</button></div></td></tr>`}).join('');
+}
+window.fds=v=>{D.ds=v.toLowerCase();rDeals()};
+window.fdt=v=>{D.dt=v;rDeals()};
+
+function rProps(){
+  document.getElementById('pcount').textContent=D.props.length+' industrial assets across the Southeast US.';
+  document.getElementById('pgrid').innerHTML=D.props.map(p=>{
+    const pl=D.loans.filter(l=>l.propId===p.id).length;
+    const pd=D.deals.filter(d=>d.propId===p.id).length;
+    const nxt=[...D.loans.filter(l=>l.propId===p.id),...D.deals.filter(d=>d.propId===p.id)].sort((a,b)=>new Date(a.date)-new Date(b.date))[0];
+    const sc=p.status==='Active'?'bg':p.status==='Acquisition'?'bgo':p.status==='Disposition'?'br':'ba';
+    return`<div class="pcard"><div class="pch"><div class="pcn">${p.name}</div><div class="pcm">${p.city}, ${p.state}</div><div class="pcs"><span class="badge ${sc}">${p.status}</span></div></div><div class="pcb"><div class="pm"><span class="pml">Square Feet</span><span class="pmv">${p.sqft?p.sqft.toLocaleString()+' SF':'—'}</span></div><div class="pm"><span class="pml">Purchase Price</span><span class="pmv">${fm(p.price)}</span></div><div class="pm"><span class="pml">Year Acquired</span><span class="pmv">${p.year||'—'}</span></div><div class="pm"><span class="pml">Loan Dates</span><span class="pmv">${pl}</span></div><div class="pm"><span class="pml">Deal Dates</span><span class="pmv">${pd}</span></div><div class="pm"><span class="pml">Next Key Date</span><span class="pmv" style="font-size:12px">${nxt?fd(nxt.date):'None'}</span></div></div><div class="pcf"><button class="btn btn-o btn-s" onclick="omp('loan',${p.id})">+ Loan Date</button><button class="btn btn-o btn-s" onclick="omp('deal',${p.id})">+ Deal Date</button></div></div>`;
+  }).join('');
+}
+
+function rCal(){
+  const all=ad().filter(r=>du(r.date)>-30);
+  const months={};
+  all.forEach(r=>{const d=new Date(r.date+'T00:00:00');const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!months[k])months[k]=[];months[k].push(r)});
+  const keys=Object.keys(months).sort().slice(0,9);
+  document.getElementById('cgrid').innerHTML=keys.length?keys.map(k=>{
+    const[y,m]=k.split('-');
+    const lbl=new Date(y,m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    return`<div class="cmc"><div class="cmh">${lbl} <span style="font-size:11px;opacity:.6;margin-left:6px">${months[k].length} date${months[k].length>1?'s':''}</span></div><div class="ce">${months[k].map(r=>{const d2=new Date(r.date+'T00:00:00');const dys=du(r.date);const cl=dys<=30?'cdr':dys<=90?'cda':'cdn';return`<div class="cev"><div class="cd ${cl}">${d2.getDate()}</div><div><div class="cpn">${pn(r.propId)}</div><div class="cpt">${r._t==='loan'?r.type:r.dealType} — ${r._t==='loan'?r.type:r.milestone}</div></div></div>`}).join('')}</div></div>`;
+  }).join(''):'<p style="color:var(--tm)">No upcoming dates.</p>';
+}
+
+function rRem(){
+  document.getElementById('rsl').innerHTML=D.rdDays.sort((a,b)=>b-a).map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fb;border-radius:7px"><span style="font-size:13.5px;font-weight:500">${d} days before</span><button class="btn btn-o btn-s" onclick="rrd(${d})">Remove</button></div>`).join('');
+  document.getElementById('tl').innerHTML=D.team.map((m,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div class="av" style="width:30px;height:30px;font-size:11px">${m.initials}</div><div style="flex:1"><div style="font-size:13.5px;font-weight:500">${m.name}</div><div style="font-size:12px;color:var(--tm)">${m.email}</div></div><button class="btn btn-o btn-s" onclick="rtm(${i})">Remove</button></div>`).join('');
+}
+window.ard=()=>{const v=parseInt(document.getElementById('cd2').value);if(v>0&&!D.rdDays.includes(v)){D.rdDays.push(v);document.getElementById('cd2').value='';rRem();toast('Added ✓')}};
+window.rrd=d=>{D.rdDays=D.rdDays.filter(x=>x!==d);rRem()};
+window.atm=()=>{const n=document.getElementById('nmn').value.trim();const e=document.getElementById('nme').value.trim();if(!n||!e){toast('Please enter name and email');return}D.team.push({name:n,email:e,initials:n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)});document.getElementById('nmn').value='';document.getElementById('nme').value='';rRem();toast(n+' added ✓')};
+window.rtm=i=>{D.team.splice(i,1);rRem()};
+
+function ppd(){
+  ['lp','dp2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')});
+}
+window.om=function(type,pid){
+  ppd();
+  if(pid){const s=document.getElementById(type==='loan'?'lp':'dp2');if(s)s.value=pid}
+  document.getElementById('m-'+type).classList.add('open');
+  document.querySelectorAll('#'+(type==='loan'?'lrem':'drem')+' .rc').forEach(c=>{c.onclick=()=>c.classList.toggle('sel')});
+};
+window.omp=(t,p)=>om(t,p);
+window.cm=t=>document.getElementById('m-'+t).classList.remove('open');
+
+window.saveLoan=async function(){
+  const pid=parseInt(document.getElementById('lp').value);
+  const ldr=document.getElementById('ll').value.trim();
+  const typ=document.getElementById('ltype').value;
+  const dt=document.getElementById('ld').value;
+  const amt=document.getElementById('la').value;
+  const rt=document.getElementById('lr').value;
+  const nt=document.getElementById('ln').value;
+  if(!ldr||!dt){toast('Please fill in lender and date');return}
+  D.loans.push({id:Date.now(),propId:pid,lender:ldr,type:typ,date:dt,amount:Number(amt)||null,rate:rt,notes:nt});
+  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('loan_dates').insert({property_id:pid,lender:ldr,date_type:typ,key_date:dt,loan_amount:Number(amt)||null,interest_rate:rt,notes:nt,reminder_days:[90,60,30,14,7],is_active:true})}catch(e){console.warn(e.message)}
+  cm('loan');toast('Loan date saved ✓');rDash();
+};
+
+window.saveDeal=async function(){
+  const pid=parseInt(document.getElementById('dp2').value);
+  const dt2=document.getElementById('ddt').value;
+  const ml=document.getElementById('dm').value;
+  const dt=document.getElementById('dd2').value;
+  const cp=document.getElementById('dc').value;
+  const bk=document.getElementById('db2').value;
+  const nt=document.getElementById('dn').value;
+  if(!dt){toast('Please enter a date');return}
+  D.deals.push({id:Date.now(),propId:pid,dealType:dt2,milestone:ml,date:dt,counterparty:cp,broker:bk,notes:nt});
+  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('deal_dates').insert({property_id:pid,deal_type:dt2,milestone:ml,key_date:dt,counterparty:cp,broker:bk,notes:nt,reminder_days:[30,14,7,3,1],is_active:true})}catch(e){console.warn(e.message)}
+  cm('deal');toast('Deal milestone saved ✓');rDash();
+};
+
+window.saveProp=async function(){
+  const n=document.getElementById('ppn').value.trim();
+  const c=document.getElementById('ppc').value.trim();
+  const s=document.getElementById('pps').value;
+  const sf=document.getElementById('ppsf').value;
+  const st=document.getElementById('ppst').value;
+  const y=document.getElementById('ppy').value;
+  const pr=document.getElementById('ppp').value;
+  if(!n){toast('Please enter a property name');return}
+  D.props.push({id:Date.now(),name:n,city:c,state:s,sqft:Number(sf)||null,status:st,year:Number(y)||null,price:Number(pr)||null});
+  try{const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');const db=createClient(SU,SK);await db.from('properties').insert({name:n,city:c,state:s,sqft:Number(sf)||null,status:st,year_acquired:Number(y)||null,purchase_price:Number(pr)||null})}catch(e){console.warn(e.message)}
+  cm('property');toast(n+' added ✓');ppd();
+};
+
+window.del=function(t,id){
+  if(t==='loan')D.loans=D.loans.filter(l=>l.id!==id);
+  if(t==='deal')D.deals=D.deals.filter(d=>d.id!==id);
+  rLoans();rDeals();rDash();toast('Deleted ✓');
+};
+
+window.eSingle=function(ds,title,prop){
+  const c=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LM//EN','BEGIN:VEVENT',`UID:${Date.now()}@lmrep`,`DTSTART;VALUE=DATE:${ds.replace(/-/g,'')}`,`SUMMARY:[LM] ${title} — ${prop}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));a.download='lm-date.ics';a.click();toast('Exported ✓');
+};
+window.exportICS=function(){
+  const all=ad();
+  const ev=all.map(r=>{const t=r._t==='loan'?`[Loan] ${r.type} — ${pn(r.propId)}`:`[${r.dealType}] ${r.milestone} — ${pn(r.propId)}`;return['BEGIN:VEVENT',`UID:${r._t}${r.id}@lmrep`,`DTSTART;VALUE=DATE:${r.date.replace(/-/g,'')}`,`SUMMARY:${t}`,'END:VEVENT'].join('\r\n')}).join('\r\n');
+  const c=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//LM//EN\r\nCALSCALE:GREGORIAN\r\n${ev}\r\nEND:VCALENDAR`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));a.download='LM-CriticalDates.ics';a.click();toast(`Exported ${all.length} dates ✓`);
+};
+
+document.getElementById('hdate').textContent=T.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+loadDB();
 </script>
 </body>
 </html>
