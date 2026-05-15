@@ -1685,7 +1685,8 @@ const SUPABASE_KEY = 'sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
 
 async function loadFromSupabase() {
   try {
-    const { createClient } = supabase;
+    // Wait for supabase global to be available
+    const { createClient } = window.supabase || supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const [{ data: props }, { data: loans }, { data: deals }, { data: team }] = await Promise.all([
@@ -1729,8 +1730,8 @@ async function loadFromSupabase() {
     showToast('Connected to database — ' + STATE.properties.length + ' properties loaded');
   } catch (err) {
     console.error('Supabase load failed, using sample data:', err);
-    showToast('Using sample data — check console for details');
   }
+  // Always render regardless of DB connection
   populatePropDropdowns();
   renderDashboard();
 }
