@@ -458,13 +458,15 @@ async function loadDB(){
   try{
     const{createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
     const db=createClient(SURL,SKEY);
-    const[p,dt,t]=await Promise.all([
-      db.from('properties').select('*').order('name'),
-      db.from('dates').select('*').order('due_date'),
-      db.from('team_members').select('*').eq('receives_reminders',true),
-    ]);
-    if(p.data?.length) D.props=p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price,notes:x.notes||''}));
-    if(dt.data?.length) D.dates=dt.data.map(x=>({id:x.id,propId:x.property_id,category:x.category,description:x.description,dueDate:x.due_date,action:x.action_required||'',party:x.party||'',amount:x.amount,notes:x.notes||'',reminders:x.reminder_days||[]}));
+    // Load each table independently so one failure does not block others
+    const p  = await db.from('properties').select('*').order('name');
+    const dt = await db.from('dates').select('*').order('due_date');
+    const t  = await db.from('team_members').select('*').eq('receives_reminders',true);
+    console.log('props:',p.data?.length,'error:',p.error?.message);
+    console.log('dates:',dt.data?.length,'error:',dt.error?.message);
+    // Always replace sample data with DB data (even if empty)
+    D.props = p.data ? p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price,notes:x.notes||''})) : [];
+    D.dates = dt.data ? dt.data.map(x=>({id:x.id,propId:x.property_id,category:x.category,description:x.description,dueDate:x.due_date,action:x.action_required||'',party:x.party||'',amount:x.amount,notes:x.notes||'',reminders:x.reminder_days||[]})) : [];
     if(t.data?.length) D.team=t.data.map(x=>({name:x.full_name,email:x.email,initials:x.initials||x.full_name.split(' ').map(c=>c[0]).join('')}));
     document.getElementById('dbdot').classList.add('on');
     document.getElementById('dbstatus').textContent='DB Connected';
