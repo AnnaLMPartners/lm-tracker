@@ -459,8 +459,8 @@ const NOW=new Date();NOW.setHours(0,0,0,0);
 const daysUntil=s=>{const d=new Date(s+'T00:00:00');d.setHours(0,0,0,0);return Math.ceil((d-NOW)/86400000)};
 const fmtDate=s=>new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 const fmtMoney=n=>n?'$'+Number(n).toLocaleString():'—';
-const propName=id=>{const p=D.props.find(x=>x.id==id);return p?p.name:'—'};
-const propObj=id=>D.props.find(x=>x.id==id);
+const propName=id=>{const p=D.props.find(x=>String(x.id)===String(id));return p?p.name:'—'};
+const propObj=id=>D.props.find(x=>String(x.id)===String(id));
 const statusBadge=d=>{
   if(d<=0)return'<span class="badge bdred"><span class="dot dotred"></span>Overdue</span>';
   if(d<=30)return'<span class="badge bdred"><span class="dot dotred"></span>Urgent</span>';
@@ -599,7 +599,7 @@ window.filterDates=function(q){
 function renderDatesTable(){
   let rows=[...D.dates].sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
   if(D.searchQ)rows=rows.filter(r=>propName(r.propId).toLowerCase().includes(D.searchQ)||r.category.toLowerCase().includes(D.searchQ)||r.description.toLowerCase().includes(D.searchQ));
-  if(D.filterProp)rows=rows.filter(r=>r.propId==D.filterProp);
+  if(D.filterProp)rows=rows.filter(r=>String(r.propId)===String(D.filterProp));
   if(D.filterCat)rows=rows.filter(r=>r.category===D.filterCat);
   if(D.filterStatus){
     rows=rows.filter(r=>{
@@ -636,7 +636,7 @@ function renderDatesTable(){
 function renderProperties(){
   document.getElementById('prop-count').textContent=D.props.length+' industrial assets across the Southeast US.';
   document.getElementById('prop-grid').innerHTML=D.props.map(p=>{
-    const pDates=D.dates.filter(d=>d.propId===p.id);
+    const pDates=D.dates.filter(d=>String(d.propId)===String(p.id));
     const nxt=pDates.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
     const urgent=pDates.filter(d=>{const x=daysUntil(d.dueDate);return x>=0&&x<=30}).length;
     const sc=p.status==='Active'?'bdgrn':p.status==='Acquisition'?'bdgld':p.status==='Disposition'?'bdred':'bdamb';
@@ -780,7 +780,7 @@ window.removeRemDay=function(d){
 // ── SAVE DATE ──
 window.saveDate=async function(){
   const editId=document.getElementById('edit-id').value;
-  const propId=parseInt(document.getElementById('f-prop').value);
+  const propId=document.getElementById('f-prop').value;
   const category=document.getElementById('f-cat').value.trim();
   const description=document.getElementById('f-desc').value.trim();
   const dueDate=document.getElementById('f-date').value;
