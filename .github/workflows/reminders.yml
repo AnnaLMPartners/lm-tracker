@@ -1,0 +1,28 @@
+name: Daily Reminders
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # Runs every day at 9 AM Eastern Time
+  workflow_dispatch:         # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run reminder script
+        run: node reminder.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
