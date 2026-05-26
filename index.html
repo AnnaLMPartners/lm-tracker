@@ -398,6 +398,24 @@ textarea.finput{resize:vertical;min-height:70px}
         <div class="fgrp"><label class="flabel">Year Acquired</label><input class="finput" type="number" id="fp-year" placeholder="e.g. 2021"/></div>
         <div class="fgrp"><label class="flabel">Purchase Price ($)</label><input class="finput" type="number" id="fp-price" placeholder="e.g. 18000000"/></div>
         <div class="fgrp full"><label class="flabel">Notes</label><textarea class="finput" id="fp-notes" placeholder="Any additional details…"></textarea></div>
+        <div class="fsecdiv" style="grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0">Loan Information</div>
+        <div class="fgrp"><label class="flabel">Lender</label><input class="finput" type="text" id="fp-lender" placeholder="e.g. Wells Fargo"/></div>
+        <div class="fgrp"><label class="flabel">Loan Date</label><input class="finput" type="date" id="fp-loan-date"/></div>
+        <div class="fgrp"><label class="flabel">Loan Amount ($)</label><input class="finput" type="number" id="fp-loan-amount" placeholder="e.g. 36750000"/></div>
+        <div class="fgrp"><label class="flabel">Interest Rate</label><input class="finput" type="text" id="fp-interest-rate" placeholder="e.g. SOFR + 2.50%"/></div>
+        <div class="fgrp"><label class="flabel">Rate Cap Strike Price</label><input class="finput" type="text" id="fp-rate-cap" placeholder="e.g. 3.50%"/></div>
+        <div class="fgrp full" style="display:flex;flex-direction:column;gap:8px">
+          <label class="flabel">Refinanced?</label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="checkbox" id="fp-refinanced" onchange="toggleRefiDates()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--navy)"/>
+            <span style="font-size:13.5px;color:var(--ts)">Yes, this property has been refinanced</span>
+          </div>
+          <div id="refi-dates-container" style="display:none;flex-direction:column;gap:8px;padding:12px;background:#f8f9fb;border-radius:8px;border:1px solid var(--bd)">
+            <div style="font-size:12px;color:var(--tm);margin-bottom:4px">Add each refinance date:</div>
+            <div id="refi-dates-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <button type="button" class="btn btno btns" onclick="addRefiDate()" style="width:fit-content">+ Add Refinance Date</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="mfoot">
@@ -464,7 +482,7 @@ async function loadDB(){
     console.log('props:',p.data?.length,'error:',p.error?.message);
     console.log('dates:',dt.data?.length,'error:',dt.error?.message);
     // Always replace sample data with DB data (even if empty)
-    D.props = p.data ? p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price,notes:x.notes||''})) : [];
+    D.props = p.data ? p.data.map(x=>({id:x.id,name:x.name,city:x.city,state:x.state,sqft:x.sqft,status:x.status,year:x.year_acquired,price:x.purchase_price,notes:x.notes||'',lender:x.lender||'',loanDate:x.loan_date||'',loanAmount:x.loan_amount||null,interestRate:x.interest_rate||'',rateCap:x.rate_cap_strike||'',refinanced:x.refinanced||false,refiDates:x.refi_dates||[]})) : [];
     D.dates = dt.data ? dt.data.map(x=>({id:x.id,propId:x.property_id,category:x.category,description:x.description,dueDate:x.due_date,action:x.action_required||'',party:x.party||'',amount:x.amount,notes:x.notes||'',reminders:x.reminder_days||[]})) : [];
     if(t.data?.length) D.team=t.data.map(x=>({name:x.full_name,email:x.email,initials:x.initials||x.full_name.split(' ').map(c=>c[0]).join('')}));
     document.getElementById('dbdot').classList.add('on');
@@ -617,6 +635,7 @@ function renderProperties(){
     const nxt=pDates.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
     const urgent=pDates.filter(d=>{const x=daysUntil(d.dueDate);return x>=0&&x<=30}).length;
     const sc=p.status==='Active'?'bdgrn':p.status==='Acquisition'?'bdgld':p.status==='Disposition'?'bdred':'bdamb';
+    const refiText=p.refinanced?(p.refiDates&&p.refiDates.length?p.refiDates.map(d=>fmtDate(d)).join(', '):'Yes — date not set'):'No';
     return`<div class="pcard">
       <div class="pchead">
         <div class="pcname">${p.name}</div>
@@ -627,6 +646,14 @@ function renderProperties(){
         <div class="pcmet"><span class="pcmetl">Square Feet</span><span class="pcmetv">${p.sqft?p.sqft.toLocaleString()+' SF':'—'}</span></div>
         <div class="pcmet"><span class="pcmetl">Purchase Price</span><span class="pcmetv">${fmtMoney(p.price)}</span></div>
         <div class="pcmet"><span class="pcmetl">Year Acquired</span><span class="pcmetv">${p.year||'—'}</span></div>
+        <div class="pcmet" style="border-top:1px solid var(--bd);margin-top:4px;padding-top:8px"><span class="pcmetl" style="font-weight:600;color:var(--ts)">Loan Info</span><span class="pcmetv"></span></div>
+        <div class="pcmet"><span class="pcmetl">Lender</span><span class="pcmetv">${p.lender||'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Loan Amount</span><span class="pcmetv">${fmtMoney(p.loanAmount)}</span></div>
+        <div class="pcmet"><span class="pcmetl">Loan Date</span><span class="pcmetv" style="font-size:12px">${p.loanDate?fmtDate(p.loanDate):'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Interest Rate</span><span class="pcmetv">${p.interestRate||'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Rate Cap Strike</span><span class="pcmetv">${p.rateCap||'—'}</span></div>
+        <div class="pcmet"><span class="pcmetl">Refinanced</span><span class="pcmetv" style="font-size:12px;color:${p.refinanced?'var(--grn)':'var(--ts)'}">${refiText}</span></div>
+        <div class="pcmet" style="border-top:1px solid var(--bd);margin-top:4px;padding-top:8px"><span class="pcmetl" style="font-weight:600;color:var(--ts)">Tracking</span><span class="pcmetv"></span></div>
         <div class="pcmet"><span class="pcmetl">Tracked Dates</span><span class="pcmetv">${pDates.length}</span></div>
         <div class="pcmet"><span class="pcmetl">Urgent Dates</span><span class="pcmetv" style="color:${urgent?'var(--red)':'var(--grn)'}">${urgent||'None'}</span></div>
         <div class="pcmet"><span class="pcmetl">Next Key Date</span><span class="pcmetv" style="font-size:12px">${nxt?fmtDate(nxt.dueDate):'None'}</span></div>
@@ -818,9 +845,13 @@ window.deleteDate=async function(id){
 window.openAddProp=function(){
   document.getElementById('modal-prop-title').textContent='Add Property';
   document.getElementById('edit-prop-id').value='';
-  ['fp-name','fp-city','fp-sqft','fp-year','fp-price','fp-notes'].forEach(id=>document.getElementById(id).value='');
+  ['fp-name','fp-city','fp-sqft','fp-year','fp-price','fp-notes','fp-lender','fp-loan-date','fp-loan-amount','fp-interest-rate','fp-rate-cap'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fp-state').value='';
   document.getElementById('fp-status').value='Active';
+  document.getElementById('fp-refinanced').checked=false;
+  document.getElementById('refi-dates-container').style.display='none';
+  document.getElementById('refi-dates-list').innerHTML='';
+  window._refiDates=[];
   document.getElementById('modal-prop').classList.add('open');
 };
 window.editProp=function(id){
@@ -835,8 +866,50 @@ window.editProp=function(id){
   document.getElementById('fp-year').value=p.year||'';
   document.getElementById('fp-price').value=p.price||'';
   document.getElementById('fp-notes').value=p.notes||'';
+  document.getElementById('fp-lender').value=p.lender||'';
+  document.getElementById('fp-loan-date').value=p.loanDate||'';
+  document.getElementById('fp-loan-amount').value=p.loanAmount||'';
+  document.getElementById('fp-interest-rate').value=p.interestRate||'';
+  document.getElementById('fp-rate-cap').value=p.rateCap||'';
+  document.getElementById('fp-refinanced').checked=p.refinanced||false;
+  window._refiDates=[...(p.refiDates||[])];
+  if(p.refinanced){
+    document.getElementById('refi-dates-container').style.display='flex';
+    renderRefiDates();
+  }else{
+    document.getElementById('refi-dates-container').style.display='none';
+    document.getElementById('refi-dates-list').innerHTML='';
+  }
   document.getElementById('modal-prop').classList.add('open');
 };
+// ── REFINANCE DATE HELPERS ──
+window._refiDates=[];
+window.toggleRefiDates=function(){
+  const checked=document.getElementById('fp-refinanced').checked;
+  const container=document.getElementById('refi-dates-container');
+  container.style.display=checked?'flex':'none';
+  if(checked&&window._refiDates.length===0){
+    window._refiDates=[''];
+    renderRefiDates();
+  }
+};
+function renderRefiDates(){
+  const list=document.getElementById('refi-dates-list');
+  list.innerHTML=window._refiDates.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <input class="finput" type="date" value="${d}" onchange="window._refiDates[${i}]=this.value" style="flex:1"/>
+      ${window._refiDates.length>1?`<button type="button" class="btn btnr btns" onclick="removeRefiDate(${i})">✕</button>`:''}
+    </div>`).join('');
+}
+window.addRefiDate=function(){
+  window._refiDates.push('');
+  renderRefiDates();
+};
+window.removeRefiDate=function(i){
+  window._refiDates.splice(i,1);
+  renderRefiDates();
+};
+
 window.saveProp=async function(){
   const editId=document.getElementById('edit-prop-id').value;
   const name=document.getElementById('fp-name').value.trim();
@@ -847,19 +920,26 @@ window.saveProp=async function(){
   const year=document.getElementById('fp-year').value;
   const price=document.getElementById('fp-price').value;
   const notes=document.getElementById('fp-notes').value.trim();
+  const lender=document.getElementById('fp-lender').value.trim();
+  const loanDate=document.getElementById('fp-loan-date').value;
+  const loanAmount=document.getElementById('fp-loan-amount').value;
+  const interestRate=document.getElementById('fp-interest-rate').value.trim();
+  const rateCap=document.getElementById('fp-rate-cap').value.trim();
+  const refinanced=document.getElementById('fp-refinanced').checked;
+  const refiDates=window._refiDates||[];
   if(!name){toast('Please enter a property name');return}
-  const record={name,city,state,sqft:Number(sqft)||null,status,year:Number(year)||null,price:Number(price)||null,notes};
+  const record={name,city,state,sqft:Number(sqft)||null,status,year:Number(year)||null,price:Number(price)||null,notes,lender,loanDate,loanAmount:Number(loanAmount)||null,interestRate,rateCap,refinanced,refiDates};
   if(editId){
     const idx=D.props.findIndex(x=>x.id==editId);
     if(idx>-1)D.props[idx]={...D.props[idx],...record};
-    try{const db=await getDB();await db.from('properties').update({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes}).eq('id',editId)}catch(e){console.warn(e.message)}
+    try{const db=await getDB();await db.from('properties').update({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates}).eq('id',editId)}catch(e){console.warn(e.message)}
     toast('Property updated ✓');
   }else{
     const newId=Date.now();
     D.props.push({id:newId,...record});
     try{
       const db=await getDB();
-      const result=await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes});
+      const result=await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates});
       console.log('Insert result:',JSON.stringify(result));
       if(result.error){toast('DB Error: '+result.error.message);return;}
       toast(name+' saved to database ✓');
