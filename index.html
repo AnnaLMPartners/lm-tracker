@@ -932,7 +932,14 @@ window.saveProp=async function(){
   if(editId){
     const idx=D.props.findIndex(x=>x.id==editId);
     if(idx>-1)D.props[idx]={...D.props[idx],...record};
-    try{const db=await getDB();await db.from('properties').update({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates}).eq('id',editId)}catch(e){console.warn(e.message)}
+    try{
+      const db=await getDB();
+      const upd={name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates};
+      console.log('Updating property:',editId,upd);
+      const r=await db.from('properties').update(upd).eq('id',editId);
+      console.log('Update result:',JSON.stringify(r));
+      if(r.error){toast('Save error: '+r.error.message);return;}
+    }catch(e){console.error('Update failed:',e.message)}
     toast('Property updated ✓');
   }else{
     const newId=Date.now();
