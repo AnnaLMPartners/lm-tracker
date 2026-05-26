@@ -678,16 +678,30 @@ function renderReminders(){
       <button class="btn btno btns" onclick="removeTeamMember(${i})">Remove</button>
     </div>`).join('');
 }
-window.addTeamMember=function(){
+window.addTeamMember=async function(){
   const n=document.getElementById('new-name').value.trim();
   const e=document.getElementById('new-email').value.trim();
   if(!n||!e){toast('Please enter name and email');return}
-  D.team.push({name:n,email:e,initials:n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)});
+  const initials=n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  try{
+    const db=await getDB();
+    const result=await db.from('team_members').insert({full_name:n,email:e,initials:initials,receives_reminders:true});
+    if(result.error){toast('Error: '+result.error.message);return;}
+  }catch(err){console.error('Save team member failed:',err.message)}
+  D.team.push({name:n,email:e,initials:initials});
   document.getElementById('new-name').value='';
   document.getElementById('new-email').value='';
   renderReminders();toast(n+' added ✓');
 };
-window.removeTeamMember=function(i){D.team.splice(i,1);renderReminders()};
+window.removeTeamMember=async function(i){
+  const member=D.team[i];
+  try{
+    const db=await getDB();
+    await db.from('team_members').delete().eq('email',member.email);
+  }catch(err){console.error('Delete team member failed:',err.message)}
+  D.team.splice(i,1);
+  renderReminders();toast(member.name+' removed ✓');
+};
 
 // ── ADD / EDIT DATE MODAL ──
 window.openAddDate=function(){
