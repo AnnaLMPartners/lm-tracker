@@ -427,6 +427,25 @@ textarea.finput{resize:vertical;min-height:70px}
 
 <div class="toast" id="toastEl"></div>
 
+<!-- PASSWORD SCREEN -->
+<div id="lockscreen" style="display:none;position:fixed;inset:0;background:var(--navy);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:24px">
+  <div style="text-align:center;margin-bottom:8px">
+    <div style="width:56px;height:56px;background:var(--gold);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:var(--navy);margin:0 auto 16px">LM</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#fff;margin-bottom:6px">LM Real Estate Partners</div>
+    <div style="font-size:13px;color:var(--tm);letter-spacing:1px;text-transform:uppercase">Asset Management Platform</div>
+  </div>
+  <div style="background:var(--navy2);border-radius:14px;padding:28px 32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:14px;color:rgba(255,255,255,.7);text-align:center">Enter password to continue</div>
+    <input type="password" id="pw-input" placeholder="Password" style="padding:11px 14px;border-radius:8px;border:1px solid var(--navy-light);background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:2px" onkeydown="if(event.key==='Enter')checkPW()"/>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="pw-remember" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer"/>
+      <label for="pw-remember" style="font-size:13px;color:rgba(255,255,255,.6);cursor:pointer">Remember me on this device</label>
+    </div>
+    <button onclick="checkPW()" style="padding:11px;border-radius:8px;background:var(--gold);color:var(--navy);font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Enter</button>
+    <div id="pw-error" style="font-size:12.5px;color:var(--red);text-align:center;display:none">Incorrect password — try again</div>
+  </div>
+</div>
+
 <script type="module">
 const SURL='https://weunoznnopaawntgxqrr.supabase.co';
 const SKEY='sb_publishable_aqGc0tPDGKNd5S0u1mDoLw_LufLpXEN';
@@ -990,7 +1009,35 @@ window.toast=function(m){const el=document.getElementById('toastEl');el.textCont
 
 // ── INIT ──
 document.getElementById('hdate').textContent=NOW.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-loadDB();
+
+// ── PASSWORD PROTECTION ──
+const SITE_PASSWORD = 'Table969';
+const PW_KEY = 'lm_auth';
+
+function checkPW(){
+  const val = document.getElementById('pw-input').value;
+  const remember = document.getElementById('pw-remember').checked;
+  if(val === SITE_PASSWORD){
+    if(remember) localStorage.setItem(PW_KEY, 'true');
+    else sessionStorage.setItem(PW_KEY, 'true');
+    document.getElementById('lockscreen').style.display='none';
+    loadDB();
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+window.checkPW = checkPW;
+
+// Check if already authenticated
+const isAuth = localStorage.getItem(PW_KEY) || sessionStorage.getItem(PW_KEY);
+if(isAuth){
+  loadDB();
+} else {
+  document.getElementById('lockscreen').style.display='flex';
+  setTimeout(()=>document.getElementById('pw-input').focus(), 100);
+}
 </script>
 </body>
 </html>
