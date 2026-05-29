@@ -1,11 +1,7 @@
 /**
  * LM Real Estate Partners — Daily Email Reminder Script v2
- * Works with the new unified "dates" table in Supabase.
- *
- * SETUP:
- *   1. npm install @supabase/supabase-js @sendgrid/mail dotenv
- *   2. Create .env file (see template at bottom)
- *   3. Test: node reminder.js
+ * Groups dates with same category + due date across multiple properties
+ * into ONE combined email per reminder window.
  */
 
 require('dotenv').config();
@@ -28,7 +24,7 @@ async function runReminders() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Load team members
+  // Load team
   const { data: team } = await supabase
     .from('team_members')
     .select('*')
@@ -42,9 +38,13 @@ async function runReminders() {
     .select('*, properties(name, city, state)')
     .eq('is_active', true);
 
-  let totalSent = 0;
+  if (!dates?.length) { console.log('No active dates. Exiting.'); return; }
 
-  for (const record of (dates || [])) {
+  // ── GROUP DATES BY: category + due_date + description ──
+  // Dates with same category+due_date+description are sent as ONE email
+  // listing all properties together
+  const groups = {};
+  for (const record of dates) {
     const keyDate = new Date(record.due_date + 'T00:00:00');
     keyDate.setHours(0, 0, 0, 0);
     const daysLeft = Math.ceil((keyDate - today) / 86400000);
@@ -52,21 +52,44 @@ async function runReminders() {
     for (const windowDays of (record.reminder_days || [])) {
       if (daysLeft !== windowDays) continue;
 
-      for (const member of team) {
-        const alreadySent = await checkSent(record.id, windowDays, member.email);
-        if (alreadySent) continue;
-
-        const sent = await sendEmail({
-          to: member.email,
-          toName: member.full_name,
-          record,
+      // Group key: category + due_date + description
+      const groupKey = `${record.category}||${record.due_date}||${record.description}||${windowDays}`;
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
+          category: record.category,
+          description: record.description,
+          due_date: record.due_date,
+          action_required: record.action_required,
+          party: record.party,
+          amount: record.amount,
+          notes: record.notes,
           daysLeft,
-        });
+          windowDays,
+          properties: [],
+          recordIds: [],
+        };
+      }
+      groups[groupKey].properties.push(record.properties);
+      groups[groupKey].recordIds.push(record.id);
+    }
+  }
 
-        if (sent) {
-          await logSent(record.id, windowDays, member.email);
-          totalSent++;
+  let totalSent = 0;
+
+  for (const group of Object.values(groups)) {
+    for (const member of team) {
+      // Check if already sent for ALL records in this group
+      const alreadySent = await checkGroupSent(group.recordIds, group.windowDays, member.email);
+      if (alreadySent) continue;
+
+      const sent = await sendGroupEmail({ member, group });
+
+      if (sent) {
+        // Log for all records in group
+        for (const recordId of group.recordIds) {
+          await logSent(recordId, group.windowDays, member.email);
         }
+        totalSent++;
       }
     }
   }
@@ -74,21 +97,37 @@ async function runReminders() {
   console.log(`\n✓ Done. ${totalSent} reminder email(s) sent.\n`);
 }
 
-async function sendEmail({ to, toName, record, daysLeft }) {
+async function sendGroupEmail({ member, group }) {
+  const { category, description, due_date, action_required, party, amount, notes, daysLeft, properties } = group;
   const urgencyColor = daysLeft <= 7 ? '#c53030' : daysLeft <= 30 ? '#b7791f' : '#0d1b2a';
   const urgencyLabel = daysLeft <= 7 ? '🔴 URGENT' : daysLeft <= 30 ? '🟡 ACTION REQUIRED' : '🔵 REMINDER';
-  const prop = record.properties;
-  const formattedDate = new Date(record.due_date + 'T00:00:00')
+  const formattedDate = new Date(due_date + 'T00:00:00')
     .toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
+  // Build property list — one card if single, list if multiple
+  const propHTML = properties.length === 1
+    ? `<div style="background:#f8f9fb;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:6px">Property</div>
+        <div style="font-size:18px;font-family:Georgia,serif;color:#0d1b2a">${properties[0].name}</div>
+        <div style="font-size:13px;color:#718096">${properties[0].city}, ${properties[0].state} · Industrial</div>
+      </div>`
+    : `<div style="background:#f8f9fb;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:10px">Properties (${properties.length})</div>
+        ${properties.map(p => `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <span style="font-size:13px;font-weight:500;color:#0d1b2a">🏭 ${p.name}</span>
+            <span style="font-size:12px;color:#718096">${p.city}, ${p.state}</span>
+          </div>`).join('')}
+      </div>`;
+
   const details = [
-    record.action_required && ['Action Required', `<b style="color:#b7791f">${record.action_required}</b>`],
-    record.party            && ['Counterparty / Lender', record.party],
-    record.amount           && ['Amount', '$' + Number(record.amount).toLocaleString()],
-    record.notes            && ['Notes', record.notes],
+    action_required && ['Action Required', `<b style="color:#b7791f">${action_required}</b>`],
+    party           && ['Counterparty / Lender', party],
+    amount          && ['Amount', '$' + Number(amount).toLocaleString()],
+    notes           && ['Notes', notes],
   ].filter(Boolean);
 
-  const detailRows = details.map(([k, v]) => `
+  const detailRows = details.map(([k,v]) => `
     <tr>
       <td style="padding:8px 16px;font-size:13px;color:#718096;width:160px">${k}</td>
       <td style="padding:8px 16px;font-size:13px;color:#1a202c">${v}</td>
@@ -109,16 +148,12 @@ async function sendEmail({ to, toName, record, daysLeft }) {
   </td></tr>
 
   <tr><td style="background:white;padding:32px">
-    <p style="font-size:14px;color:#718096;margin:0 0 4px">Hi ${toName},</p>
+    <p style="font-size:14px;color:#718096;margin:0 0 4px">Hi ${member.full_name},</p>
     <h1 style="font-family:Georgia,serif;font-size:22px;color:#0d1b2a;margin:8px 0 20px;font-weight:400">
-      ${record.category} — ${daysLeft} day${daysLeft !== 1 ? 's' : ''} away
+      ${category} — ${daysLeft} day${daysLeft !== 1 ? 's' : ''} away
     </h1>
 
-    <div style="background:#f8f9fb;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin-bottom:20px">
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:6px">Property</div>
-      <div style="font-size:18px;font-family:Georgia,serif;color:#0d1b2a;margin-bottom:2px">${prop?.name || '—'}</div>
-      <div style="font-size:13px;color:#718096">${prop?.city || ''}, ${prop?.state || ''} · Industrial</div>
-    </div>
+    ${propHTML}
 
     <div style="background:#0d1b2a;border-radius:10px;padding:18px 20px;margin-bottom:20px;text-align:center">
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:6px">Due Date</div>
@@ -127,7 +162,7 @@ async function sendEmail({ to, toName, record, daysLeft }) {
     </div>
 
     <div style="font-size:13px;color:#4a5568;background:#fffbeb;border:1px solid #f6e05e;border-radius:8px;padding:12px 16px;margin-bottom:20px">
-      ${record.description}
+      ${description}
     </div>
 
     ${details.length ? `
@@ -150,32 +185,36 @@ async function sendEmail({ to, toName, record, daysLeft }) {
 </table></td></tr></table>
 </body></html>`;
 
+  const propNames = properties.map(p => p.name).join(' & ');
   try {
     await sgMail.send({
-      to: { email: to, name: toName },
+      to: { email: member.email, name: member.full_name },
       from: { email: FROM_EMAIL, name: FROM_NAME },
-      subject: `[LM] ${record.category} — ${prop?.name} — ${daysLeft}d`,
+      subject: `[LM] ${category} — ${propNames} — ${daysLeft}d`,
       html,
     });
-    console.log(`  ✉ Sent to ${to}: ${record.category} @ ${prop?.name} (${daysLeft}d)`);
+    console.log(`  ✉ Sent to ${member.email}: ${category} @ ${propNames} (${daysLeft}d)`);
     return true;
   } catch (err) {
-    console.error(`  ✗ Failed ${to}:`, err.message);
+    console.error(`  ✗ Failed ${member.email}:`, err.message);
     return false;
   }
 }
 
-async function checkSent(dateId, days, email) {
+async function checkGroupSent(recordIds, days, email) {
   const todayStr = new Date().toISOString().split('T')[0];
-  const { data } = await supabase
-    .from('reminder_log')
-    .select('id')
-    .eq('date_id', dateId)
-    .eq('days_before', days)
-    .eq('recipient_email', email)
-    .gte('sent_at', todayStr)
-    .maybeSingle();
-  return !!data;
+  for (const id of recordIds) {
+    const { data } = await supabase
+      .from('reminder_log')
+      .select('id')
+      .eq('date_id', id)
+      .eq('days_before', days)
+      .eq('recipient_email', email)
+      .gte('sent_at', todayStr)
+      .maybeSingle();
+    if (data) return true; // already sent for at least one in group
+  }
+  return false;
 }
 
 async function logSent(dateId, days, email) {
@@ -188,42 +227,3 @@ async function logSent(dateId, days, email) {
 }
 
 runReminders().catch(console.error);
-
-/*
-──────────────────────────────────────────────
-  .env FILE TEMPLATE
-──────────────────────────────────────────────
-
-SUPABASE_URL=https://weunoznnopaawntgxqrr.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...your service role key...
-SENDGRID_API_KEY=SG.xxxxx
-FROM_EMAIL=alerts@lmrep.com
-FROM_NAME=LM Real Estate Partners
-DASHBOARD_URL=https://lm-tracker.vercel.app
-
-──────────────────────────────────────────────
-  GITHUB ACTIONS SCHEDULE (runs 9am ET daily)
-──────────────────────────────────────────────
-
-Create file: .github/workflows/reminders.yml
-
-name: Daily Reminders
-on:
-  schedule:
-    - cron: '0 13 * * *'
-jobs:
-  remind:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with: { node-version: '18' }
-      - run: npm install
-      - run: node reminder.js
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
-*/
