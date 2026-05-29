@@ -5,12 +5,14 @@
  */
 
 require('dotenv').config();
+const ws = require('ws');
 const { createClient } = require('@supabase/supabase-js');
 const sgMail = require('@sendgrid/mail');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_SERVICE_KEY,
+  { global: { WebSocket: ws } }
 );
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
