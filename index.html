@@ -341,8 +341,8 @@ textarea.finput{resize:vertical;min-height:70px}
       <input type="hidden" id="edit-id"/>
       <div class="fgrid">
         <div class="fgrp">
-          <label class="flabel">Property *</label>
-          <select class="fselect" id="f-prop"></select>
+          <label class="flabel">Property * <span style="font-size:11px;color:var(--tm);font-weight:400;text-transform:none;letter-spacing:0">(select one or more)</span></label>
+          <div id="f-prop-list" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;padding:8px;background:#f8f9fb;border:1px solid var(--bds);border-radius:7px"></div>
         </div>
         <div class="fgrp">
           <label class="flabel">Category *</label>
@@ -771,10 +771,22 @@ window.removeTeamMember=async function(i){
 };
 
 // ── ADD / EDIT DATE MODAL ──
+function populatePropCheckboxes(selectedIds=[]){
+  const list=document.getElementById('f-prop-list');
+  if(!list)return;
+  list.innerHTML=D.props.map(p=>`
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tp);padding:3px 0">
+      <input type="checkbox" class="prop-checkbox" value="${p.id}" ${selectedIds.map(String).includes(String(p.id))?'checked':''} style="width:15px;height:15px;accent-color:var(--navy);cursor:pointer;flex-shrink:0"/>
+      <span style="font-weight:500">${p.name}</span> <span style="font-size:11.5px;color:var(--tm)">${p.city||''}, ${p.state||''}</span>
+    </label>`).join('');
+}
+function getSelectedPropIds(){
+  return [...document.querySelectorAll('.prop-checkbox:checked')].map(x=>x.value);
+}
 window.openAddDate=function(){
   document.getElementById('modal-date-title').textContent='Add Date';
   document.getElementById('edit-id').value='';
-  document.getElementById('f-prop').innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  populatePropCheckboxes([]);
   document.getElementById('f-cat').value='';
   document.getElementById('f-desc').value='';
   document.getElementById('f-date').value='';
@@ -789,14 +801,17 @@ window.openAddDate=function(){
 };
 window.addDateForProp=function(pid){
   openAddDate();
-  document.getElementById('f-prop').value=pid;
+  // Pre-check the specific property
+  setTimeout(()=>{
+    const cb=document.querySelector(`.prop-checkbox[value="${pid}"]`);
+    if(cb)cb.checked=true;
+  },50);
 };
 window.editDate=function(id){
   const r=D.dates.find(x=>x.id===id);if(!r)return;
   document.getElementById('modal-date-title').textContent='Edit Date';
   document.getElementById('edit-id').value=id;
-  document.getElementById('f-prop').innerHTML=D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  document.getElementById('f-prop').value=r.propId;
+  populatePropCheckboxes([r.propId]);
   document.getElementById('f-cat').value=r.category||'';
   document.getElementById('f-desc').value=r.description||'';
   document.getElementById('f-date').value=r.dueDate||'';
@@ -838,7 +853,7 @@ window.removeRemDay=function(d){
 // ── SAVE DATE ──
 window.saveDate=async function(){
   const editId=document.getElementById('edit-id').value;
-  const propId=document.getElementById('f-prop').value;
+  const propIds=getSelectedPropIds();
   const category=document.getElementById('f-cat').value.trim();
   const description=document.getElementById('f-desc').value.trim();
   const dueDate=document.getElementById('f-date').value;
@@ -847,9 +862,13 @@ window.saveDate=async function(){
   const amount=document.getElementById('f-amount').value;
   const notes=document.getElementById('f-notes').value.trim();
   const reminders=[...D.editReminders];
+  if(!propIds.length){toast('Please select at least one property');return}
   if(!category||!description||!dueDate){toast('Please fill in Category, Description, and Date');return}
-  const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
+
   if(editId){
+    // Editing existing date — update single record (keep original property)
+    const propId=propIds[0];
+    const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
     const idx=D.dates.findIndex(x=>x.id==editId);
     if(idx>-1)D.dates[idx]={...D.dates[idx],...record};
     try{
@@ -858,13 +877,17 @@ window.saveDate=async function(){
     }catch(e){console.warn(e.message)}
     toast('Date updated ✓');
   }else{
-    const newId=Date.now();
-    D.dates.push({id:newId,...record});
-    try{
-      const db=await getDB();
-      await db.from('dates').insert({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders,is_active:true});
-    }catch(e){console.warn(e.message)}
-    toast('Date saved ✓');
+    // Adding new date — create one entry per selected property
+    const db=await getDB();
+    for(const propId of propIds){
+      const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
+      const newId=Date.now()+Math.random();
+      D.dates.push({id:newId,...record});
+      try{
+        await db.from('dates').insert({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders,is_active:true});
+      }catch(e){console.warn(e.message)}
+    }
+    toast(propIds.length>1?`Date saved for ${propIds.length} properties ✓`:'Date saved ✓');
   }
   closeModal('date');
   refreshCatFilter();
