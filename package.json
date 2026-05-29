@@ -4,12 +4,12 @@
   "description": "LM Real Estate Partners — automated email reminder service",
   "main": "reminder.js",
   "scripts": {
-    "start": "node reminder.js",
-    "test": "node reminder.js"
+    "start": "node reminder.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.0",
     "@supabase/supabase-js": "^2.39.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "ws": "^8.18.0"
   }
 }
