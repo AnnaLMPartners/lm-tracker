@@ -183,6 +183,7 @@ textarea.finput{resize:vertical;min-height:70px}
     <a class="nitem" onclick="goTo('calendar',this)">◻ Calendar View</a>
     <a class="nitem" onclick="exportICS()">↓ Export to Calendar</a>
     <a class="nitem" onclick="goTo('reminders',this)">◎ Email Reminders</a>
+    <a class="nitem" onclick="goTo('archive',this)">📦 Archive</a>
     <a class="nitem" onclick="goTo('settings',this)">⚙ Settings</a>
   </div>
 
@@ -297,6 +298,22 @@ textarea.finput{resize:vertical;min-height:70px}
     </div>
 
     <!-- SETTINGS -->
+    <!-- ARCHIVE -->
+    <div class="section" id="sec-archive">
+      <div class="pghead">
+        <div><div class="pgtitle">Archive</div><div class="pgsub">Dates that have passed their due date. All information is preserved.</div></div>
+      </div>
+      <div class="frow">
+        <div class="sbox"><span class="sico">🔍</span><input type="text" placeholder="Search archived dates…" oninput="filterArchive(this.value)"/></div>
+        <select class="fsel" id="archive-filter-prop" onchange="filterArchive()"><option value="">All Properties</option></select>
+        <select class="fsel" id="archive-filter-cat" onchange="filterArchive()"><option value="">All Categories</option></select>
+      </div>
+      <div class="twrap"><table>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Overdue</th><th>Action Required</th><th>Party</th><th>Amount</th><th>Notes</th><th>Reminders Were</th></tr></thead>
+        <tbody id="archive-tbody"></tbody>
+      </table></div>
+    </div>
+
     <div class="section" id="sec-settings">
       <div class="pghead"><div><div class="pgtitle">Settings</div><div class="pgsub">Company and platform configuration.</div></div></div>
       <div class="twrap" style="padding:24px;max-width:520px">
@@ -535,6 +552,7 @@ window.goTo=function(s,el){
   if(s==='properties')renderProperties();
   if(s==='calendar')renderCalendar();
   if(s==='reminders')renderReminders();
+  if(s==='archive')renderArchive();
 };
 
 function renderAll(){
@@ -547,15 +565,17 @@ function renderAll(){
 
 // ── DASHBOARD ──
 function renderDashboard(){
-  const dates=D.dates.filter(d=>daysUntil(d.dueDate)>=-30);
-  const u=dates.filter(d=>{const x=daysUntil(d.dueDate);return x>=0&&x<=30}).length;
-  const w=dates.filter(d=>{const x=daysUntil(d.dueDate);return x>30&&x<=90}).length;
-  const o=dates.filter(d=>daysUntil(d.dueDate)>90).length;
+  // Only show active (not expired) dates on dashboard
+  const activeDates=D.dates.filter(d=>daysUntil(d.dueDate)>=0);
+  const archivedCount=D.dates.filter(d=>daysUntil(d.dueDate)<0).length;
+  const u=activeDates.filter(d=>daysUntil(d.dueDate)<=30).length;
+  const w=activeDates.filter(d=>{const x=daysUntil(d.dueDate);return x>30&&x<=90}).length;
+  const o=activeDates.filter(d=>daysUntil(d.dueDate)>90).length;
   document.getElementById('stat-u').textContent=u;
   document.getElementById('stat-w').textContent=w;
   document.getElementById('stat-o').textContent=o;
-  document.getElementById('stat-t').textContent=D.dates.length;
-  document.getElementById('stat-ps').textContent=D.props.length+' properties';
+  document.getElementById('stat-t').textContent=activeDates.length;
+  document.getElementById('stat-ps').textContent=D.props.length+' properties · '+archivedCount+' archived';
   document.getElementById('bannertext').textContent=u>0?`⚠ ${u} date${u>1?'s':''} require attention within 30 days`:'✓ No critical deadlines in the next 30 days';
   renderDashTable();
 }
@@ -566,9 +586,10 @@ window.dashFilter=function(f,el){
   renderDashTable();
 };
 function renderDashTable(){
-  let rows=[...D.dates].sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
-  if(D.dashTab==='urgent')rows=rows.filter(r=>{const d=daysUntil(r.dueDate);return d>=0&&d<=30});
-  if(D.dashTab==='upcoming')rows=rows.filter(r=>{const d=daysUntil(r.dueDate);return d>=0&&d<=90});
+  // Only show non-expired dates on dashboard
+  let rows=[...D.dates].filter(r=>daysUntil(r.dueDate)>=0).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  if(D.dashTab==='urgent')rows=rows.filter(r=>daysUntil(r.dueDate)<=30);
+  if(D.dashTab==='upcoming')rows=rows.filter(r=>daysUntil(r.dueDate)<=90);
   const tb=document.getElementById('dash-tbody');
   if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="emptyico">📅</div><div class="emptytxt">No dates found</div></div></td></tr>';return}
   tb.innerHTML=rows.map(r=>{
@@ -1005,6 +1026,51 @@ function dl(name,content,mime){const a=document.createElement('a');a.href=URL.cr
 window.closeModal=function(t){document.getElementById('modal-'+t).classList.remove('open')};
 
 // ── TOAST ──
+// ── ARCHIVE ──
+let archiveSearch='', archiveFilterProp='', archiveFilterCat='';
+
+function renderArchive(){
+  // Populate filters
+  const ps=document.getElementById('archive-filter-prop');
+  ps.innerHTML='<option value="">All Properties</option>'+D.props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  const cs=document.getElementById('archive-filter-cat');
+  const cats=[...new Set(D.dates.filter(d=>daysUntil(d.dueDate)<0).map(d=>d.category))].sort();
+  cs.innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+  let rows=D.dates.filter(r=>daysUntil(r.dueDate)<0).sort((a,b)=>new Date(b.dueDate)-new Date(a.dueDate));
+  if(archiveSearch)rows=rows.filter(r=>propName(r.propId).toLowerCase().includes(archiveSearch)||r.category.toLowerCase().includes(archiveSearch)||r.description.toLowerCase().includes(archiveSearch));
+  if(archiveFilterProp)rows=rows.filter(r=>String(r.propId)===String(archiveFilterProp));
+  if(archiveFilterCat)rows=rows.filter(r=>r.category===archiveFilterCat);
+
+  const tb=document.getElementById('archive-tbody');
+  if(!rows.length){
+    tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="emptyico">📦</div><div class="emptytxt">No archived dates yet — expired dates will appear here automatically</div></div></td></tr>';
+    return;
+  }
+  tb.innerHTML=rows.map(r=>{
+    const daysOver=Math.abs(daysUntil(r.dueDate));
+    const rems=r.reminders&&r.reminders.length?r.reminders.sort((a,b)=>b-a).map(x=>x+'d').join(', '):'None';
+    return`<tr style="opacity:0.85">
+      <td>${propCell(r.propId)}</td>
+      <td><span class="badge bdnvy" style="font-size:11px">${r.category}</span></td>
+      <td style="font-size:13px;color:var(--ts);max-width:180px">${r.description}</td>
+      <td style="font-weight:500;white-space:nowrap;color:var(--tm)">${fmtDate(r.dueDate)}</td>
+      <td><span style="font-size:13px;font-weight:600;color:var(--tm)">${daysOver}d ago</span></td>
+      <td style="font-size:12.5px;color:var(--ts)">${r.action||'—'}</td>
+      <td style="font-size:12.5px;color:var(--ts)">${r.party||'—'}</td>
+      <td style="font-size:12.5px;color:var(--ts)">${fmtMoney(r.amount)}</td>
+      <td style="font-size:12px;color:var(--tm);max-width:140px">${r.notes||'—'}</td>
+      <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
+    </tr>`;
+  }).join('');
+}
+window.filterArchive=function(q){
+  if(q!==undefined)archiveSearch=q.toLowerCase();
+  archiveFilterProp=document.getElementById('archive-filter-prop').value;
+  archiveFilterCat=document.getElementById('archive-filter-cat').value;
+  renderArchive();
+};
+
 window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
 
 // ── INIT ──
