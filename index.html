@@ -897,28 +897,30 @@ window.saveDate=async function(){
   if(!category||!description||!dueDate){toast('Please fill in Category, Description, and Date');return}
 
   if(editId){
-    // Editing existing date — update single record (keep original property)
+    // Editing existing date
     const propId=propIds[0];
     const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
-    const idx=D.dates.findIndex(x=>x.id==editId);
-    if(idx>-1)D.dates[idx]={...D.dates[idx],...record};
     try{
       const db=await getDB();
-      await db.from('dates').update({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders}).eq('id',editId);
-    }catch(e){console.warn(e.message)}
-    toast('Date updated ✓');
+      const r=await db.from('dates').update({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders}).eq('id',editId);
+      if(r.error){toast('❌ Save failed: '+r.error.message);return;}
+      const idx=D.dates.findIndex(x=>x.id==editId);
+      if(idx>-1)D.dates[idx]={...D.dates[idx],...record};
+      toast('Date updated ✓');
+    }catch(e){toast('❌ Save failed: '+e.message);return;}
   }else{
     // Adding new date — create one entry per selected property
-    const db=await getDB();
-    for(const propId of propIds){
-      const record={propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
-      const newId=Date.now()+Math.random();
-      D.dates.push({id:newId,...record});
-      try{
-        await db.from('dates').insert({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders,is_active:true});
-      }catch(e){console.warn(e.message)}
-    }
-    toast(propIds.length>1?`Date saved for ${propIds.length} properties ✓`:'Date saved ✓');
+    try{
+      const db=await getDB();
+      for(const propId of propIds){
+        const r=await db.from('dates').insert({property_id:propId,category,description,due_date:dueDate,action_required:action,party,amount:Number(amount)||null,notes,reminder_days:reminders,is_active:true}).select();
+        if(r.error){toast('❌ Save failed: '+r.error.message);return;}
+        const newId=r.data&&r.data[0]?r.data[0].id:Date.now()+Math.random();
+        const record={id:newId,propId,category,description,dueDate,action,party,amount:Number(amount)||null,notes,reminders};
+        D.dates.push(record);
+      }
+      toast(propIds.length>1?`Date saved for ${propIds.length} properties ✓`:'Date saved ✓');
+    }catch(e){toast('❌ Save failed: '+e.message);return;}
   }
   closeModal('date');
   refreshCatFilter();
@@ -928,11 +930,15 @@ window.saveDate=async function(){
 
 // ── DELETE DATE ──
 window.deleteDate=async function(id){
-  if(!confirm('Delete this date?'))return;
-  D.dates=D.dates.filter(x=>x.id!==id);
-  try{const db=await getDB();await db.from('dates').delete().eq('id',id)}catch(e){console.warn(e.message)}
-  toast('Deleted ✓');
-  renderAll();
+  if(!confirm('Delete this date? This cannot be undone.'))return;
+  try{
+    const db=await getDB();
+    const r=await db.from('dates').delete().eq('id',id);
+    if(r.error){toast('❌ Delete failed: '+r.error.message);return;}
+    D.dates=D.dates.filter(x=>x.id!==id);
+    toast('Deleted ✓');
+    renderAll();
+  }catch(e){toast('❌ Delete failed: '+e.message);}
 };
 
 // ── ADD / EDIT PROPERTY ──
@@ -1024,30 +1030,24 @@ window.saveProp=async function(){
   if(!name){toast('Please enter a property name');return}
   const record={name,city,state,sqft:Number(sqft)||null,status,year:Number(year)||null,price:Number(price)||null,notes,lender,loanDate,loanAmount:Number(loanAmount)||null,interestRate,rateCap,refinanced,refiDates};
   if(editId){
-    const idx=D.props.findIndex(x=>x.id==editId);
-    if(idx>-1)D.props[idx]={...D.props[idx],...record};
     try{
       const db=await getDB();
       const upd={name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates};
-      console.log('Updating property:',editId,upd);
       const r=await db.from('properties').update(upd).eq('id',editId);
-      console.log('Update result:',JSON.stringify(r));
-      if(r.error){toast('Save error: '+r.error.message);return;}
-    }catch(e){console.error('Update failed:',e.message)}
-    toast('Property updated ✓');
+      if(r.error){toast('❌ Save failed: '+r.error.message);return;}
+      const idx=D.props.findIndex(x=>x.id==editId);
+      if(idx>-1)D.props[idx]={...D.props[idx],...record};
+      toast('Property updated ✓');
+    }catch(e){toast('❌ Save failed: '+e.message);return;}
   }else{
-    const newId=Date.now();
-    D.props.push({id:newId,...record});
     try{
       const db=await getDB();
-      const result=await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates});
-      console.log('Insert result:',JSON.stringify(result));
-      if(result.error){toast('DB Error: '+result.error.message);return;}
-      toast(name+' saved to database ✓');
-    }catch(e){
-      console.error('Save failed:',e);
-      toast('Error: '+e.message);
-    }
+      const result=await db.from('properties').insert({name,city,state,sqft:Number(sqft)||null,status,year_acquired:Number(year)||null,purchase_price:Number(price)||null,notes,lender,loan_date:loanDate||null,loan_amount:Number(loanAmount)||null,interest_rate:interestRate,rate_cap_strike:rateCap,refinanced,refi_dates:refiDates}).select();
+      if(result.error){toast('❌ Save failed: '+result.error.message);return;}
+      const newId=result.data&&result.data[0]?result.data[0].id:Date.now();
+      D.props.push({id:newId,...record});
+      toast(name+' added ✓');
+    }catch(e){toast('❌ Save failed: '+e.message);return;}
   }
   closeModal('prop');
   initFilters();
