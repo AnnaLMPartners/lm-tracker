@@ -214,8 +214,8 @@ textarea.finput{resize:vertical;min-height:70px}
     <div class="nsec">Navigation</div>
     <a class="nitem active" onclick="goTo('dashboard',this)">⊞ Dashboard</a>
     <a class="nitem" onclick="goTo('dates',this)">📅 All Dates</a>
-    <a class="nitem" onclick="togglePropsNav(this)" id="nav-properties-toggle">▦ Properties</a>
-    <div id="props-subnav" style="display:none">
+    <a class="nitem" onclick="goTo('properties',null)" id="nav-properties-toggle">▦ Properties</a>
+    <div id="props-subnav">
       <div id="props-tree"></div>
     </div>
     <div class="nsec">Tools</div>
@@ -543,14 +543,24 @@ textarea.finput{resize:vertical;min-height:70px}
       <input type="hidden" id="t-edit-id"/>
       <div class="fgrid">
         <div class="fgrp full"><label class="flabel">Tenant Name *</label><input class="finput" type="text" id="t-name" placeholder="e.g. Domtar Paper Company LLC"/></div>
-        <div class="fgrp"><label class="flabel">Square Footage</label><input class="finput" type="number" id="t-sf" placeholder="e.g. 256052"/></div>
-        <div class="fgrp"><label class="flabel">Pro Rata %</label><input class="finput" type="number" id="t-prorata" placeholder="e.g. 23.0" step="0.01"/></div>
+        <div class="fgrp full" style="background:#eef2f7;border-radius:7px;padding:10px 12px">
+          <label class="flabel">Total Building SF <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">— used to auto-calculate Pro Rata %</span></label>
+          <input class="finput" type="number" id="t-total-sf" placeholder="e.g. 1113000 (total SF for this property)" oninput="autoCalcProRata()" style="margin-top:6px"/>
+        </div>
+        <div class="fgrp"><label class="flabel">Square Footage</label><input class="finput" type="number" id="t-sf" placeholder="e.g. 256052" oninput="autoCalcRent();autoCalcProRata()"/></div>
+        <div class="fgrp"><label class="flabel">Pro Rata % <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">(auto-calculated)</span></label>
+          <input class="finput" type="number" id="t-prorata" placeholder="Auto from SF" step="0.01"/>
+          <div class="hint">Enter total property SF below to auto-calculate</div>
+        </div>
         <div class="fgrp"><label class="flabel">Annual Rent ($)</label><input class="finput" type="number" id="t-annual" placeholder="e.g. 1574720" oninput="autoCalcRent()"/></div>
         <div class="fgrp"><label class="flabel">Monthly Rent ($)</label><input class="finput" type="number" id="t-monthly" placeholder="Auto-calculated" oninput="autoCalcFromMonthly()"/></div>
         <div class="fgrp"><label class="flabel">PSF ($/SF/yr)</label><input class="finput" type="number" id="t-psf" placeholder="e.g. 6.15" step="0.01" oninput="autoCalcFromPSF()"/></div>
         <div class="fgrp"><label class="flabel">Lease Expiration</label><input class="finput" type="date" id="t-expiry"/></div>
         <div class="fgrp"><label class="flabel">Lease Type</label>
-          <select class="fselect" id="t-type"><option>NNN</option><option>Gross</option><option>Modified Gross</option><option>Net</option><option>NN</option></select>
+          <input class="finput" type="text" id="t-type" placeholder="e.g. NNN, Gross, Modified Gross, 95% Gross Up..." list="lease-type-suggestions"/>
+          <datalist id="lease-type-suggestions">
+            <option value="NNN"><option value="NN"><option value="Gross"><option value="Modified Gross"><option value="95% Gross Up"><option value="Net">
+          </datalist>
         </div>
         <div class="fgrp"><label class="flabel">Notice Period</label><input class="finput" type="text" id="t-notice" placeholder="e.g. 9 months"/></div>
         <div class="fgrp"><label class="flabel">Options</label><input class="finput" type="text" id="t-options" placeholder="e.g. One, 5-Year FMV"/></div>
@@ -1280,11 +1290,8 @@ Object.keys(PROPS_MAP).forEach(k => { window.RR_DATA[k] = []; });
 
 // ── PROPERTY NAV TREE ──
 window.togglePropsNav = function(el) {
-  const sub = document.getElementById('props-subnav');
-  const isOpen = sub.style.display !== 'none';
-  sub.style.display = isOpen ? 'none' : 'block';
-  el.style.color = isOpen ? '' : 'var(--goldl)';
-  if (!isOpen) buildPropsTree();
+  // Now just navigates to properties overview
+  goTo('properties', el);
 };
 
 window._openPropKey = null;
@@ -1383,8 +1390,9 @@ function renderRentRoll(key) {
       <td style="font-size:12px;color:var(--ts);max-width:120px">${t.options||'—'}</td>
       <td style="font-size:12px;color:var(--ts)">${remTerm}</td>
       <td><div class="actbtns">
-        <button class="btn btno btns" onclick="editTenant('${key}','${t.id}')">✏️</button>
-        <button class="btn btnr btns" onclick="deleteTenant('${key}','${t.id}')">🗑</button>
+        <button class="btn btno btns" onclick="editTenant('${key}','${t.id}')" title="Edit">✏️</button>
+        <button class="btn btnr btns" onclick="deleteTenant('${key}','${t.id}')" title="Delete">🗑</button>
+        ${t.expiry && t.notice ? `<button class="btn btno btns" onclick="createRenewalReminder('${key}','${t.id}')" title="Create renewal reminder" style="font-size:11px;padding:4px 8px">🔔 Renewal</button>` : ''}
       </div></td>
     </tr>`;
 
@@ -1424,11 +1432,12 @@ function renderRentRoll(key) {
 function calcRemTerm(expiry) {
   const d = new Date(expiry+'T00:00:00');
   const now = new Date();
-  const months = (d.getFullYear()-now.getFullYear())*12 + (d.getMonth()-now.getMonth());
-  if (months < 0) return 'Expired';
-  const yrs = Math.floor(months/12);
-  const mo = months % 12;
-  return yrs > 0 ? `${yrs}.${Math.round(mo/12*10)} Yrs` : `${mo} Mo`;
+  const totalDays = Math.ceil((d - now) / 86400000);
+  if (totalDays < 0) return 'Expired';
+  const yrs = totalDays / 365.25;
+  if (yrs >= 1) return yrs.toFixed(2)+' Yrs';
+  const months = Math.round(yrs * 12);
+  return months+' Mo';
 }
 
 // ── ADD/EDIT TENANT ──
@@ -1440,7 +1449,7 @@ window.openAddTenant = function(key) {
   document.getElementById('modal-tenant-sub').textContent = PROPS_MAP[key]?.name + ' — Rent Roll';
   document.getElementById('t-prop-key').value = key;
   document.getElementById('t-edit-id').value = '';
-  ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes'].forEach(id => document.getElementById(id).value='');
+  ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes','t-total-sf'].forEach(id => document.getElementById(id).value='');
   document.getElementById('t-expiry').value = '';
   document.getElementById('t-type').value = 'NNN';
   window._bumps = [];
@@ -1449,7 +1458,7 @@ window.openAddTenant = function(key) {
 };
 
 window.editTenant = function(key, id) {
-  const t = (window.RR_DATA[key]||[]).find(x=>x.id===id);
+  const t = (window.RR_DATA[key]||[]).find(x=>String(x.id)===String(id));
   if (!t) return;
   window._openPropKey = key;
   document.getElementById('modal-tenant-title').textContent = 'Edit Tenant';
@@ -1478,13 +1487,21 @@ window.deleteTenant = async function(key, id) {
     const db = await getDB();
     const r = await db.from('rent_roll').delete().eq('id', id);
     if (r.error) { toast('❌ Delete failed: '+r.error.message); return; }
-    window.RR_DATA[key] = (window.RR_DATA[key]||[]).filter(x=>x.id!==id);
+    window.RR_DATA[key] = (window.RR_DATA[key]||[]).filter(x=>String(x.id)!==String(id));
     renderRentRoll(key);
     toast('Tenant deleted ✓');
   } catch(e) { toast('❌ Delete failed: '+e.message); }
 };
 
 // Auto-calculate rent fields
+window.autoCalcProRata = function() {
+  const sf = parseFloat(document.getElementById('t-sf').value);
+  const totalSF = parseFloat(document.getElementById('t-total-sf').value);
+  if (sf && totalSF) {
+    document.getElementById('t-prorata').value = ((sf/totalSF)*100).toFixed(2);
+  }
+};
+
 window.autoCalcRent = function() {
   const annual = parseFloat(document.getElementById('t-annual').value);
   const sf = parseFloat(document.getElementById('t-sf').value);
@@ -1602,11 +1619,91 @@ async function loadRentRoll() {
   } catch(e) { console.warn('Rent roll load failed:', e.message); }
 }
 
+// ── CREATE RENEWAL REMINDER ──
+window.createRenewalReminder = async function(key, id) {
+  const t = (window.RR_DATA[key]||[]).find(x=>String(x.id)===String(id));
+  if (!t) return;
+  if (!t.expiry) { toast('No lease expiration date set for this tenant'); return; }
+  if (!t.notice) { toast('No notice period set for this tenant'); return; }
+
+  // Parse notice period — extract number of months
+  const noticeStr = t.notice.toLowerCase();
+  let noticeMonths = 0;
+  const match = noticeStr.match(/(\d+)\s*(month|mo)/);
+  const matchYr = noticeStr.match(/(\d+)\s*(year|yr)/);
+  if (match) noticeMonths = parseInt(match[1]);
+  else if (matchYr) noticeMonths = parseInt(matchYr[1]) * 12;
+  else { toast('Could not parse notice period — please use format like "9 months" or "1 year"'); return; }
+
+  // Calculate reminder due date = expiry minus notice period
+  const expiry = new Date(t.expiry + 'T00:00:00');
+  const reminderDate = new Date(expiry);
+  reminderDate.setMonth(reminderDate.getMonth() - noticeMonths);
+  const reminderDateStr = reminderDate.toISOString().split('T')[0];
+
+  // Find matching property in D.props using prop_key mapping
+  const propNameMap = {
+    '5000-highlands':'5000 Highlands','fairview':'Fairview Park Drive',
+    'franklin':'Franklin Avenue','global':'Global Avenue',
+    'hungryroot':'Hungryroot','laurel':'Laurel Drive',
+    'logistics':'Logistics Pointe','moffitt':'Moffitt Street',
+    'oates':'Oates Crossing','premier':'Premier',
+    'quarry':'Quarry Road','windward':'Windward Chase'
+  };
+  const propName2 = propNameMap[key]||key;
+  const prop = D.props.find(p => p.name.toLowerCase().includes(propName2.toLowerCase().split(' ')[0]));
+  const propId = prop ? prop.id : null;
+
+  if (!propId) {
+    toast('Could not match property — please add the date manually in All Dates');
+    return;
+  }
+
+  const expiryFmt = new Date(t.expiry+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const category = 'Lease Renewal Notice';
+  const description = `Reach out to ${t.name} — lease expires ${expiryFmt}, notice period is ${t.notice}`;
+  const action = `Contact ${t.name} regarding lease renewal or vacancy planning`;
+  const reminders = [90, 30, 7];
+
+  if (!confirm(`Create a lease renewal reminder for ${t.name}?
+
+Reminder Date: ${new Date(reminderDateStr+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+(${t.notice} before lease expiry)
+
+Reminders will fire at 90, 30, and 7 days before.`)) return;
+
+  try {
+    const db = await getDB();
+    const r = await db.from('dates').insert({
+      property_id: propId,
+      category,
+      description,
+      due_date: reminderDateStr,
+      action_required: action,
+      party: t.name,
+      notes: `Lease expires: ${expiryFmt} | Notice period: ${t.notice} | Options: ${t.options||'None'}`,
+      reminder_days: reminders,
+      is_active: true
+    }).select();
+    if (r.error) { toast('❌ Failed to create reminder: '+r.error.message); return; }
+    const newId = r.data&&r.data[0] ? r.data[0].id : Date.now();
+    D.dates.push({
+      id: newId, propId, category, description,
+      dueDate: reminderDateStr, action, party: t.name,
+      notes: `Lease expires: ${expiryFmt} | Notice period: ${t.notice}`,
+      reminders, amount: null
+    });
+    toast(`✓ Renewal reminder created for ${t.name} — due ${new Date(reminderDateStr+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`);
+    renderAll();
+  } catch(e) { toast('❌ Failed: '+e.message); }
+};
+
 window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
 
 // ── INIT ──
 document.getElementById('hdate').textContent=NOW.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 loadRentRoll();
+buildPropsTree();
 
 // ── PASSWORD PROTECTION ──
 const SITE_PASSWORD = 'Table969';
