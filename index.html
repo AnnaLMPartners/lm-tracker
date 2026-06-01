@@ -228,7 +228,7 @@ textarea.finput{resize:vertical;min-height:70px}
         </div>
       </div>
       <div class="twrap"><table>
-        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th></th></tr></thead>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminders</th><th></th></tr></thead>
         <tbody id="dash-tbody"></tbody>
       </table></div>
     </div>
@@ -251,7 +251,7 @@ textarea.finput{resize:vertical;min-height:70px}
         </select>
       </div>
       <div class="twrap"><table>
-        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th></th><th></th></tr></thead>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminders</th><th></th><th></th></tr></thead>
         <tbody id="dates-tbody"></tbody>
       </table></div>
     </div>
@@ -614,14 +614,14 @@ function renderDashTable(){
       <td>${daysPill(d)}</td>
       <td>${statusBadge(d)}</td>
       <td style="font-size:12.5px;color:var(--amb);font-weight:500">${r.action||'—'}</td>
+      <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
       <td><button class="expand-btn" onclick="toggleExpand('${expandId}',this)">▸ See more</button></td>
     </tr>
     <tr class="expand-row" id="${expandId}">
-      <td colspan="8" class="expand-content">
+      <td colspan="9" class="expand-content">
         <div class="expand-grid">
           <div class="expand-item"><span class="expand-label">Party / Lender</span><span class="expand-value">${r.party||'—'}</span></div>
           <div class="expand-item"><span class="expand-label">Amount</span><span class="expand-value">${fmtMoney(r.amount)}</span></div>
-          <div class="expand-item"><span class="expand-label">Reminders Set</span><span class="expand-value">${rems}</span></div>
           <div class="expand-item"><span class="expand-label">Notes</span><span class="expand-value" style="color:var(--ts)">${r.notes||'—'}</span></div>
         </div>
       </td>
@@ -678,6 +678,7 @@ function renderDatesTable(){
       <td>${daysPill(d)}</td>
       <td>${statusBadge(d)}</td>
       <td style="font-size:12.5px;color:var(--amb);font-weight:500;max-width:140px">${r.action||'—'}</td>
+      <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
       <td><button class="expand-btn" onclick="toggleExpand('${expandId}',this)">▸ See more</button></td>
       <td><div class="actbtns">
         <button class="btn btno btns" onclick="editDate(${r.id})" title="Edit">✏️</button>
@@ -686,11 +687,10 @@ function renderDatesTable(){
       </div></td>
     </tr>
     <tr class="expand-row" id="${expandId}">
-      <td colspan="9" class="expand-content">
+      <td colspan="10" class="expand-content">
         <div class="expand-grid">
           <div class="expand-item"><span class="expand-label">Party / Lender</span><span class="expand-value">${r.party||'—'}</span></div>
           <div class="expand-item"><span class="expand-label">Amount</span><span class="expand-value">${fmtMoney(r.amount)}</span></div>
-          <div class="expand-item"><span class="expand-label">Reminders Set</span><span class="expand-value">${rems}</span></div>
           <div class="expand-item"><span class="expand-label">Notes</span><span class="expand-value" style="color:var(--ts)">${r.notes||'—'}</span></div>
         </div>
       </td>
