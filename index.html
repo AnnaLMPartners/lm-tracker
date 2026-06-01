@@ -158,6 +158,32 @@ textarea.finput{resize:vertical;min-height:70px}
 .actbtns{display:flex;gap:5px}
 /* HINT */
 .hint{font-size:11.5px;color:var(--tm);margin-top:3px}
+/* PROPERTY NAV TREE */
+.prop-tree-item{padding:7px 20px 7px 28px;font-size:13px;color:rgba(255,255,255,.55);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.prop-tree-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.prop-tree-item.active{color:var(--goldl)}
+.prop-tree-arrow{font-size:10px;transition:transform .2s;display:inline-block}
+.prop-tree-arrow.open{transform:rotate(90deg)}
+.prop-sub-items{display:none;padding-left:0}
+.prop-sub-items.open{display:block}
+.prop-sub-item{padding:6px 20px 6px 42px;font-size:12.5px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.prop-sub-item:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.04)}
+.prop-sub-item.active{color:var(--gold)}
+/* RENT ROLL */
+.rr-table{width:100%;border-collapse:collapse;font-size:13px}
+.rr-table th{background:#f8f9fb;padding:9px 12px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ts);font-weight:600;border-bottom:1px solid var(--bd);white-space:nowrap}
+.rr-table td{padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.rr-table tr:last-child td{border-bottom:none}
+.rr-table tr:hover td{background:#fafbfc}
+.rr-bump-row td{background:#f8f9fb;font-size:12px;color:var(--ts)}
+.rr-bump-row:hover td{background:#f0f2f5}
+.rr-total-row td{background:#0d1b2a;color:#fff;font-weight:600;font-size:13px}
+.rr-total-row td:first-child{border-radius:0 0 0 8px}
+.rr-total-row td:last-child{border-radius:0 0 8px 0}
+.rr-vacant{color:var(--tm);font-style:italic}
+.rr-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.rr-nnn{background:#eef2f7;color:var(--navy)}
+.rr-gross{background:var(--goldp);color:#92600f}
 /* EXPANDABLE ROWS */
 .expand-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);background:#eef2f7;border:none;border-radius:20px;padding:3px 9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap;transition:all .15s}
 .expand-btn:hover{background:#dce6f0}
@@ -188,7 +214,10 @@ textarea.finput{resize:vertical;min-height:70px}
     <div class="nsec">Navigation</div>
     <a class="nitem active" onclick="goTo('dashboard',this)">⊞ Dashboard</a>
     <a class="nitem" onclick="goTo('dates',this)">📅 All Dates</a>
-    <a class="nitem" onclick="goTo('properties',this)">▦ Properties</a>
+    <a class="nitem" onclick="togglePropsNav(this)" id="nav-properties-toggle">▦ Properties</a>
+    <div id="props-subnav" style="display:none">
+      <div id="props-tree"></div>
+    </div>
     <div class="nsec">Tools</div>
     <a class="nitem" onclick="goTo('calendar',this)">◻ Calendar View</a>
     <a class="nitem" onclick="exportICS()">↓ Export to Calendar</a>
@@ -324,6 +353,56 @@ textarea.finput{resize:vertical;min-height:70px}
       </table></div>
     </div>
 
+    <!-- RENT ROLL SECTIONS - one per property -->
+    <div class="section" id="sec-rr-5000-highlands">
+      <div class="pghead"><div><div class="pgtitle">5000 Highlands — Rent Roll</div><div class="pgsub">Smyrna, GA · Industrial</div></div><button class="btn btng" onclick="openAddTenant('5000-highlands')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-5000-highlands"></div></div>
+    </div>
+    <div class="section" id="sec-rr-fairview">
+      <div class="pghead"><div><div class="pgtitle">Fairview Park Drive — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('fairview')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-fairview"></div></div>
+    </div>
+    <div class="section" id="sec-rr-franklin">
+      <div class="pghead"><div><div class="pgtitle">Franklin Avenue — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('franklin')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-franklin"></div></div>
+    </div>
+    <div class="section" id="sec-rr-global">
+      <div class="pghead"><div><div class="pgtitle">Global Avenue — Rent Roll</div><div class="pgsub">Graniteville, SC · Industrial</div></div><button class="btn btng" onclick="openAddTenant('global')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-global"></div></div>
+    </div>
+    <div class="section" id="sec-rr-hungryroot">
+      <div class="pghead"><div><div class="pgtitle">Hungryroot — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('hungryroot')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-hungryroot"></div></div>
+    </div>
+    <div class="section" id="sec-rr-laurel">
+      <div class="pghead"><div><div class="pgtitle">Laurel Drive — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('laurel')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-laurel"></div></div>
+    </div>
+    <div class="section" id="sec-rr-logistics">
+      <div class="pghead"><div><div class="pgtitle">Logistics Pointe — Rent Roll</div><div class="pgsub">Charlotte, NC · Industrial</div></div><button class="btn btng" onclick="openAddTenant('logistics')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-logistics"></div></div>
+    </div>
+    <div class="section" id="sec-rr-moffitt">
+      <div class="pghead"><div><div class="pgtitle">Moffitt Street — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('moffitt')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-moffitt"></div></div>
+    </div>
+    <div class="section" id="sec-rr-oates">
+      <div class="pghead"><div><div class="pgtitle">Oates Crossing — Rent Roll</div><div class="pgsub">Mooresville, NC · Industrial</div></div><button class="btn btng" onclick="openAddTenant('oates')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-oates"></div></div>
+    </div>
+    <div class="section" id="sec-rr-premier">
+      <div class="pghead"><div><div class="pgtitle">Premier — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('premier')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-premier"></div></div>
+    </div>
+    <div class="section" id="sec-rr-quarry">
+      <div class="pghead"><div><div class="pgtitle">Quarry Road — Rent Roll</div><div class="pgsub">Industrial</div></div><button class="btn btng" onclick="openAddTenant('quarry')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-quarry"></div></div>
+    </div>
+    <div class="section" id="sec-rr-windward">
+      <div class="pghead"><div><div class="pgtitle">Windward Chase — Rent Roll</div><div class="pgsub">Alpharetta, GA · Industrial</div></div><button class="btn btng" onclick="openAddTenant('windward')">+ Add Tenant</button></div>
+      <div class="twrap"><div style="overflow-x:auto" id="rr-windward"></div></div>
+    </div>
+
     <div class="section" id="sec-settings">
       <div class="pghead"><div><div class="pgtitle">Settings</div><div class="pgsub">Company and platform configuration.</div></div></div>
       <div class="twrap" style="padding:24px;max-width:520px">
@@ -449,6 +528,41 @@ textarea.finput{resize:vertical;min-height:70px}
       <button class="btn btno" onclick="closeModal('prop')">Cancel</button>
       <button class="btn btng" onclick="saveProp()">Save Property</button>
     </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT TENANT MODAL -->
+<div class="moverlay" id="modal-tenant">
+  <div class="mbox" style="max-width:780px">
+    <div class="mhead">
+      <div><div class="mtitle" id="modal-tenant-title">Add Tenant</div><div class="msub" id="modal-tenant-sub">Enter tenant lease information</div></div>
+      <button class="mclose" onclick="closeModal('tenant')">×</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="t-prop-key"/>
+      <input type="hidden" id="t-edit-id"/>
+      <div class="fgrid">
+        <div class="fgrp full"><label class="flabel">Tenant Name *</label><input class="finput" type="text" id="t-name" placeholder="e.g. Domtar Paper Company LLC"/></div>
+        <div class="fgrp"><label class="flabel">Square Footage</label><input class="finput" type="number" id="t-sf" placeholder="e.g. 256052"/></div>
+        <div class="fgrp"><label class="flabel">Pro Rata %</label><input class="finput" type="number" id="t-prorata" placeholder="e.g. 23.0" step="0.01"/></div>
+        <div class="fgrp"><label class="flabel">Annual Rent ($)</label><input class="finput" type="number" id="t-annual" placeholder="e.g. 1574720" oninput="autoCalcRent()"/></div>
+        <div class="fgrp"><label class="flabel">Monthly Rent ($)</label><input class="finput" type="number" id="t-monthly" placeholder="Auto-calculated" oninput="autoCalcFromMonthly()"/></div>
+        <div class="fgrp"><label class="flabel">PSF ($/SF/yr)</label><input class="finput" type="number" id="t-psf" placeholder="e.g. 6.15" step="0.01" oninput="autoCalcFromPSF()"/></div>
+        <div class="fgrp"><label class="flabel">Lease Expiration</label><input class="finput" type="date" id="t-expiry"/></div>
+        <div class="fgrp"><label class="flabel">Lease Type</label>
+          <select class="fselect" id="t-type"><option>NNN</option><option>Gross</option><option>Modified Gross</option><option>Net</option><option>NN</option></select>
+        </div>
+        <div class="fgrp"><label class="flabel">Notice Period</label><input class="finput" type="text" id="t-notice" placeholder="e.g. 9 months"/></div>
+        <div class="fgrp"><label class="flabel">Options</label><input class="finput" type="text" id="t-options" placeholder="e.g. One, 5-Year FMV"/></div>
+        <div class="fgrp full"><label class="flabel">Notes</label><input class="finput" type="text" id="t-notes" placeholder="Any additional lease details..."/></div>
+        <div class="fsecdiv" style="grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0">Rent Bumps <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">— add each scheduled rent increase</span></div>
+        <div class="fgrp full">
+          <div id="bump-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+          <button type="button" class="btn btno btns" onclick="addBumpRow()" style="width:fit-content">+ Add Rent Bump</button>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn btno" onclick="closeModal('tenant')">Cancel</button><button class="btn btng" onclick="saveTenant()">Save Tenant</button></div>
   </div>
 </div>
 
@@ -1143,10 +1257,356 @@ window.toggleExpand=function(id,btn){
   btn.style.background=isOpen?'':'#dce6f0';
 };
 
+// ── RENT ROLL DATA ──
+const PROPS_MAP = {
+  '5000-highlands': {name:'5000 Highlands', sub:'Smyrna, GA'},
+  'fairview':       {name:'Fairview Park Drive', sub:'Industrial'},
+  'franklin':       {name:'Franklin Avenue', sub:'Industrial'},
+  'global':         {name:'Global Avenue', sub:'Graniteville, SC'},
+  'hungryroot':     {name:'Hungryroot', sub:'Industrial'},
+  'laurel':         {name:'Laurel Drive', sub:'Industrial'},
+  'logistics':      {name:'Logistics Pointe', sub:'Charlotte, NC'},
+  'moffitt':        {name:'Moffitt Street', sub:'Industrial'},
+  'oates':          {name:'Oates Crossing', sub:'Mooresville, NC'},
+  'premier':        {name:'Premier', sub:'Industrial'},
+  'quarry':         {name:'Quarry Road', sub:'Industrial'},
+  'windward':       {name:'Windward Chase', sub:'Alpharetta, GA'},
+};
+
+// RR_DATA stores tenants per property key
+// Format: { '5000-highlands': [{id, name, sf, prorata, annual, monthly, psf, expiry, type, notice, options, notes, bumps:[{date,annual,monthly,psf}]}] }
+window.RR_DATA = {};
+Object.keys(PROPS_MAP).forEach(k => { window.RR_DATA[k] = []; });
+
+// ── PROPERTY NAV TREE ──
+window.togglePropsNav = function(el) {
+  const sub = document.getElementById('props-subnav');
+  const isOpen = sub.style.display !== 'none';
+  sub.style.display = isOpen ? 'none' : 'block';
+  el.style.color = isOpen ? '' : 'var(--goldl)';
+  if (!isOpen) buildPropsTree();
+};
+
+window._openPropKey = null;
+window._openPropSubKey = null;
+
+function buildPropsTree() {
+  const tree = document.getElementById('props-tree');
+  tree.innerHTML = Object.entries(PROPS_MAP).map(([key, info]) => `
+    <div>
+      <div class="prop-tree-item" id="ptree-${key}" onclick="togglePropTree('${key}')">
+        <span class="prop-tree-arrow" id="parrow-${key}">▶</span>
+        ${info.name}
+      </div>
+      <div class="prop-sub-items" id="psub-${key}">
+        <div class="prop-sub-item" id="psi-rr-${key}" onclick="openRentRoll('${key}')">
+          📋 Rent Roll
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.togglePropTree = function(key) {
+  const sub = document.getElementById('psub-'+key);
+  const arrow = document.getElementById('parrow-'+key);
+  const isOpen = sub.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.prop-sub-items').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.prop-tree-arrow').forEach(el => { el.classList.remove('open'); el.textContent='▶'; });
+  document.querySelectorAll('.prop-tree-item').forEach(el => el.classList.remove('active'));
+  if (!isOpen) {
+    sub.classList.add('open');
+    arrow.classList.add('open');
+    arrow.textContent = '▶';
+    document.getElementById('ptree-'+key).classList.add('active');
+  }
+};
+
+window.openRentRoll = function(key) {
+  // Deactivate all sub items
+  document.querySelectorAll('.prop-sub-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('psi-rr-'+key).classList.add('active');
+  // Show section
+  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nitem').forEach(x => x.classList.remove('active'));
+  document.getElementById('sec-rr-'+key).classList.add('active');
+  window._openPropKey = key;
+  renderRentRoll(key);
+};
+
+// ── RENDER RENT ROLL ──
+function renderRentRoll(key) {
+  const tenants = window.RR_DATA[key] || [];
+  const container = document.getElementById('rr-'+key);
+  if (!container) return;
+
+  if (!tenants.length) {
+    container.innerHTML = '<div class="empty" style="padding:50px 20px"><div class="emptyico">🏢</div><div class="emptytxt">No tenants yet — click "+ Add Tenant" to get started</div></div>';
+    return;
+  }
+
+  // Calculate totals
+  const occupied = tenants.filter(t => t.name.toLowerCase() !== 'vacant');
+  const totalSF = tenants.reduce((s,t) => s + (Number(t.sf)||0), 0);
+  const totalAnnual = occupied.reduce((s,t) => s + (Number(t.annual)||0), 0);
+  const totalMonthly = occupied.reduce((s,t) => s + (Number(t.monthly)||0), 0);
+  const wtdPSF = totalSF > 0 ? (totalAnnual / totalSF) : 0;
+  const occSF = occupied.reduce((s,t) => s + (Number(t.sf)||0), 0);
+  const occPct = totalSF > 0 ? ((occSF/totalSF)*100).toFixed(1) : '0.0';
+
+  const fm = n => n ? '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+  const fmInt = n => n ? '$'+Number(n).toLocaleString() : '—';
+  const fp = n => n ? '$'+Number(n).toFixed(2) : '—';
+
+  let html = `<table class="rr-table">
+    <thead><tr>
+      <th>Tenant</th><th>Sq. Ft.</th><th>Pro Rata</th><th>Annual Rent</th><th>Monthly Rent</th><th>PSF</th>
+      <th>Expiration</th><th>Lease Type</th><th>Notice</th><th>Options</th><th>Rem. Term</th><th></th>
+    </tr></thead>
+    <tbody>`;
+
+  tenants.forEach(t => {
+    const isVacant = t.name.toLowerCase() === 'vacant';
+    const remTerm = t.expiry ? calcRemTerm(t.expiry) : '—';
+    const typeBadge = t.type === 'NNN' ? 'rr-nnn' : 'rr-gross';
+
+    html += `<tr>
+      <td style="font-weight:600;min-width:160px${isVacant?';color:var(--tm);font-style:italic':''}">${t.name}</td>
+      <td>${t.sf ? Number(t.sf).toLocaleString() : '—'}</td>
+      <td>${t.prorata ? Number(t.prorata).toFixed(1)+'%' : '—'}</td>
+      <td style="font-weight:500">${fm(t.annual)}</td>
+      <td>${fm(t.monthly)}</td>
+      <td>${fp(t.psf)}</td>
+      <td style="white-space:nowrap">${t.expiry ? new Date(t.expiry+'T00:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}) : '—'}</td>
+      <td><span class="rr-badge ${typeBadge}">${t.type||'NNN'}</span></td>
+      <td style="font-size:12px;color:var(--ts)">${t.notice||'—'}</td>
+      <td style="font-size:12px;color:var(--ts);max-width:120px">${t.options||'—'}</td>
+      <td style="font-size:12px;color:var(--ts)">${remTerm}</td>
+      <td><div class="actbtns">
+        <button class="btn btno btns" onclick="editTenant('${key}','${t.id}')">✏️</button>
+        <button class="btn btnr btns" onclick="deleteTenant('${key}','${t.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+
+    // Bump sub-rows
+    if (t.bumps && t.bumps.length) {
+      t.bumps.sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(b => {
+        html += `<tr class="rr-bump-row">
+          <td colspan="2" style="padding-left:28px;color:var(--tm);font-size:12px">↳ ${b.date ? new Date(b.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</td>
+          <td></td>
+          <td style="font-size:12px">${fm(b.annual)}</td>
+          <td style="font-size:12px">${fm(b.monthly)}</td>
+          <td style="font-size:12px">${fp(b.psf)}</td>
+          <td colspan="6"></td>
+        </tr>`;
+      });
+    }
+  });
+
+  // Totals row
+  html += `</tbody>
+    <tfoot>
+      <tr class="rr-total-row">
+        <td>TOTAL / WEIGHTED AVG</td>
+        <td>${totalSF.toLocaleString()} SF</td>
+        <td style="font-size:11px">${occPct}% Occ.</td>
+        <td>${fm(totalAnnual)}</td>
+        <td>${fm(totalMonthly)}</td>
+        <td>${fp(wtdPSF)}</td>
+        <td colspan="6"></td>
+      </tr>
+    </tfoot>
+  </table>`;
+
+  container.innerHTML = html;
+}
+
+function calcRemTerm(expiry) {
+  const d = new Date(expiry+'T00:00:00');
+  const now = new Date();
+  const months = (d.getFullYear()-now.getFullYear())*12 + (d.getMonth()-now.getMonth());
+  if (months < 0) return 'Expired';
+  const yrs = Math.floor(months/12);
+  const mo = months % 12;
+  return yrs > 0 ? `${yrs}.${Math.round(mo/12*10)} Yrs` : `${mo} Mo`;
+}
+
+// ── ADD/EDIT TENANT ──
+window._bumps = [];
+
+window.openAddTenant = function(key) {
+  window._openPropKey = key;
+  document.getElementById('modal-tenant-title').textContent = 'Add Tenant';
+  document.getElementById('modal-tenant-sub').textContent = PROPS_MAP[key]?.name + ' — Rent Roll';
+  document.getElementById('t-prop-key').value = key;
+  document.getElementById('t-edit-id').value = '';
+  ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('t-expiry').value = '';
+  document.getElementById('t-type').value = 'NNN';
+  window._bumps = [];
+  renderBumpList();
+  document.getElementById('modal-tenant').classList.add('open');
+};
+
+window.editTenant = function(key, id) {
+  const t = (window.RR_DATA[key]||[]).find(x=>x.id===id);
+  if (!t) return;
+  window._openPropKey = key;
+  document.getElementById('modal-tenant-title').textContent = 'Edit Tenant';
+  document.getElementById('modal-tenant-sub').textContent = PROPS_MAP[key]?.name + ' — Rent Roll';
+  document.getElementById('t-prop-key').value = key;
+  document.getElementById('t-edit-id').value = id;
+  document.getElementById('t-name').value = t.name||'';
+  document.getElementById('t-sf').value = t.sf||'';
+  document.getElementById('t-prorata').value = t.prorata||'';
+  document.getElementById('t-annual').value = t.annual||'';
+  document.getElementById('t-monthly').value = t.monthly||'';
+  document.getElementById('t-psf').value = t.psf||'';
+  document.getElementById('t-expiry').value = t.expiry||'';
+  document.getElementById('t-type').value = t.type||'NNN';
+  document.getElementById('t-notice').value = t.notice||'';
+  document.getElementById('t-options').value = t.options||'';
+  document.getElementById('t-notes').value = t.notes||'';
+  window._bumps = JSON.parse(JSON.stringify(t.bumps||[]));
+  renderBumpList();
+  document.getElementById('modal-tenant').classList.add('open');
+};
+
+window.deleteTenant = async function(key, id) {
+  if (!confirm('Delete this tenant?')) return;
+  try {
+    const db = await getDB();
+    const r = await db.from('rent_roll').delete().eq('id', id);
+    if (r.error) { toast('❌ Delete failed: '+r.error.message); return; }
+    window.RR_DATA[key] = (window.RR_DATA[key]||[]).filter(x=>x.id!==id);
+    renderRentRoll(key);
+    toast('Tenant deleted ✓');
+  } catch(e) { toast('❌ Delete failed: '+e.message); }
+};
+
+// Auto-calculate rent fields
+window.autoCalcRent = function() {
+  const annual = parseFloat(document.getElementById('t-annual').value);
+  const sf = parseFloat(document.getElementById('t-sf').value);
+  if (annual) { document.getElementById('t-monthly').value = (annual/12).toFixed(2); }
+  if (annual && sf) { document.getElementById('t-psf').value = (annual/sf).toFixed(2); }
+};
+window.autoCalcFromMonthly = function() {
+  const monthly = parseFloat(document.getElementById('t-monthly').value);
+  const sf = parseFloat(document.getElementById('t-sf').value);
+  if (monthly) { document.getElementById('t-annual').value = (monthly*12).toFixed(2); }
+  if (monthly && sf) { document.getElementById('t-psf').value = (monthly*12/sf).toFixed(2); }
+};
+window.autoCalcFromPSF = function() {
+  const psf = parseFloat(document.getElementById('t-psf').value);
+  const sf = parseFloat(document.getElementById('t-sf').value);
+  if (psf && sf) {
+    document.getElementById('t-annual').value = (psf*sf).toFixed(2);
+    document.getElementById('t-monthly').value = (psf*sf/12).toFixed(2);
+  }
+};
+
+// Bump rows
+window.addBumpRow = function() {
+  window._bumps.push({date:'',annual:'',monthly:'',psf:''});
+  renderBumpList();
+};
+function renderBumpList() {
+  const list = document.getElementById('bump-list');
+  if (!window._bumps.length) { list.innerHTML='<p style="font-size:12.5px;color:var(--tm)">No rent bumps — click below to add one.</p>'; return; }
+  list.innerHTML = window._bumps.map((b,i) => `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;background:#f8f9fb;padding:8px;border-radius:7px">
+      <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Effective Date</label>
+        <input class="finput" type="date" value="${b.date||''}" onchange="window._bumps[${i}].date=this.value" style="margin-top:3px"/></div>
+      <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Annual Rent</label>
+        <input class="finput" type="number" value="${b.annual||''}" placeholder="$" onchange="window._bumps[${i}].annual=this.value;autoCalcBump(${i})" style="margin-top:3px"/></div>
+      <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Monthly Rent</label>
+        <input class="finput" type="number" value="${b.monthly||''}" placeholder="$" onchange="window._bumps[${i}].monthly=this.value" style="margin-top:3px"/></div>
+      <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">PSF</label>
+        <input class="finput" type="number" value="${b.psf||''}" placeholder="$" onchange="window._bumps[${i}].psf=this.value" style="margin-top:3px"/></div>
+      <button type="button" class="btn btnr btns" onclick="removeBump(${i})" style="margin-top:16px">✕</button>
+    </div>`).join('');
+}
+window.autoCalcBump = function(i) {
+  const annual = parseFloat(window._bumps[i].annual);
+  const sf = parseFloat(document.getElementById('t-sf').value);
+  if (annual) window._bumps[i].monthly = (annual/12).toFixed(2);
+  if (annual && sf) window._bumps[i].psf = (annual/sf).toFixed(2);
+  renderBumpList();
+};
+window.removeBump = function(i) { window._bumps.splice(i,1); renderBumpList(); };
+
+// ── SAVE TENANT ──
+window.saveTenant = async function() {
+  const key = document.getElementById('t-prop-key').value;
+  const editId = document.getElementById('t-edit-id').value;
+  const name = document.getElementById('t-name').value.trim();
+  const sf = document.getElementById('t-sf').value;
+  const prorata = document.getElementById('t-prorata').value;
+  const annual = document.getElementById('t-annual').value;
+  const monthly = document.getElementById('t-monthly').value;
+  const psf = document.getElementById('t-psf').value;
+  const expiry = document.getElementById('t-expiry').value;
+  const type = document.getElementById('t-type').value;
+  const notice = document.getElementById('t-notice').value.trim();
+  const options = document.getElementById('t-options').value.trim();
+  const notes = document.getElementById('t-notes').value.trim();
+  const bumps = window._bumps.filter(b=>b.date||b.annual);
+
+  if (!name) { toast('Please enter tenant name'); return; }
+
+  const record = { prop_key:key, name, sf:Number(sf)||null, prorata:Number(prorata)||null,
+    annual:Number(annual)||null, monthly:Number(monthly)||null, psf:Number(psf)||null,
+    expiry:expiry||null, lease_type:type, notice, options, notes,
+    bumps: JSON.stringify(bumps) };
+
+  try {
+    const db = await getDB();
+    if (editId) {
+      const r = await db.from('rent_roll').update(record).eq('id', editId);
+      if (r.error) { toast('❌ Save failed: '+r.error.message); return; }
+      const idx = (window.RR_DATA[key]||[]).findIndex(x=>x.id===editId);
+      if (idx>-1) window.RR_DATA[key][idx] = {...window.RR_DATA[key][idx], name, sf:Number(sf)||null, prorata:Number(prorata)||null, annual:Number(annual)||null, monthly:Number(monthly)||null, psf:Number(psf)||null, expiry:expiry||null, type, notice, options, notes, bumps};
+      toast('Tenant updated ✓');
+    } else {
+      const r = await db.from('rent_roll').insert(record).select();
+      if (r.error) { toast('❌ Save failed: '+r.error.message); return; }
+      const newId = r.data&&r.data[0] ? r.data[0].id : Date.now();
+      if (!window.RR_DATA[key]) window.RR_DATA[key]=[];
+      window.RR_DATA[key].push({id:newId, name, sf:Number(sf)||null, prorata:Number(prorata)||null, annual:Number(annual)||null, monthly:Number(monthly)||null, psf:Number(psf)||null, expiry:expiry||null, type, notice, options, notes, bumps});
+      toast('Tenant added ✓');
+    }
+    closeModal('tenant');
+    renderRentRoll(key);
+  } catch(e) { toast('❌ Save failed: '+e.message); }
+};
+
+// Load rent roll data from DB on init
+async function loadRentRoll() {
+  try {
+    const db = await getDB();
+    const { data, error } = await db.from('rent_roll').select('*').order('prop_key');
+    if (error) { console.warn('Rent roll load:', error.message); return; }
+    if (data) {
+      data.forEach(row => {
+        if (!window.RR_DATA[row.prop_key]) window.RR_DATA[row.prop_key]=[];
+        window.RR_DATA[row.prop_key].push({
+          id: row.id, name: row.name, sf: row.sf, prorata: row.prorata,
+          annual: row.annual, monthly: row.monthly, psf: row.psf,
+          expiry: row.expiry, type: row.lease_type, notice: row.notice,
+          options: row.options, notes: row.notes,
+          bumps: row.bumps ? (typeof row.bumps==='string'?JSON.parse(row.bumps):row.bumps) : []
+        });
+      });
+    }
+  } catch(e) { console.warn('Rent roll load failed:', e.message); }
+}
+
 window.toast=function(m){const el=document.getElementById('toastEl');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
 
 // ── INIT ──
 document.getElementById('hdate').textContent=NOW.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+loadRentRoll();
 
 // ── PASSWORD PROTECTION ──
 const SITE_PASSWORD = 'Table969';
