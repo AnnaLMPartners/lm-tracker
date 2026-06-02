@@ -1390,9 +1390,11 @@ function renderRentRoll(key) {
   const totalSF = tenants.reduce((s,t) => s + (Number(t.sf)||0), 0);
   const totalAnnual = occupied.reduce((s,t) => s + (Number(t.annual)||0), 0);
   const totalMonthly = occupied.reduce((s,t) => s + (Number(t.monthly)||0), 0);
-  const wtdPSF = totalSF > 0 ? (totalAnnual / totalSF) : 0;
   const occSF = occupied.reduce((s,t) => s + (Number(t.sf)||0), 0);
   const occPct = totalSF > 0 ? ((occSF/totalSF)*100).toFixed(1) : '0.0';
+  // Weighted Average PSF = SUMPRODUCT(PSF, SF) / Total Occupied SF (excludes vacant)
+  const sumProduct = occupied.reduce((s,t) => s + (Number(t.psf)||0) * (Number(t.sf)||0), 0);
+  const wtdPSF = occSF > 0 ? (sumProduct / occSF) : 0;
 
   const fm = n => n ? '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
   const fmInt = n => n ? '$'+Number(n).toLocaleString() : '—';
