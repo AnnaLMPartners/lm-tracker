@@ -559,7 +559,7 @@ textarea.finput{resize:vertical;min-height:70px}
         <div class="fgrp"><label class="flabel">PSF ($/SF/yr)</label><input class="finput" type="number" id="t-psf" placeholder="e.g. 6.15" step="0.01" oninput="autoCalcFromPSF()"/></div>
         <div class="fgrp"><label class="flabel">Lease Expiration</label><input class="finput" type="date" id="t-expiry" oninput="updateReminderPreview()"/></div>
         <div class="fgrp"><label class="flabel">Lease Type</label>
-          <input class="finput" type="text" id="t-type" placeholder="e.g. NNN, Gross, Modified Gross, 95% Gross Up..." list="lease-type-suggestions"/>
+          <input class="finput" type="text" id="t-type" placeholder="e.g. NNN, Gross, Modified Gross..." list="lease-type-suggestions"/>
           <datalist id="lease-type-suggestions">
             <option value="NNN"><option value="NN"><option value="Gross"><option value="Modified Gross"><option value="95% Gross Up"><option value="Net">
           </datalist>
@@ -1491,7 +1491,7 @@ window.openAddTenant = function(key) {
   document.getElementById('t-edit-id').value = '';
   ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes'].forEach(id => document.getElementById(id).value='');
   document.getElementById('t-expiry').value = '';
-  document.getElementById('t-type').value = 'NNN';
+  document.getElementById('t-type').value = '';
   document.getElementById('t-create-reminder').checked = true;
   const preview = document.getElementById('reminder-preview');
   if (preview) { preview.textContent='Set expiration date and notice period above to see reminder date'; preview.style.color='var(--ts)'; }
@@ -1589,6 +1589,8 @@ window.toggleVacantMode = function() {
     ['t-annual','t-monthly','t-psf','t-expiry','t-type','t-notice','t-options','t-notes'].forEach(id => {
       const el=document.getElementById(id); if(el) el.value='';
     });
+    // Clear lease type default for vacant
+    const typeEl=document.getElementById('t-type'); if(typeEl) typeEl.value='';
     const cb=document.getElementById('t-create-reminder');
     if(cb) cb.checked=false;
   }
