@@ -1408,7 +1408,7 @@ function renderRentRoll(key) {
   tenants.forEach(t => {
     const isVacant = t.name.toLowerCase() === 'vacant';
     const remTerm = t.expiry ? calcRemTerm(t.expiry) : '—';
-    const typeBadge = t.type === 'NNN' ? 'rr-nnn' : 'rr-gross';
+    const typeBadge = t.type && t.type.includes('NNN') ? 'rr-nnn' : 'rr-gross';
 
     html += `<tr>
       <td style="font-weight:600;min-width:160px${isVacant?';color:var(--tm);font-style:italic':''}">${t.name}</td>
@@ -1418,7 +1418,7 @@ function renderRentRoll(key) {
       <td>${fm(t.monthly)}</td>
       <td>${fp(t.psf)}</td>
       <td style="white-space:nowrap">${t.expiry ? new Date(t.expiry+'T00:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'}) : '—'}</td>
-      <td><span class="rr-badge ${typeBadge}">${t.type||'NNN'}</span></td>
+      <td>${t.type?`<span class="rr-badge ${typeBadge}">${t.type}</span>`:'—'}</td>
       <td style="font-size:12px;color:var(--ts)">${t.notice ? t.notice+' mo' : '—'}</td>
       <td style="font-size:12px;color:var(--ts);max-width:120px">${t.options||'—'}</td>
       <td style="font-size:12px;color:var(--ts)">${remTerm}</td>
@@ -1517,7 +1517,7 @@ window.editTenant = function(key, id) {
   document.getElementById('t-monthly').value = t.monthly||'';
   document.getElementById('t-psf').value = t.psf||'';
   document.getElementById('t-expiry').value = t.expiry||'';
-  document.getElementById('t-type').value = t.type||'NNN';
+  document.getElementById('t-type').value = t.type||'';
   document.getElementById('t-notice').value = t.notice||'';
   document.getElementById('t-options').value = t.options||'';
   document.getElementById('t-notes').value = t.notes||'';
