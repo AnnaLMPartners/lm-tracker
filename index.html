@@ -257,7 +257,7 @@ textarea.finput{resize:vertical;min-height:70px}
         </div>
       </div>
       <div class="twrap"><table>
-        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminders</th><th></th></tr></thead>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminder Days</th><th>Reminder Dates</th><th></th></tr></thead>
         <tbody id="dash-tbody"></tbody>
       </table></div>
     </div>
@@ -280,7 +280,7 @@ textarea.finput{resize:vertical;min-height:70px}
         </select>
       </div>
       <div class="twrap"><table>
-        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminders</th><th></th><th></th></tr></thead>
+        <thead><tr><th>Property</th><th>Category</th><th>Description</th><th>Due Date</th><th>Days Left</th><th>Status</th><th>Action Required</th><th>Reminder Days</th><th>Reminder Dates</th><th></th><th></th></tr></thead>
         <tbody id="dates-tbody"></tbody>
       </table></div>
     </div>
@@ -542,7 +542,7 @@ textarea.finput{resize:vertical;min-height:70px}
       <input type="hidden" id="t-prop-key"/>
       <input type="hidden" id="t-edit-id"/>
       <div class="fgrid">
-        <div class="fgrp full"><label class="flabel">Tenant Name *</label><input class="finput" type="text" id="t-name" placeholder="e.g. Domtar Paper Company LLC"/></div>
+        <div class="fgrp full"><label class="flabel">Tenant Name *</label><input class="finput" type="text" id="t-name" placeholder="e.g. Domtar Paper Company LLC" oninput="toggleVacantMode()"/></div>
         <div class="fgrp full" style="background:#eef2f7;border-radius:7px;padding:10px 12px">
           <label class="flabel">Total Building SF <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">— enter once, remembered for this property</span></label>
           <input class="finput" type="number" id="t-total-sf" placeholder="e.g. 1113000" oninput="saveTotalSF();autoCalcProRata()" style="margin-top:6px"/>
@@ -552,6 +552,8 @@ textarea.finput{resize:vertical;min-height:70px}
           <input class="finput" type="number" id="t-prorata" placeholder="Auto from SF" step="0.01"/>
           <div class="hint">Enter total property SF below to auto-calculate</div>
         </div>
+        <div id="tenant-lease-fields">
+        <div class="fgrid" style="display:contents">
         <div class="fgrp"><label class="flabel">Annual Rent ($)</label><input class="finput" type="number" id="t-annual" placeholder="e.g. 1574720" oninput="autoCalcRent()"/></div>
         <div class="fgrp"><label class="flabel">Monthly Rent ($)</label><input class="finput" type="number" id="t-monthly" placeholder="Auto-calculated" oninput="autoCalcFromMonthly()"/></div>
         <div class="fgrp"><label class="flabel">PSF ($/SF/yr)</label><input class="finput" type="number" id="t-psf" placeholder="e.g. 6.15" step="0.01" oninput="autoCalcFromPSF()"/></div>
@@ -565,14 +567,15 @@ textarea.finput{resize:vertical;min-height:70px}
         <div class="fgrp"><label class="flabel">Notice Period (months)</label><input class="finput" type="number" id="t-notice" placeholder="e.g. 9" oninput="updateReminderPreview()"/></div>
         <div class="fgrp"><label class="flabel">Options</label><input class="finput" type="text" id="t-options" placeholder="e.g. One, 5-Year FMV"/></div>
         <div class="fgrp full"><label class="flabel">Notes</label><input class="finput" type="text" id="t-notes" placeholder="Any additional lease details..."/></div>
-        <div class="fgrp full" style="background:#f0fff4;border:1px solid var(--gbr);border-radius:8px;padding:12px 14px">
+        </div></div>
+        <div class="fgrp full" style="background:#f0fff4;border:1px solid var(--gbr);border-radius:8px;padding:12px 14px" id="tenant-reminder-section">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
             <input type="checkbox" id="t-create-reminder" style="width:16px;height:16px;accent-color:var(--navy);cursor:pointer" checked/>
             <label for="t-create-reminder" style="font-size:13.5px;font-weight:500;color:var(--tp);cursor:pointer">🔔 Automatically create lease renewal reminder</label>
           </div>
           <div style="font-size:12px;color:var(--ts);padding-left:26px" id="reminder-preview">Set expiration date and notice period above to see reminder date</div>
         </div>
-        <div class="fsecdiv" style="grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0">Rent Bumps <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">— add each scheduled rent increase</span></div>
+        <div id="tenant-bumps-section" class="fsecdiv" style="grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0">Rent Bumps <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">— add each scheduled rent increase</span></div>
         <div class="fgrp full">
           <div id="bump-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
           <button type="button" class="btn btno btns" onclick="addBumpRow()" style="width:fit-content">+ Add Rent Bump</button>
@@ -737,6 +740,10 @@ function renderDashTable(){
     const d=daysUntil(r.dueDate);
     const rems=r.reminders&&r.reminders.length?r.reminders.sort((a,b)=>b-a).map(x=>x+'d').join(', '):'None';
     const expandId='dexp-'+r.id;
+    const remDates2=r.reminders&&r.reminders.length?r.reminders.sort((a,b)=>b-a).map(days=>{
+      const rd=new Date(r.dueDate+'T00:00:00');rd.setDate(rd.getDate()-days);
+      return rd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }).join('<br>'):'—';
     return`<tr>
       <td>${propCell(r.propId)}</td>
       <td><span class="badge bdnvy" style="font-size:11px">${r.category}</span></td>
@@ -746,10 +753,11 @@ function renderDashTable(){
       <td>${statusBadge(d)}</td>
       <td style="font-size:12.5px;color:var(--amb);font-weight:500">${r.action||'—'}</td>
       <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
+      <td style="font-size:11.5px;color:var(--ts);line-height:1.8">${remDates2}</td>
       <td><button class="expand-btn" onclick="toggleExpand('${expandId}',this)">▸ See more</button></td>
     </tr>
     <tr class="expand-row" id="${expandId}">
-      <td colspan="9" class="expand-content">
+      <td colspan="10" class="expand-content">
         <div class="expand-grid">
           <div class="expand-item"><span class="expand-label">Party / Lender</span><span class="expand-value">${r.party||'—'}</span></div>
           <div class="expand-item"><span class="expand-label">Amount</span><span class="expand-value">${fmtMoney(r.amount)}</span></div>
@@ -782,7 +790,8 @@ window.filterDates=function(q){
   renderDatesTable();
 };
 function renderDatesTable(){
-  let rows=[...D.dates].sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  // Only show active (not expired) dates — expired go to Archive
+  let rows=[...D.dates].filter(r=>daysUntil(r.dueDate)>=0).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
   if(D.searchQ)rows=rows.filter(r=>propName(r.propId).toLowerCase().includes(D.searchQ)||r.category.toLowerCase().includes(D.searchQ)||r.description.toLowerCase().includes(D.searchQ));
   if(D.filterProp)rows=rows.filter(r=>String(r.propId)===String(D.filterProp));
   if(D.filterCat)rows=rows.filter(r=>r.category===D.filterCat);
@@ -801,6 +810,12 @@ function renderDatesTable(){
     const rems=r.reminders&&r.reminders.length?r.reminders.sort((a,b)=>b-a).map(x=>x+'d').join(', '):'None';
     const hasDetails=r.notes||r.amount||r.party;
     const expandId='exp-'+r.id;
+    // Calculate actual reminder dates
+    const remDates = r.reminders&&r.reminders.length ? r.reminders.sort((a,b)=>b-a).map(days=>{
+      const rd=new Date(r.dueDate+'T00:00:00');
+      rd.setDate(rd.getDate()-days);
+      return rd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }).join('<br>') : '—';
     return`<tr>
       <td>${propCell(r.propId)}</td>
       <td><span class="badge bdnvy" style="font-size:11px">${r.category}</span></td>
@@ -810,6 +825,7 @@ function renderDatesTable(){
       <td>${statusBadge(d)}</td>
       <td style="font-size:12.5px;color:var(--amb);font-weight:500;max-width:140px">${r.action||'—'}</td>
       <td style="font-size:11.5px;color:var(--tm)">${rems}</td>
+      <td style="font-size:11.5px;color:var(--ts);line-height:1.8">${remDates}</td>
       <td><button class="expand-btn" onclick="toggleExpand('${expandId}',this)">▸ See more</button></td>
       <td><div class="actbtns">
         <button class="btn btno btns" onclick="editDate(${r.id})" title="Edit">✏️</button>
@@ -818,7 +834,7 @@ function renderDatesTable(){
       </div></td>
     </tr>
     <tr class="expand-row" id="${expandId}">
-      <td colspan="10" class="expand-content">
+      <td colspan="11" class="expand-content">
         <div class="expand-grid">
           <div class="expand-item"><span class="expand-label">Party / Lender</span><span class="expand-value">${r.party||'—'}</span></div>
           <div class="expand-item"><span class="expand-label">Amount</span><span class="expand-value">${fmtMoney(r.amount)}</span></div>
@@ -1482,6 +1498,7 @@ window.openAddTenant = function(key) {
   window._bumps = [];
   renderBumpList();
   loadTotalSF(key);
+  toggleVacantMode();
   document.getElementById('modal-tenant').classList.add('open');
 };
 
@@ -1558,6 +1575,24 @@ function updateReminderPreview() {
   preview.innerHTML = `Reminder will be created for <b>${fmt}</b> (${months} month${months>1?'s':''} before expiry)${name?' for '+name:''}`;
   preview.style.color = 'var(--grn)';
 }
+
+window.toggleVacantMode = function() {
+  const name = document.getElementById('t-name').value.trim().toLowerCase();
+  const isVacant = name === 'vacant';
+  const ids = ['tenant-lease-fields','tenant-reminder-section','tenant-bumps-section'];
+  ids.forEach(id => { const el=document.getElementById(id); if(el) el.style.display=isVacant?'none':''; });
+  const bumpList = document.getElementById('bump-list');
+  const addBumpBtn = document.querySelector('button[onclick="addBumpRow()"]');
+  if (bumpList) bumpList.style.display = isVacant ? 'none' : '';
+  if (addBumpBtn) addBumpBtn.style.display = isVacant ? 'none' : '';
+  if (isVacant) {
+    ['t-annual','t-monthly','t-psf','t-expiry','t-type','t-notice','t-options','t-notes'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+    const cb=document.getElementById('t-create-reminder');
+    if(cb) cb.checked=false;
+  }
+};
 
 window.autoCalcProRata = function() {
   const sf = parseFloat(document.getElementById('t-sf').value);
