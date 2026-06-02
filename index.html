@@ -1636,13 +1636,13 @@ function renderBumpList() {
   list.innerHTML = window._bumps.map((b,i) => `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;background:#f8f9fb;padding:8px;border-radius:7px">
       <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Effective Date</label>
-        <input class="finput" type="date" value="${b.date||''}" onchange="window._bumps[${i}].date=this.value" style="margin-top:3px"/></div>
+        <input class="finput" type="date" value="${b.date||''}" oninput="window._bumps[${i}].date=this.value" style="margin-top:3px"/></div>
       <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Annual Rent</label>
-        <input class="finput" type="number" value="${b.annual||''}" placeholder="$" onchange="window._bumps[${i}].annual=this.value;autoCalcBump(${i})" style="margin-top:3px"/></div>
+        <input class="finput" type="number" value="${b.annual||''}" placeholder="$" oninput="window._bumps[${i}].annual=this.value;autoCalcBump(${i})" style="margin-top:3px"/></div>
       <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">Monthly Rent</label>
-        <input class="finput" type="number" value="${b.monthly||''}" placeholder="$" onchange="window._bumps[${i}].monthly=this.value" style="margin-top:3px"/></div>
+        <input class="finput" type="number" value="${b.monthly||''}" placeholder="$" oninput="window._bumps[${i}].monthly=this.value" style="margin-top:3px"/></div>
       <div><label style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px">PSF</label>
-        <input class="finput" type="number" value="${b.psf||''}" placeholder="$" onchange="window._bumps[${i}].psf=this.value" style="margin-top:3px"/></div>
+        <input class="finput" type="number" value="${b.psf||''}" placeholder="$" oninput="window._bumps[${i}].psf=this.value" style="margin-top:3px"/></div>
       <button type="button" class="btn btnr btns" onclick="removeBump(${i})" style="margin-top:16px">✕</button>
     </div>`).join('');
 }
@@ -1677,14 +1677,14 @@ window.saveTenant = async function() {
   const record = { prop_key:key, name, sf:Number(sf)||null, prorata:Number(prorata)||null,
     annual:Number(annual)||null, monthly:Number(monthly)||null, psf:Number(psf)||null,
     expiry:expiry||null, lease_type:type, notice, options, notes,
-    bumps: JSON.stringify(bumps) };
+    bumps: bumps };
 
   try {
     const db = await getDB();
     if (editId) {
       const r = await db.from('rent_roll').update(record).eq('id', editId);
       if (r.error) { toast('❌ Save failed: '+r.error.message); return; }
-      const idx = (window.RR_DATA[key]||[]).findIndex(x=>x.id===editId);
+      const idx = (window.RR_DATA[key]||[]).findIndex(x=>String(x.id)===String(editId));
       if (idx>-1) window.RR_DATA[key][idx] = {...window.RR_DATA[key][idx], name, sf:Number(sf)||null, prorata:Number(prorata)||null, annual:Number(annual)||null, monthly:Number(monthly)||null, psf:Number(psf)||null, expiry:expiry||null, type, notice, options, notes, bumps};
       toast('Tenant updated ✓');
     } else {
@@ -1721,7 +1721,7 @@ async function loadRentRoll() {
           annual: row.annual, monthly: row.monthly, psf: row.psf,
           expiry: row.expiry, type: row.lease_type, notice: row.notice,
           options: row.options, notes: row.notes,
-          bumps: row.bumps ? (typeof row.bumps==='string'?JSON.parse(row.bumps):row.bumps) : []
+          bumps: Array.isArray(row.bumps) ? row.bumps : (row.bumps && typeof row.bumps==='string' ? (()=>{try{return JSON.parse(row.bumps)}catch(e){return[]}})() : [])
         });
       });
     }
