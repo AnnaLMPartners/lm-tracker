@@ -544,8 +544,8 @@ textarea.finput{resize:vertical;min-height:70px}
       <div class="fgrid">
         <div class="fgrp full"><label class="flabel">Tenant Name *</label><input class="finput" type="text" id="t-name" placeholder="e.g. Domtar Paper Company LLC"/></div>
         <div class="fgrp full" style="background:#eef2f7;border-radius:7px;padding:10px 12px">
-          <label class="flabel">Total Building SF <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">— used to auto-calculate Pro Rata %</span></label>
-          <input class="finput" type="number" id="t-total-sf" placeholder="e.g. 1113000 (total SF for this property)" oninput="autoCalcProRata()" style="margin-top:6px"/>
+          <label class="flabel">Total Building SF <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">— enter once, remembered for this property</span></label>
+          <input class="finput" type="number" id="t-total-sf" placeholder="e.g. 1113000" oninput="saveTotalSF();autoCalcProRata()" style="margin-top:6px"/>
         </div>
         <div class="fgrp"><label class="flabel">Square Footage</label><input class="finput" type="number" id="t-sf" placeholder="e.g. 256052" oninput="autoCalcRent();autoCalcProRata()"/></div>
         <div class="fgrp"><label class="flabel">Pro Rata % <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm);font-size:10px">(auto-calculated)</span></label>
@@ -555,16 +555,23 @@ textarea.finput{resize:vertical;min-height:70px}
         <div class="fgrp"><label class="flabel">Annual Rent ($)</label><input class="finput" type="number" id="t-annual" placeholder="e.g. 1574720" oninput="autoCalcRent()"/></div>
         <div class="fgrp"><label class="flabel">Monthly Rent ($)</label><input class="finput" type="number" id="t-monthly" placeholder="Auto-calculated" oninput="autoCalcFromMonthly()"/></div>
         <div class="fgrp"><label class="flabel">PSF ($/SF/yr)</label><input class="finput" type="number" id="t-psf" placeholder="e.g. 6.15" step="0.01" oninput="autoCalcFromPSF()"/></div>
-        <div class="fgrp"><label class="flabel">Lease Expiration</label><input class="finput" type="date" id="t-expiry"/></div>
+        <div class="fgrp"><label class="flabel">Lease Expiration</label><input class="finput" type="date" id="t-expiry" oninput="updateReminderPreview()"/></div>
         <div class="fgrp"><label class="flabel">Lease Type</label>
           <input class="finput" type="text" id="t-type" placeholder="e.g. NNN, Gross, Modified Gross, 95% Gross Up..." list="lease-type-suggestions"/>
           <datalist id="lease-type-suggestions">
             <option value="NNN"><option value="NN"><option value="Gross"><option value="Modified Gross"><option value="95% Gross Up"><option value="Net">
           </datalist>
         </div>
-        <div class="fgrp"><label class="flabel">Notice Period</label><input class="finput" type="text" id="t-notice" placeholder="e.g. 9 months"/></div>
+        <div class="fgrp"><label class="flabel">Notice Period</label><input class="finput" type="text" id="t-notice" placeholder="e.g. 9 months" oninput="updateReminderPreview()"/></div>
         <div class="fgrp"><label class="flabel">Options</label><input class="finput" type="text" id="t-options" placeholder="e.g. One, 5-Year FMV"/></div>
         <div class="fgrp full"><label class="flabel">Notes</label><input class="finput" type="text" id="t-notes" placeholder="Any additional lease details..."/></div>
+        <div class="fgrp full" style="background:#f0fff4;border:1px solid var(--gbr);border-radius:8px;padding:12px 14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <input type="checkbox" id="t-create-reminder" style="width:16px;height:16px;accent-color:var(--navy);cursor:pointer" checked/>
+            <label for="t-create-reminder" style="font-size:13.5px;font-weight:500;color:var(--tp);cursor:pointer">🔔 Automatically create lease renewal reminder</label>
+          </div>
+          <div style="font-size:12px;color:var(--ts);padding-left:26px" id="reminder-preview">Set expiration date and notice period above to see reminder date</div>
+        </div>
         <div class="fsecdiv" style="grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--tm);padding:8px 0 4px;border-bottom:1px solid var(--bd);margin:4px 0">Rent Bumps <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">— add each scheduled rent increase</span></div>
         <div class="fgrp full">
           <div id="bump-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
@@ -1434,7 +1441,7 @@ function calcRemTerm(expiry) {
   const now = new Date();
   const totalDays = Math.ceil((d - now) / 86400000);
   if (totalDays < 0) return 'Expired';
-  const yrs = totalDays / 365.25;
+  const yrs = totalDays / 365;
   if (yrs >= 1) return yrs.toFixed(2)+' Yrs';
   const months = Math.round(yrs * 12);
   return months+' Mo';
@@ -1449,11 +1456,15 @@ window.openAddTenant = function(key) {
   document.getElementById('modal-tenant-sub').textContent = PROPS_MAP[key]?.name + ' — Rent Roll';
   document.getElementById('t-prop-key').value = key;
   document.getElementById('t-edit-id').value = '';
-  ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes','t-total-sf'].forEach(id => document.getElementById(id).value='');
+  ['t-name','t-sf','t-prorata','t-annual','t-monthly','t-psf','t-notice','t-options','t-notes'].forEach(id => document.getElementById(id).value='');
   document.getElementById('t-expiry').value = '';
   document.getElementById('t-type').value = 'NNN';
+  document.getElementById('t-create-reminder').checked = true;
+  const preview = document.getElementById('reminder-preview');
+  if (preview) { preview.textContent='Set expiration date and notice period above to see reminder date'; preview.style.color='var(--ts)'; }
   window._bumps = [];
   renderBumpList();
+  loadTotalSF(key);
   document.getElementById('modal-tenant').classList.add('open');
 };
 
@@ -1476,8 +1487,11 @@ window.editTenant = function(key, id) {
   document.getElementById('t-notice').value = t.notice||'';
   document.getElementById('t-options').value = t.options||'';
   document.getElementById('t-notes').value = t.notes||'';
+  document.getElementById('t-create-reminder').checked = false;
   window._bumps = JSON.parse(JSON.stringify(t.bumps||[]));
   renderBumpList();
+  loadTotalSF(key);
+  updateReminderPreview();
   document.getElementById('modal-tenant').classList.add('open');
 };
 
@@ -1494,6 +1508,44 @@ window.deleteTenant = async function(key, id) {
 };
 
 // Auto-calculate rent fields
+// ── TOTAL SF MEMORY (stored per property key) ──
+window._totalSFStore = {};
+
+window.saveTotalSF = function() {
+  const key = document.getElementById('t-prop-key').value;
+  const val = document.getElementById('t-total-sf').value;
+  if (key && val) window._totalSFStore[key] = val;
+};
+
+function loadTotalSF(key) {
+  const stored = window._totalSFStore[key];
+  if (stored) document.getElementById('t-total-sf').value = stored;
+}
+
+function updateReminderPreview() {
+  const expiry = document.getElementById('t-expiry').value;
+  const notice = document.getElementById('t-notice').value.toLowerCase();
+  const name = document.getElementById('t-name').value.trim();
+  const preview = document.getElementById('reminder-preview');
+  if (!preview) return;
+  if (!expiry || !notice) {
+    preview.textContent = 'Set expiration date and notice period above to see reminder date';
+    preview.style.color = 'var(--ts)';
+    return;
+  }
+  const match = notice.match(/(\d+)\s*(month|mo)/);
+  const matchYr = notice.match(/(\d+)\s*(year|yr)/);
+  let months = 0;
+  if (match) months = parseInt(match[1]);
+  else if (matchYr) months = parseInt(matchYr[1]) * 12;
+  else { preview.textContent = 'Use format like "9 months" or "1 year"'; preview.style.color='var(--red)'; return; }
+  const d = new Date(expiry+'T00:00:00');
+  d.setMonth(d.getMonth() - months);
+  const fmt = d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  preview.innerHTML = `Reminder will be created for <b>${fmt}</b> (${notice} before expiry)${name?' for '+name:''}`;
+  preview.style.color = 'var(--grn)';
+}
+
 window.autoCalcProRata = function() {
   const sf = parseFloat(document.getElementById('t-sf').value);
   const totalSF = parseFloat(document.getElementById('t-total-sf').value);
@@ -1595,6 +1647,13 @@ window.saveTenant = async function() {
     }
     closeModal('tenant');
     renderRentRoll(key);
+
+    // Auto-create renewal reminder if checkbox is checked
+    const createReminder = document.getElementById('t-create-reminder').checked;
+    if (createReminder && expiry && notice) {
+      const savedId = editId || (window.RR_DATA[key]&&window.RR_DATA[key][window.RR_DATA[key].length-1]?.id);
+      if (savedId) setTimeout(()=>createRenewalReminder(key, savedId, true), 300);
+    }
   } catch(e) { toast('❌ Save failed: '+e.message); }
 };
 
@@ -1620,7 +1679,7 @@ async function loadRentRoll() {
 }
 
 // ── CREATE RENEWAL REMINDER ──
-window.createRenewalReminder = async function(key, id) {
+window.createRenewalReminder = async function(key, id, silent=false) {
   const t = (window.RR_DATA[key]||[]).find(x=>String(x.id)===String(id));
   if (!t) return;
   if (!t.expiry) { toast('No lease expiration date set for this tenant'); return; }
