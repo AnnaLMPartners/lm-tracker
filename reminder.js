@@ -186,7 +186,7 @@ async function checkGroupSent(recordIds, days, email) {
     const { data, error } = await supabase
       .from('reminder_log')
       .select('id, sent_at')
-      .eq('date_id', id)
+      .eq('record_id', id)
       .eq('days_before', days)
       .eq('recipient_email', email);
     if (error) { console.warn('Log check error:', error.message); continue; }
@@ -208,14 +208,138 @@ async function checkGroupSent(recordIds, days, email) {
 async function logSent(dateId, days, email) {
   const now = new Date().toISOString();
   const { error } = await supabase.from('reminder_log').insert({
-    date_id: dateId,
+    record_id: dateId,
+    record_type: 'date',
     days_before: days,
     recipient_email: email,
     status: 'sent',
     sent_at: now,
   });
   if (error) console.warn('Log insert error:', error.message);
-  else console.log(`  📝 Logged: date_id=${dateId}, days=${days}, email=${email}`);
+  else console.log(`  📝 Logged: record_id=${dateId}, days=${days}, email=${email}`);
 }
 
-runReminders().catch(console.error);
+// ── WEEKLY DIGEST (Mondays only) ──
+async function runWeeklyDigest(team, dates, properties) {
+  const today = new Date();
+  if (today.getDay() !== 1) return; // 1 = Monday
+
+  console.log('
+📋 Running weekly digest (Monday)...');
+
+  // Get all dates due in 30-90 days
+  const upcoming = dates.filter(d => {
+    const due = new Date(d.due_date + 'T00:00:00');
+    due.setHours(0,0,0,0);
+    const daysLeft = Math.ceil((due - today) / 86400000);
+    return daysLeft >= 30 && daysLeft <= 90;
+  });
+
+  if (!upcoming.length) {
+    console.log('  No dates in 30-90 day window for digest.');
+    return;
+  }
+
+  // Group by category
+  const byCategory = {};
+  upcoming.forEach(d => {
+    if (!byCategory[d.category]) byCategory[d.category] = [];
+    byCategory[d.category].push(d);
+  });
+
+  // Sort each category by due date
+  Object.keys(byCategory).forEach(cat => {
+    byCategory[cat].sort((a,b) => new Date(a.due_date) - new Date(b.due_date));
+  });
+
+  const propMap = {};
+  properties.forEach(p => { propMap[p.id] = p.name; });
+
+  // Build email HTML
+  const categoryRows = Object.entries(byCategory).map(([cat, items]) => {
+    const rows = items.map(d => {
+      const due = new Date(d.due_date + 'T00:00:00');
+      const daysLeft = Math.ceil((due - today) / 86400000);
+      const propName = propMap[d.property_id] || '—';
+      const fmtDate = due.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const urgencyColor = daysLeft <= 30 ? '#b7791f' : '#2d7d46';
+      return `<tr style="border-bottom:1px solid #f0f0f0">
+        <td style="padding:8px 12px;font-size:13px;color:#0d1b2a;font-weight:500">${propName}</td>
+        <td style="padding:8px 12px;font-size:13px;color:#4a5568">${d.description}</td>
+        <td style="padding:8px 12px;font-size:13px;font-weight:500;white-space:nowrap">${fmtDate}</td>
+        <td style="padding:8px 12px;font-size:13px;font-weight:600;color:${urgencyColor}">${daysLeft}d</td>
+        <td style="padding:8px 12px;font-size:12px;color:#718096">${d.action_required||'—'}</td>
+      </tr>`;
+    }).join('');
+
+    return `<tr><td colspan="5" style="padding:14px 12px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;background:#f8f9fb">${cat}</td></tr>
+    ${rows}`;
+  }).join('');
+
+  const weekStr = today.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f7f7f5;font-family:Helvetica Neue,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;background:#f7f7f5">
+<tr><td align="center"><table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%">
+<tr><td style="background:#0d1b2a;padding:24px 32px;border-radius:12px 12px 0 0">
+  <table width="100%"><tr>
+    <td><span style="background:#c8973a;display:inline-block;width:36px;height:36px;border-radius:6px;text-align:center;line-height:36px;font-family:Georgia,serif;font-size:18px;color:#0d1b2a;vertical-align:middle;margin-right:10px">LM</span>
+    <span style="color:white;font-size:16px;font-family:Georgia,serif;vertical-align:middle">LM Real Estate Partners</span></td>
+    <td align="right"><span style="background:#2d7d46;color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px">WEEKLY DIGEST</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="background:white;padding:28px 32px">
+  <h1 style="font-family:Georgia,serif;font-size:20px;color:#0d1b2a;margin:0 0 6px;font-weight:400">Key Dates — Next 30 to 90 Days</h1>
+  <p style="font-size:13px;color:#718096;margin:0 0 24px">Week of ${weekStr} · ${upcoming.length} upcoming deadline${upcoming.length!==1?'s':''}</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+    <tr style="background:#f8f9fb">
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Property</th>
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Description</th>
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Due Date</th>
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Days</th>
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Action</th>
+    </tr>
+    ${categoryRows}
+  </table>
+  <div style="text-align:center;margin-top:24px">
+    <a href="${DASHBOARD_URL}" style="display:inline-block;background:#c8973a;color:#0d1b2a;font-size:14px;font-weight:700;padding:12px 28px;border-radius:7px;text-decoration:none">View Full Dashboard</a>
+  </div>
+</td></tr>
+<tr><td style="background:#f0ece4;padding:16px 32px;border-radius:0 0 12px 12px;text-align:center">
+  <p style="font-size:11px;color:#a0aec0;margin:0">LM Real Estate Partners · Weekly Digest · Every Monday at 9 AM</p>
+</td></tr>
+</table></td></tr></table>
+</body></html>`;
+
+  for (const member of team) {
+    try {
+      await sgMail.send({
+        to: { email: member.email, name: member.full_name },
+        from: { email: FROM_EMAIL, name: FROM_NAME },
+        subject: `[LM] Weekly Digest — ${upcoming.length} Key Dates (30-90 Days)`,
+        html,
+      });
+      console.log(`  ✉ Weekly digest sent to ${member.email}`);
+    } catch(err) {
+      console.error(`  ✗ Digest failed ${member.email}:`, err.message);
+    }
+  }
+}
+
+async function main() {
+  await runReminders();
+
+  // Also load data for weekly digest
+  const today = new Date();
+  if (today.getDay() === 1) {
+    const { data: team } = await supabase.from('team_members').select('*').eq('receives_reminders', true);
+    const { data: dates } = await supabase.from('dates').select('*').eq('is_active', true);
+    const { data: properties } = await supabase.from('properties').select('id, name');
+    if (team && dates && properties) {
+      await runWeeklyDigest(team, dates, properties);
+    }
+  }
+}
+
+main().catch(console.error);
