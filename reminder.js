@@ -179,28 +179,43 @@ async function sendGroupEmail({ member, group }) {
 }
 
 async function checkGroupSent(recordIds, days, email) {
+  // Check if already sent today for this date+days+email combination
   const todayStr = new Date().toISOString().split('T')[0];
+  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0];
   for (const id of recordIds) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('reminder_log')
-      .select('id')
+      .select('id, sent_at')
       .eq('date_id', id)
       .eq('days_before', days)
-      .eq('recipient_email', email)
-      .gte('sent_at', todayStr)
-      .maybeSingle();
-    if (data) return true;
+      .eq('recipient_email', email);
+    if (error) { console.warn('Log check error:', error.message); continue; }
+    if (data && data.length > 0) {
+      // Check if any were sent today
+      const sentToday = data.some(row => {
+        const sentDate = (row.sent_at || '').split('T')[0];
+        return sentDate === todayStr;
+      });
+      if (sentToday) {
+        console.log(`  ⏭ Already sent to ${email} for date_id ${id} (${days}d) today — skipping`);
+        return true;
+      }
+    }
   }
   return false;
 }
 
 async function logSent(dateId, days, email) {
-  await supabase.from('reminder_log').insert({
+  const now = new Date().toISOString();
+  const { error } = await supabase.from('reminder_log').insert({
     date_id: dateId,
     days_before: days,
     recipient_email: email,
     status: 'sent',
+    sent_at: now,
   });
+  if (error) console.warn('Log insert error:', error.message);
+  else console.log(`  📝 Logged: date_id=${dateId}, days=${days}, email=${email}`);
 }
 
 runReminders().catch(console.error);
