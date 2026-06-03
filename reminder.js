@@ -224,8 +224,7 @@ async function runWeeklyDigest(team, dates, properties) {
   const today = new Date();
   if (today.getDay() !== 1) return; // 1 = Monday
 
-  console.log('
-📋 Running weekly digest (Monday)...');
+  console.log('[Weekly Digest] Running Monday digest...');
 
   // Get all dates due in 30-90 days
   const upcoming = dates.filter(d => {
