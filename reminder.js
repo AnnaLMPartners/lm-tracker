@@ -328,14 +328,16 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
 async function main() {
   await runReminders();
 
-  // Also load data for weekly digest
-  const today = new Date();
-  if (today.getDay() === 1) {
+  // Also run weekly digest (Mondays automatically, or when FORCE_DIGEST=true)
+  const forceDigest = process.env.FORCE_DIGEST === 'true';
+  const todayDay = new Date().getDay();
+  if (todayDay === 1 || forceDigest) {
+    console.log(forceDigest ? '\n[Digest] Force digest triggered...' : '\n[Digest] Monday — running weekly digest...');
     const { data: team } = await supabase.from('team_members').select('*').eq('receives_reminders', true);
     const { data: dates } = await supabase.from('dates').select('*').eq('is_active', true);
     const { data: properties } = await supabase.from('properties').select('id, name');
     if (team && dates && properties) {
-      await runWeeklyDigest(team, dates, properties, process.env.FORCE_DIGEST === 'true');
+      await runWeeklyDigest(team, dates, properties, forceDigest);
     }
   }
 }
