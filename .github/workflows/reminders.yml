@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 13 * * *'
   workflow_dispatch:
+    inputs:
+      force_digest:
+        description: 'Send weekly digest now (yes/no)'
+        required: false
+        default: 'no'
 
 jobs:
   remind:
@@ -26,3 +31,4 @@ jobs:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
+          FORCE_DIGEST: ${{ github.event.inputs.force_digest == 'yes' && 'true' || 'false' }}
