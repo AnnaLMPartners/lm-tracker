@@ -219,9 +219,9 @@ async function logSent(dateId, days, email) {
 }
 
 // ── WEEKLY DIGEST (Mondays only) ──
-async function runWeeklyDigest(team, dates, properties) {
+async function runWeeklyDigest(team, dates, properties, forceRun=false) {
   const today = new Date();
-  if (today.getDay() !== 1) return; // 1 = Monday
+  if (!forceRun && today.getDay() !== 1) return; // 1 = Monday
 
   console.log('[Weekly Digest] Running Monday digest...');
 
@@ -335,7 +335,7 @@ async function main() {
     const { data: dates } = await supabase.from('dates').select('*').eq('is_active', true);
     const { data: properties } = await supabase.from('properties').select('id, name');
     if (team && dates && properties) {
-      await runWeeklyDigest(team, dates, properties);
+      await runWeeklyDigest(team, dates, properties, process.env.FORCE_DIGEST === 'true');
     }
   }
 }
