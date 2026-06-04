@@ -230,7 +230,7 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
     const due = new Date(d.due_date + 'T00:00:00');
     due.setHours(0,0,0,0);
     const daysLeft = Math.ceil((due - today) / 86400000);
-    return daysLeft >= 30 && daysLeft <= 90;
+    return daysLeft >= 0 && daysLeft <= 90;
   });
 
   if (!upcoming.length) {
@@ -289,7 +289,7 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
   </tr></table>
 </td></tr>
 <tr><td style="background:white;padding:28px 32px">
-  <h1 style="font-family:Georgia,serif;font-size:20px;color:#0d1b2a;margin:0 0 6px;font-weight:400">Key Dates — Next 30 to 90 Days</h1>
+  <h1 style="font-family:Georgia,serif;font-size:20px;color:#0d1b2a;margin:0 0 6px;font-weight:400">Key Dates — Next 90 Days</h1>
   <p style="font-size:13px;color:#718096;margin:0 0 24px">Week of ${weekStr} · ${upcoming.length} upcoming deadline${upcoming.length!==1?'s':''}</p>
   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
     <tr style="background:#f8f9fb">
@@ -317,7 +317,7 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
       await sgMail.send({
         to: { email: member.email, name: member.full_name },
         from: { email: FROM_EMAIL, name: FROM_NAME },
-        subject: `[LM] Weekly Digest — ${upcoming.length} Key Dates (30-90 Days)`,
+        subject: `[LM] Weekly Digest — ${upcoming.length} Key Dates (Next 90 Days)`,
         html,
       });
       console.log(`  ✉ Weekly digest sent to ${member.email}`);
