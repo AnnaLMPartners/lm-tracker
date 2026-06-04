@@ -267,6 +267,7 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
         <td style="padding:8px 12px;font-size:13px;font-weight:500;white-space:nowrap">${fmtDate}</td>
         <td style="padding:8px 12px;font-size:13px;font-weight:600;color:${urgencyColor}">${daysLeft}d</td>
         <td style="padding:8px 12px;font-size:12px;color:#718096">${d.action_required||'—'}</td>
+        <td style="padding:8px 12px;font-size:12px;color:#718096;font-style:${d.notes?'normal':'italic'}">${d.notes||'—'}</td>
       </tr>`;
     }).join('');
 
@@ -297,6 +298,7 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
       <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Due Date</th>
       <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Days</th>
       <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Action</th>
+      <th style="padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#a0aec0;text-align:left">Notes</th>
     </tr>
     ${categoryRows}
   </table>
@@ -326,9 +328,10 @@ async function runWeeklyDigest(team, dates, properties, forceRun=false) {
 }
 
 async function main() {
-  await runReminders();
+  // Daily individual reminders disabled — weekly digest only
+  // await runReminders();
 
-  // Also run weekly digest (Mondays automatically, or when FORCE_DIGEST=true)
+  // Run weekly digest (Mondays automatically, or when FORCE_DIGEST=true)
   const forceDigest = process.env.FORCE_DIGEST === 'true';
   const todayDay = new Date().getDay();
   if (todayDay === 1 || forceDigest) {
