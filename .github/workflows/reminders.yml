@@ -2,8 +2,8 @@ name: Daily Reminders
 
 on:
   schedule:
-    - cron: '0 13 * * *'   # Runs every day at 9 AM Eastern Time
-  workflow_dispatch:         # Allows manual trigger from GitHub Actions tab
+    - cron: '0 13 * * *'
+  workflow_dispatch:
 
 jobs:
   remind:
@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
