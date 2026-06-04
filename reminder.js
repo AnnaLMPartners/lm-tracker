@@ -209,7 +209,6 @@ async function logSent(dateId, days, email) {
   const now = new Date().toISOString();
   const { error } = await supabase.from('reminder_log').insert({
     record_id: dateId,
-    record_type: 'date',
     days_before: days,
     recipient_email: email,
     status: 'sent',
